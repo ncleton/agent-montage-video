@@ -33,6 +33,9 @@ du rendu navigateur (le mixage FFmpeg retombe sur des sous-titres incrustés).
   Nicolas : demande-lui de l'envoyer.
 - `scripts/` contient le pipeline générique, `agents/` les rôles du pipeline,
   `router.yaml` le choix de la route selon la demande.
+- Les skills de l'agent sont dans `plugins/agent-montage-video/skills/` (installés
+  aussi comme plugin) ; les clés API attendues sont déclarées dans
+  `plugins/agent-montage-video/libreagent.json`.
 
 ## Pipeline textes + musique (HyperFrames)
 

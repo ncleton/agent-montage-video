@@ -1,0 +1,39 @@
+{
+  "name": "agent-montage-video",
+  "version": "0.1.0",
+  "description": "Monte vos vidéos sur l'ordinateur distant LibreAgent : textes animés, motion design, démos d'interface, voix off, mixage, vérification image par image et publication Mux.",
+  "author": {
+    "name": "Nicolas Cléton"
+  },
+  "repository": "https://github.com/ncleton/agent-montage-video",
+  "license": "MIT",
+  "keywords": [
+    "video",
+    "montage",
+    "remotion",
+    "hyperframes",
+    "ffmpeg",
+    "mux",
+    "elevenlabs"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Montage vidéo",
+    "shortDescription": "Montage vidéo sur votre ordinateur distant",
+    "longDescription": "Analyse les rushes, construit la timeline, ajoute textes animés (HyperFrames) et motion design (Remotion), habille les démos d'interface (openvid), place voix off et bruitages ElevenLabs, mixe avec FFmpeg, vérifie chaque image avant livraison et publie sur Mux. Tourne sous Linux, sans application Mac.",
+    "developerName": "Nicolas Cléton",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Installe l'agent Montage vidéo sur cette machine.",
+      "Monte cette vidéo avec des textes animés sur les idées clés.",
+      "Vérifie ce rendu image par image avant livraison."
+    ],
+    "brandColor": "#F2B134",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/icon.png"
+  }
+}

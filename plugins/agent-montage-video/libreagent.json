@@ -1,0 +1,51 @@
+{
+  "connectionRequirements": [
+    {
+      "key": "elevenlabs",
+      "label": "ElevenLabs",
+      "authMode": "agent-owned",
+      "requiredActions": [
+        "Créer une clé API ElevenLabs"
+      ],
+      "secrets": [
+        {
+          "name": "ELEVENLABS_API_KEY",
+          "label": "Clé API ElevenLabs",
+          "description": "Voix off, vérification par transcription et bruitages. La clé n'est transmise qu'à la commande qui l'utilise.",
+          "setupUrl": "https://elevenlabs.io/app/settings/api-keys",
+          "setupSteps": [
+            "Ouvrez [elevenlabs.io/app/settings/api-keys](https://elevenlabs.io/app/settings/api-keys).",
+            "Créez une clé nommée « Montage vidéo » avec l'accès Text to Speech, Speech to Text et Sound Effects.",
+            "Copiez-la et collez-la ici. Ne l'envoyez ni par e-mail ni dans une conversation."
+          ]
+        }
+      ]
+    },
+    {
+      "key": "mux",
+      "label": "Mux Video",
+      "authMode": "agent-owned",
+      "requiredActions": [
+        "Créer un jeton d'accès Mux Video"
+      ],
+      "secrets": [
+        {
+          "name": "MUX_TOKEN_ID",
+          "label": "Mux Token ID",
+          "description": "Publication des vidéos validées sur Mux.",
+          "setupUrl": "https://dashboard.mux.com/settings/access-tokens",
+          "setupSteps": [
+            "Ouvrez [dashboard.mux.com › Access Tokens](https://dashboard.mux.com/settings/access-tokens).",
+            "Créez un jeton avec la permission Mux Video en lecture et écriture.",
+            "Collez ici le Token ID, puis le Token Secret dans le champ suivant."
+          ]
+        },
+        {
+          "name": "MUX_TOKEN_SECRET",
+          "label": "Mux Token Secret",
+          "description": "Secret associé au Token ID ci-dessus."
+        }
+      ]
+    }
+  ]
+}

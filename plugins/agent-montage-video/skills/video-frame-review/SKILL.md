@@ -16,13 +16,13 @@ Check the duration, the codecs and the presence of audio, then decode the whole 
 
 ## 2. Detect jumps on every frame
 
-    .venv/bin/python .agents/skills/video-frame-review/scripts/detect_jumps.py out.mp4
+    .venv/bin/python plugins/agent-montage-video/skills/video-frame-review/scripts/detect_jumps.py out.mp4
 
 The script compares each frame with the next one at low resolution. It lists the isolated spikes: a frame that differs much more from its neighbours than the local motion does. Those are cuts, flashes, popping elements or a re-layout. Expected result: no spikes. Look at every reported time with a frame grab (ffmpeg -ss T -frames:v 1). Planned hard cuts are legitimate only if they are intended; a long camera move shows as a smooth run of large differences, not as a spike.
 
 ## 3. Look at the whole video
 
-    .venv/bin/python .agents/skills/video-frame-review/scripts/contact_sheets.py out.mp4 /tmp/review --fps 2
+    .venv/bin/python plugins/agent-montage-video/skills/video-frame-review/scripts/contact_sheets.py out.mp4 /tmp/review --fps 2
 
 This produces timestamped sheets of 16 frames (one every 0.5 s by default). Open every sheet, from the first to the last, and note the times of any defect. Look for:
 
