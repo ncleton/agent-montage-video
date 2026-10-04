@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "elevenlabs-music-generation": {
+      "source": "agentspace-so/runcomfy-agent-skills",
+      "sourceType": "github",
+      "skillPath": "elevenlabs-music-generation/SKILL.md",
+      "computedHash": "7983dac96c64cedcf6ab4b7dae16a198393991e2f5ce9c0f01b5c3deb785931b"
+    },
+    "music": {
+      "source": "elevenlabs/skills",
+      "sourceType": "github",
+      "skillPath": "music/SKILL.md",
+      "computedHash": "7ceca67d5dcc5b777b876f1fe44a4a02134f9f78b71f7356a8b7791ba251b8e1"
+    },
+    "sound-effects": {
+      "source": "elevenlabs/skills",
+      "sourceType": "github",
+      "skillPath": "sound-effects/SKILL.md",
+      "computedHash": "4de004ec3405d836c33207320a477951ce3de2f3dcb68f5365734302b91ad72c"
+    }
+  }
+}

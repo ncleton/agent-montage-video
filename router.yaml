@@ -1,0 +1,60 @@
+default_route: text_overlay_music
+
+providers:
+  music:
+    # No default yet: ask the user which source to use for each video.
+    default: ask_user
+    available:
+      file:
+        description: "Audio file supplied by the user (--music-file)."
+        requires_key: false
+      local_procedural:
+        description: "Offline generated soundtrack aligned to timeline peaks."
+        requires_key: false
+      elevenlabs:
+        description: "ElevenLabs Music, only when the user explicitly chooses it."
+        requires_key: true
+
+routes:
+  music_only:
+    triggers:
+      - "musique"
+      - "soundtrack"
+      - "rythme"
+      - "audio"
+    agents:
+      - video-observer
+      - music-director
+      - audio-mixer
+      - quality-reviewer
+
+  text_overlay_music:
+    triggers:
+      - "texte"
+      - "concept"
+      - "projet"
+      - "overlay"
+      - "timeline"
+      - "vault"
+      - "obsidian"
+    agents:
+      - video-observer
+      - timeline-director
+      - music-director
+      - hyperframes-compositor
+      - audio-mixer
+      - quality-reviewer
+
+  full_edit:
+    triggers:
+      - "monte"
+      - "cut"
+      - "coupe"
+      - "short"
+      - "resume"
+    agents:
+      - video-observer
+      - timeline-director
+      - hyperframes-compositor
+      - audio-mixer
+      - quality-reviewer
