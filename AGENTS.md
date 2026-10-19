@@ -76,6 +76,14 @@ pas en silence vers une autre si celle choisie échoue : donne l'erreur exacte.
 
 - ElevenLabs sert à la voix off (synthèse et vérification par transcription) et aux
   bruitages (`scripts/generate_sfx.py`, skill `sound-effects`).
+- Intonation obligatoire : chaque voix off suit le skill `voice-intonation`. Modèle
+  `eleven_v3` en stabilité 0,5, passages longs avec quelques balises de ton en
+  anglais (`[warmly]`, `[confidently]`…), plusieurs prises si besoin, et mesure de
+  chaque prise avec `voice-intonation/scripts/prosody.py` avant le rendu : refuse
+  toute prise sous 2,5 demi-tons de variation, elle sonne robotique. Ne monte jamais
+  la stabilité de `eleven_multilingual_v2` pour supprimer des hésitations.
+- Si la voix demandée (par exemple le clone de Nicolas) reste sous ce seuil, prends
+  la meilleure voix française mesurée de la bibliothèque (Victoire) et dis-le.
 - Écart entre deux répliques consécutives : 0,6 à 0,9 s. Une pause plus longue
   n'est permise que pour un effet dramatique voulu. Vérifie le tableau complet des
   répliques avant le rendu.
