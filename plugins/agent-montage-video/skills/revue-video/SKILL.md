@@ -56,4 +56,7 @@ Code dans `tools/revue-video/` (Electron). Tests :
     REVUE_TEST_VIDEO=<rendu.mp4> REVUE_TEST_VIDEO2=<autre.mp4> REVUE_TEST_VOICE=test/fixtures/voix.wav node test/e2e.mjs
     REVUE_TEST_VIDEO=<rendu.mp4> REVUE_TEST_FRAMES=828,1574,1859 node test/precision.mjs && ../../.venv/bin/python test/check_frames.py
 
-Installateurs : `npm run dist:mac` (DMG Apple Silicon et Intel) ; Windows par `npm run dist:win`.
+Installateurs : `npm run dist:mac` (DMG Apple Silicon et Intel, signature ad hoc) et `npm run dist:win`.
+Le dépôt public `ncleton/revue-video` est une copie de `tools/revue-video` : à chaque envoi, son workflow
+GitHub Actions rejoue ces tests sur une machine Windows réelle et y fabrique l'installateur Windows natif
+(artefact `installateur-windows`). Recopie le dossier dans ce dépôt après chaque modification de l'application.
