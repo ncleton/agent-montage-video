@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reçoit une revue exportée par l'application Revue et prépare la liste de corrections de l'agent.
+"""Reçoit une revue exportée par l'application Retake et prépare la liste de corrections de l'agent.
 
 Étapes : retrouve le rendu exact grâce à l'empreinte SHA-256, extrait la revue dans
 projects/<projet>/work/reviews/, vérifie chaque image du relecteur contre le rendu avec ffmpeg,
@@ -7,7 +7,7 @@ transcrit les commentaires vocaux en local (commande « transcrire ») et relie 
 à la scène et à la voix off du projet Remotion quand work/layout.json existe.
 
 Usage :
-    .venv/bin/python plugins/agent-montage-video/skills/revue-video/scripts/ingest_review.py REVUE.zip
+    .venv/bin/python plugins/agent-montage-video/skills/retake/scripts/ingest_review.py REVUE.zip
         [--video RENDU.mp4] [--vocabulaire "IRVE, Rossini"] [--sans-transcription]
 """
 import argparse
@@ -161,7 +161,7 @@ def scene_at(scenes, t):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("revue", help="archive .zip (ou dossier) exportée par l'application Revue")
+    ap.add_argument("revue", help="archive .zip (ou dossier) exportée par l'application Retake")
     ap.add_argument("--video", help="rendu relu, si le script ne le retrouve pas seul dans projects/")
     ap.add_argument("--vocabulaire", default="", help="noms propres attendus dans les commentaires vocaux")
     ap.add_argument("--sans-transcription", action="store_true", help="ne pas transcrire les commentaires vocaux")
@@ -174,7 +174,7 @@ def main():
         extract(src, Path(tmp))
         rp = Path(tmp) / "rapport.json"
         if not rp.exists():
-            fail("rapport.json absent : ce n'est pas une revue exportée par l'application Revue.")
+            fail("rapport.json absent : ce n'est pas une revue exportée par l'application Retake.")
         report = json.loads(rp.read_text(encoding="utf-8"))
         if report.get("schema") != "revue-video/1":
             fail(f"schéma inconnu : {report.get('schema')}")
