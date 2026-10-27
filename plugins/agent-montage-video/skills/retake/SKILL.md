@@ -50,13 +50,6 @@ archive porte ces statuts dans `rapport.json` (`summary.fixed`, `summary.notFixe
 
 ## 5. Maintenir l'application
 
-Code dans `tools/retake/` (Electron). Tests :
-
-    cd tools/retake
-    REVUE_TEST_VIDEO=<rendu.mp4> REVUE_TEST_VIDEO2=<autre.mp4> REVUE_TEST_VOICE=test/fixtures/voix.wav node test/e2e.mjs
-    REVUE_TEST_VIDEO=<rendu.mp4> REVUE_TEST_FRAMES=828,1574,1859 node test/precision.mjs && ../../.venv/bin/python test/check_frames.py
-
-Installateurs : `npm run dist:mac` (DMG Apple Silicon et Intel, signature ad hoc) et `npm run dist:win`.
-Le dépôt public `ncleton/retake` est une copie de `tools/retake` : à chaque envoi, son workflow
-GitHub Actions rejoue ces tests sur une machine Windows réelle et y fabrique l'installateur Windows natif
-(artefact `installateur-windows`). Recopie le dossier dans ce dépôt après chaque modification de l'application.
+Codex maintient Retake. Le code, les tests et la procédure de version sont dans le dépôt
+[ncleton/retake](https://github.com/ncleton/retake) : lis son `AGENTS.md` avant toute modification. La CI y
+teste chaque changement sur Windows et sur Mac, et un tag `vX.Y.Z` publie les installateurs.
