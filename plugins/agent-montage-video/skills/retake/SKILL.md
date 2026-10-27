@@ -5,7 +5,7 @@ description: Traiter une revue vidéo envoyée par un relecteur (Tony, un client
 
 # Retake, revue vidéo
 
-L'application **Retake** (`tools/retake/`, Mac et Windows) permet à un relecteur de regarder un rendu et de
+L'application **Retake** ([ncleton/retake](https://github.com/ncleton/retake), Mac et Windows) permet à un relecteur de regarder un rendu et de
 commenter à l'image près en écrivant, en entourant une zone ou en parlant. Elle produit une archive
 `Retake <vidéo> - <prénom> - <date>.zip`. Ce skill transforme cette archive en corrections.
 
@@ -13,8 +13,8 @@ commenter à l'image près en écrivant, en entourant une zone ou en parlant. El
 
 Envoie au relecteur le MP4 exact du rendu (H.264 + AAC), jamais une version recompressée par une
 messagerie : l'empreinte SHA-256 du fichier relu doit être celle de `projects/<p>/out/`. Si le relecteur
-n'a pas encore l'application, envoie l'installateur de `tools/retake/dist/` et la notice
-`tools/retake/LISEZMOI-Tony.md`.
+n'a pas encore l'application, envoie-lui le lien de la dernière version,
+https://github.com/ncleton/retake/releases/latest, et le guide https://github.com/ncleton/retake/blob/main/docs/guide.md.
 
 ## 2. Recevoir la revue
 
