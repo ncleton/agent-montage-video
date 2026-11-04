@@ -74,7 +74,13 @@ pas en silence vers une autre si celle choisie échoue : donne l'erreur exacte.
 
 ## Voix off et bruitages
 
-- ElevenLabs sert à la voix off (synthèse et vérification par transcription) et aux
+- Ordre des voix, règle de Nicolas : toute nouvelle vidéo et toute nouvelle version de
+  montage se font d'abord avec une voix VoiceStudio (VoxCPM2, réglages ci-dessous).
+  ElevenLabs ne sert qu'ensuite, une fois la vidéo validée par Nicolas, pour une
+  meilleure version de la voix sur le même script et le même montage. Ne demande pas
+  quelle voix utiliser pour une première version : c'est VoiceStudio.
+- ElevenLabs sert à la voix off finale, après validation (synthèse et vérification
+  par transcription), et aux
   bruitages (`scripts/generate_sfx.py`, skill `sound-effects`).
 - Intonation obligatoire : chaque voix off suit le skill `voice-intonation`. Modèle
   `eleven_v3` en stabilité 0,5, passages longs avec quelques balises de ton en
@@ -87,6 +93,36 @@ pas en silence vers une autre si celle choisie échoue : donne l'erreur exacte.
 - Écart entre deux répliques consécutives : 0,6 à 0,9 s. Une pause plus longue
   n'est permise que pour un effet dramatique voulu. Vérifie le tableau complet des
   répliques avant le rendu.
+- Voix off open source VoiceStudio (VoxCPM2) : une génération par scène, sans
+  consigne de ton ni ralentissement, 20 pas, guidage 1,7, meilleure de trois prises,
+  respirations ajoutées à la ponctuation et un seul gain pour la séquence, avec
+  `tts_scenes.py` puis `voice_scenes.py` du skill `meet-video-pedagogique`.
+
+## Rendre vite et sans images parasites
+
+Leçons du 4 novembre 2026 (vidéo Appels d'offres, 4 min 40 s à 60 i/s) : la moitié du temps
+est partie dans des rendus bloqués, des images parasites à refaire et un rendu logiciel trois fois
+plus lent. Règles :
+
+- Clip vidéo dans Remotion (capture d'écran animée) : toujours en séquence d'images, avec
+  `scripts/clip_frames.py` et un `<Img>` par image. Jamais
+  `<OffthreadVideo>` ni `<Video>` : sur un long rendu, ils glissent des images d'une autre scène.
+- Capture d'interface à filmer : screencast Chrome horodaté (`scripts/cast.mjs`) puis
+  `scripts/retime_cast.py`, qui fait un clip à 60 i/s exacts et cale chaque action sur le mot de la voix.
+  Jamais `recordVideo` de Playwright (25 i/s, saccades une fois passé à 60 i/s). Fenêtre Chrome
+  en `--window-size=1920,1080`, sinon l'image est rognée à 993 px de haut.
+- Rendu complet : `scripts/render_chunks.py` (lancé avec `.venv/bin/python`
+  depuis le dossier `motion/` du projet). Il rend sur le GPU par tranches de 3 000 images avec préroulage, relance seul
+  une tranche bloquée, rend l'audio à part, normalise à -16 LUFS, cherche les images isolées et
+  refait seulement les quelques images touchées. Sur le Mac, `--browser-executable` vers Google
+  Chrome ; sur l'ordinateur distant Linux, `--gl=swangle`. Jamais `--gl=swiftshader` sur le Mac.
+- Avant le rendu complet, relire des images fixes aux mots clés (`stills`) : un seul rendu complet
+  par version. Changer seulement la voix décale toute la vidéo : tout se rend à nouveau.
+- Voix ElevenLabs : générer d'emblée deux prises par passage (`--take a` puis `--take b`), garder
+  la meilleure avec `check_takes.py`, puis raccourcir les silences à 0,6 s avec
+  `scripts/cap_pauses.py` avant `split_voice.py` (21 s gagnées sur 4 min 40 s).
+- Contrôle final : `video-frame-review/scripts/detect_inserted.py` doit répondre 0 image isolée.
+- Pendant un rendu long, donner l'avancement et l'heure de fin estimée sans qu'on la demande.
 
 ## Clés API
 
@@ -101,6 +137,14 @@ n'écris et ne commite jamais une clé. Si une clé manque, le script s'arrête 
 le nom de la variable : dis-le à l'utilisateur et renvoie-le vers la page Clés API
 de l'agent dans LibreAgent. Ne lui demande jamais de coller une clé dans la
 conversation.
+
+## Vidéo pédagogique à partir d'une réunion Meet
+
+Pour un enregistrement Google Meet (ou des « Notes by Gemini ») à transformer en
+vidéo de formation, suis le skill `meet-video-pedagogique`. La transcription et
+l'analyse détaillée de la vidéo passent toujours par l'agent vidéo Gemini de
+RossiniEnergy (plugin Vidéos RossiniEnergy, ou `rossini_video.py ingest` dans
+`Gestion projet Rossini`), jamais par une transcription refaite à côté.
 
 ## Démos d'interface (openvid)
 

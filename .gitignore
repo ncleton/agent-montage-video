@@ -5,6 +5,7 @@ work/
 output/
 hyperframes-project/
 tools/openvid/
+tools/voicestudio/
 .venv/
 node_modules/
 __pycache__/
