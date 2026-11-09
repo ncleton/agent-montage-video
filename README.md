@@ -47,7 +47,7 @@ Il fonctionne sous Linux et macOS.
 ## Organisation
 
 - `AGENTS.md` : mission et règles de l'agent ;
-- `plugins/agent-montage-video/skills/` : skills (installation, vérification image par image, openvid, voix et bruitages, écriture musicale) ;
+- `plugins/agent-montage-video/skills/` : skills (installation, vérification image par image, openvid, voix et bruitages, écriture musicale, vidéo de l'essentiel d'un appel d'offres à partir du paquet préparé par Rossini Sales Suite) ;
 - `scripts/` : pipeline (analyse, timeline, musique, HyperFrames, mixage, vérification, Mux) ;
 - `projects/` : un dossier par vidéo, jamais versionné.
 
