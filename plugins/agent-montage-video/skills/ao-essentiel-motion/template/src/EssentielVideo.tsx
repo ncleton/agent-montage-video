@@ -179,34 +179,40 @@ const PageView: React.FC<{ ctx: Ctx }> = ({ ctx }) => {
 const Verification: React.FC<{ ctx: Ctx }> = ({ ctx }) => {
   const { t, scene } = ctx;
   const lignes = scene.verification ?? [];
-  const deux = lignes.length > 3;
+  const n = lignes.length;
+  // Tout tient dans l'écran : une personne montre jusqu'à 12 pièces sur deux colonnes, cinq personnes deux pièces chacune.
+  const parCarte = n <= 1 ? 12 : n <= 2 ? 6 : n <= 4 ? 3 : 2;
+  const compact = n > 4, grand = n <= 1;
+  const portrait = compact ? 60 : grand ? 116 : 78;
   return (
-    <AbsoluteFill style={{ background: C.bg, padding: "150px 150px 0" }}>
-      <div style={{ fontSize: 58, fontWeight: 800, color: C.ink, letterSpacing: -1, marginBottom: 38, opacity: fadeIn(t, 0, 0.5) }}>{scene.titre}</div>
-      <div style={{ display: "grid", gridTemplateColumns: deux ? "1fr 1fr" : "1fr", gap: "22px 34px" }}>
+    <AbsoluteFill style={{ background: C.bg, padding: "140px 150px 0" }}>
+      <div style={{ fontSize: compact ? 50 : 58, fontWeight: 800, color: C.ink, letterSpacing: -1, marginBottom: compact ? 24 : 36, opacity: fadeIn(t, 0, 0.5) }}>{scene.titre}</div>
+      <div style={{ display: "grid", gridTemplateColumns: n > 1 ? "repeat(2, minmax(0, 1fr))" : "minmax(0, 1fr)", gap: compact ? "16px 28px" : "22px 34px" }}>
         {lignes.map((l, i) => {
-          const o = fadeIn(t, 0.6 + i * 0.6, 0.45);
+          const o = fadeIn(t, 0.6 + i * 0.5, 0.45);
           const p = GENS.get(l.personne_id);
-          const visibles = l.pieces.slice(0, deux ? 3 : 5), reste = l.pieces.length - visibles.length;
-          const ags = Array.from(new Set(l.pieces.flatMap((x) => x.agents))).slice(0, 6);
+          const visibles = l.pieces.slice(0, parCarte), reste = l.pieces.length - visibles.length;
+          const ags = Array.from(new Set(l.pieces.flatMap((x) => x.agents))).slice(0, n <= 1 ? 8 : 5);
           return (
-            <div key={i} style={{ background: C.card, borderRadius: 22, padding: "22px 26px", boxShadow: "0 12px 34px rgba(20,24,32,.08)", opacity: o, transform: "translateY(" + (1 - o) * 20 + "px)", display: "flex", gap: 22 }}>
-              <Portrait file={p?.file ?? null} nom={l.personne} size={78} />
+            <div key={i} style={{ minWidth: 0, overflow: "hidden", background: C.card, borderRadius: 22, padding: compact ? "16px 22px" : grand ? "34px 40px" : "22px 26px", boxShadow: "0 12px 34px rgba(20,24,32,.08)", opacity: o, transform: "translateY(" + (1 - o) * 20 + "px)", display: "flex", gap: grand ? 32 : 20 }}>
+              <Portrait file={p?.file ?? null} nom={l.personne} size={portrait} />
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 32, fontWeight: 800, color: C.ink }}>{l.personne}</span>
-                  <span style={{ fontSize: 22, fontWeight: 700, color: C.card, background: C.red, borderRadius: 99, padding: "3px 14px" }}>{l.pieces.length} {l.pieces.length > 1 ? "pièces à valider" : "pièce à valider"}</span>
+                  <span style={{ fontSize: compact ? 28 : grand ? 44 : 32, fontWeight: 800, color: C.ink }}>{l.personne}</span>
+                  <span style={{ fontSize: compact ? 19 : 22, fontWeight: 700, color: C.card, background: C.red, borderRadius: 99, padding: "3px 14px" }}>{l.pieces.length} {l.pieces.length > 1 ? "pièces à valider" : "pièce à valider"}</span>
                 </div>
-                <div style={{ fontSize: 21, color: C.sub, fontWeight: 600, margin: "4px 0 10px" }}>{l.fonction}</div>
-                {visibles.map((x, j) => <div key={j} style={{ fontSize: 22, color: C.text, lineHeight: 1.35, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><b>{x.numero}</b> {x.nom} <span style={{ color: C.sub }}>· {x.statut.toLowerCase()}</span></div>)}
-                {reste > 0 ? <div style={{ fontSize: 21, color: C.sub, marginTop: 4 }}>et {reste} autre{reste > 1 ? "s" : ""}</div> : null}
-                {ags.length ? <div style={{ display: "flex", gap: 10, marginTop: 12, alignItems: "center" }}>{ags.map((id) => { const a = AGENTS.get(id); return a ? <div key={id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 19, color: C.sub, fontWeight: 600 }}><Portrait file={a.file} nom={a.prenom} couleur={a.couleur} size={34} />{a.prenom}</div> : null; })}</div> : null}
+                {l.fonction ? <div style={{ fontSize: compact ? 18 : grand ? 26 : 21, color: C.sub, fontWeight: 600, margin: grand ? "6px 0 18px" : "4px 0 8px" }}>{l.fonction}</div> : <div style={{ height: 8 }} />}
+                <div style={{ display: "grid", gridTemplateColumns: n <= 1 && visibles.length > 6 ? "repeat(2, minmax(0, 1fr))" : "minmax(0, 1fr)", columnGap: 30 }}>
+                  {visibles.map((x, j) => <div key={j} style={{ fontSize: compact ? 19 : grand ? 25 : 22, color: C.text, lineHeight: grand ? 1.6 : 1.4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><b>{x.numero}</b> {x.nom} <span style={{ color: C.sub }}>· {x.statut.toLowerCase()}</span></div>)}
+                </div>
+                {reste > 0 ? <div style={{ fontSize: compact ? 18 : 21, color: C.sub, marginTop: 4 }}>et {reste} autre{reste > 1 ? "s" : ""}</div> : null}
+                {ags.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 12px", marginTop: 10, alignItems: "center" }}>{ags.map((id) => { const a = AGENTS.get(id); return a ? <div key={id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: compact ? 17 : 19, color: C.sub, fontWeight: 600 }}><Portrait file={a.file} nom={a.prenom} couleur={a.couleur} size={compact ? 28 : 34} />{a.prenom}</div> : null; })}</div> : null}
               </div>
             </div>
           );
         })}
       </div>
-      <div style={{ position: "absolute", left: 150, bottom: 150, fontSize: 21, color: C.sub, fontWeight: 600, opacity: fadeIn(t, 1, 0.5) }}>Source : pli de réponse du dossier, relecteur et statut de chaque pièce</div>
+      <div style={{ marginTop: compact ? 16 : 26, fontSize: 21, color: C.sub, fontWeight: 600, opacity: fadeIn(t, 1, 0.5) }}>Source : pli de réponse du dossier, relecteur et statut de chaque pièce</div>
     </AbsoluteFill>
   );
 };
