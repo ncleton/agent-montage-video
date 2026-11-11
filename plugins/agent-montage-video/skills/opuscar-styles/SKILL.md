@@ -95,13 +95,13 @@ l'image (un second `loudnorm` en une passe manque la cible d'environ 0,6 LU) :
 
     python3 scripts/normalize_loudness.py projects/<p>/opuscar/out/<nom>-14.mp4 projects/<p>/out/<nom>.mp4
 
-**Rendu sur l'ordinateur distant Linux.** Les styles en canvas 2D rendent vite sans GPU.
-Les styles WebGL ou three.js (matériaux et 3D, CRT, hologramme, LiDAR…) demandent
-`LEMO_ANGLE=swiftshader` devant chaque commande de rendu : image identique, environ 5 fois
-plus lente (mesuré : 9 s par image en logiciel contre 1,7 s sur GPU pour Glass Product,
-moins de 0,1 s pour Swiss Motion). Avant le rendu complet, mesurer deux images, annoncer la
-durée estimée, puis donner l'avancement et l'heure de fin pendant le rendu. Lancer
-`video.mjs` avec `--workers` adapté aux cœurs disponibles (3 par défaut, 6 au plus).
+**Rendu.** Sur le Mac mini de Tony, la bibliothèque utilise le GPU (Metal) sans réglage :
+mesuré 1,7 s par image pour un style 3D (Glass Product), moins de 0,1 s pour un style 2D
+(Swiss Motion, 44 s de film rendues en 11 s). Ne pas y mettre `LEMO_ANGLE=swiftshader`.
+Seule une machine Linux sans GPU en a besoin pour les styles WebGL ou three.js, avec une
+image identique environ 5 fois plus lente. Avant le rendu complet, mesurer deux images,
+annoncer la durée estimée, puis donner l'avancement et l'heure de fin pendant le rendu.
+Lancer `video.mjs` avec `--workers` adapté aux cœurs disponibles (3 par défaut, 6 au plus).
 
 **Cartes.** Garder la sobriété de DIRECTOR.md §13 : pas de frontières sauf si le sujet
 l'exige, cadrage régional, données de carte citées dans `CREDITS`. Les tracés imposés

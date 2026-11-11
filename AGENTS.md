@@ -163,8 +163,9 @@ pour un style personnel aux couleurs d'un client, utilise le skill
 `opuscar-styles`. `scripts/opuscar.sh deps` installe la bibliothèque Lemo-Opuscar
 au commit vérifié dans `tools/lemo-opuscar`. Le film se fait dans
 `projects/<p>/opuscar/` ; la voix, la musique, le volume (-16 LUFS) et la
-vérification suivent les règles de ce fichier. Sur l'ordinateur distant, un style
-WebGL ou 3D se rend avec `LEMO_ANGLE=swiftshader`, environ 5 fois plus lentement.
+vérification suivent les règles de ce fichier. Sur le Mac, le rendu passe par le GPU
+sans réglage ; seule une machine Linux sans GPU demande `LEMO_ANGLE=swiftshader`
+pour les styles WebGL ou 3D, environ 5 fois plus lentement.
 
 ## Publication Mux
 
