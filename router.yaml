@@ -11,6 +11,9 @@ providers:
       local_procedural:
         description: "Offline generated soundtrack aligned to timeline peaks."
         requires_key: false
+      opuscar_score:
+        description: "Original score written in code with Lemo-Opuscar's free sample libraries (core/audio/sampler.py)."
+        requires_key: false
       elevenlabs:
         description: "ElevenLabs Music, only when the user explicitly chooses it."
         requires_key: true
@@ -24,6 +27,23 @@ routes:
       - "audio"
     agents:
       - video-observer
+      - music-director
+      - audio-mixer
+      - quality-reviewer
+
+  code_film_style:
+    # Film drawn entirely in code in a named Lemo-Opuscar style: follow skills/opuscar-styles/SKILL.md.
+    skill: opuscar-styles
+    triggers:
+      - "dans le style"
+      - "style visuel"
+      - "aquarelle"
+      - "ukiyo-e"
+      - "blueprint"
+      - "isométrique"
+      - "film en code"
+      - "opuscar"
+    agents:
       - music-director
       - audio-mixer
       - quality-reviewer

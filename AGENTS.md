@@ -66,6 +66,9 @@ avant de produire la bande-son :
 - `file` : un fichier audio qu'il fournit (`--music-file`) ;
 - `local_procedural` : musique générée localement par `scripts/generate_music.py`,
   calée sur les accents de la timeline ;
+- `opuscar_score` : partition originale écrite en code avec les banques
+  d'instruments libres de Lemo-Opuscar (`core/audio/sampler.py`), pour un film du
+  skill `opuscar-styles` (`run_workflow.py` ne la prend pas en charge) ;
 - `elevenlabs` : ElevenLabs Music, seulement s'il le choisit explicitement.
 
 Les skills `mc-*` servent à écrire le brief musical (structure, énergie, accents)
@@ -151,6 +154,17 @@ RossiniEnergy (plugin Vidéos RossiniEnergy, ou `rossini_video.py ingest` dans
 Pour un enregistrement d'écran (app, site, logiciel), utilise le skill
 `openvid-interface-video`. `scripts/openvid.sh` installe openvid au commit vérifié
 dans `tools/openvid` au premier lancement, puis le démarre sur le port 3077.
+
+## Films en code dans un style nommé (Lemo-Opuscar)
+
+Pour un film sans rushes dans un style visuel nommé (aquarelle, ukiyo-e, blueprint,
+keynote sombre, infographie isométrique, briefing satellite, rendu verre 3D…), ou
+pour un style personnel aux couleurs d'un client, utilise le skill
+`opuscar-styles`. `scripts/opuscar.sh deps` installe la bibliothèque Lemo-Opuscar
+au commit vérifié dans `tools/lemo-opuscar`. Le film se fait dans
+`projects/<p>/opuscar/` ; la voix, la musique, le volume (-16 LUFS) et la
+vérification suivent les règles de ce fichier. Sur l'ordinateur distant, un style
+WebGL ou 3D se rend avec `LEMO_ANGLE=swiftshader`, environ 5 fois plus lentement.
 
 ## Publication Mux
 

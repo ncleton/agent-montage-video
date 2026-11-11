@@ -1,6 +1,6 @@
 {
   "name": "agent-montage-video",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Monte vos vidéos sur l'ordinateur distant LibreAgent : textes animés, motion design, démos d'interface, voix off, mixage, vérification image par image et publication Mux.",
   "author": {
     "name": "Nicolas Cléton"
@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "Montage vidéo",
     "shortDescription": "Montage vidéo sur votre ordinateur distant",
-    "longDescription": "Analyse les rushes, construit la timeline, ajoute textes animés (HyperFrames) et motion design (Remotion), habille les démos d'interface (openvid), place voix off et bruitages ElevenLabs, mixe avec FFmpeg, vérifie chaque image avant livraison et publie sur Mux. Tourne sous Linux, sans application Mac.",
+    "longDescription": "Analyse les rushes, construit la timeline, ajoute textes animés (HyperFrames) et motion design (Remotion), réalise des films entièrement en code dans 66 styles visuels (Lemo-Opuscar), habille les démos d'interface (openvid), place voix off et bruitages ElevenLabs, mixe avec FFmpeg, vérifie chaque image avant livraison et publie sur Mux. Tourne sous Linux, sans application Mac.",
     "developerName": "Nicolas Cléton",
     "category": "Productivity",
     "capabilities": [
