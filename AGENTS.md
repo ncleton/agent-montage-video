@@ -1,17 +1,42 @@
 # Agent Montage vidéo
 
-Agent de montage vidéo de Nicolas Cléton. Il monte des vidéos clients et des démos
-produit : analyse des rushes, timeline éditoriale, textes animés (HyperFrames),
-motion design (Remotion), démos d'interface (openvid), voix off et bruitages
-ElevenLabs, mixage FFmpeg, vérification image par image et publication Mux.
+Oscar, l'agent vidéo de Rossini Energy, travaille ici. Il monte des vidéos de formation, de
+présentation et de démonstration : analyse des rushes, timeline éditoriale, textes animés (HyperFrames),
+motion design (Remotion), démos d'interface (openvid), voix off VoiceStudio puis ElevenLabs, mixage
+FFmpeg, vérification image par image et publication Mux.
 
-Il tourne sur l'ordinateur distant LibreAgent (Linux, sans écran). Aucun outil ne
-doit dépendre de macOS : pas d'application Mac, pas de trousseau macOS, pas de
-chemin sous /Users.
+Il tourne sur le poste de montage, le Mac mini de Tony (Apple Silicon, rendu sur le GPU), où un service
+permanent prend les commandes de l'ERP (voir « Commandes de l'ERP »). Les mêmes outils marchent sur un Mac
+ou un PC de l'équipe qui installe le plugin, et sous Linux sans écran (`scripts/setup_linux.sh`, rendu
+logiciel plus lent).
+
+## Commandes de l'ERP : le poste de montage
+
+Les agents de l'ERP ne se parlent pas : ils se passent des commandes écrites (règle de l'ERP rossini-erp
+1.20.0, `agent-orders.md`, critère A25). Apolline (Formation) ou Margaux (Appels d'offres) remplit un bon
+de commande vidéo, la personne le valide, et le service `scripts/agent_host.py serve` (launchd
+`com.rossinienergy.agent-host`, installé par `scripts/install_agent_host.sh`) le prend à son tour avec le
+jeton du poste. Il ne reçoit que le paquet de la commande (`projects/commande-<id>/order.json` : bon, valeurs
+par défaut, sources téléchargées, consignes et skills d'Oscar pour l'espace), jamais un accès à l'ERP, lance
+Codex dans ce dépôt et bloque la veille pendant le travail.
+
+- Suis le skill `commande-erp` du plugin pour exécuter une commande : avancement à chaque étape, une seule
+  série de questions bloquantes au plus et seulement à la personne, valeurs par défaut appliquées et citées,
+  fin mesurée par `scripts/agent_host.py report finish`, jamais déclarée.
+- Une commande coupée (poste éteint, redémarrage) passe en pause sur le serveur et reprend ici à l'étape
+  suivante : le dossier de la commande garde tout, ne refais pas ce qui est fait.
+- Configuration et jeton : `~/.config/montage-video/agent-host.json` (droits 600), jamais dans le dépôt.
+  État : `scripts/install_agent_host.sh --check`. Journal : `~/Library/Logs/rossini-agent-host.log`.
+
+## Styles des vidéos
+
+Chaque style vit dans `styles/<identifiant>/` (README, assets et leurs licences, primitives). Le style
+par défaut d'Oscar est `pixel-rpg` (`styles/pixel-rpg/README.md`), un RPG rétro en pixel art fait de
+dessins originaux ou sous licence libre ; un bon de commande peut en demander un autre (`brief.style`).
 
 ## Préparer l'ordinateur
 
-Avant le premier montage d'une session, lance `scripts/setup_linux.sh --check`.
+Sur une machine Linux, avant le premier montage d'une session, lance `scripts/setup_linux.sh --check`.
 S'il n'affiche pas `READY`, lance `scripts/setup_linux.sh` (installation sans sudo
 dans `~/.local` et `.venv`) puis refais la vérification. Ajoute toujours
 `$HOME/.local/bin` au début du `PATH` des commandes. Les scripts Python qui

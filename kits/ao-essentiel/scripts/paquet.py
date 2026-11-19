@@ -147,7 +147,7 @@ def preparer(chemin, projet, node_modules=None):
         os.symlink(os.path.abspath(node_modules), os.path.join(motion, "node_modules"))
     open(os.path.join(projet, "README.md"), "w").write(
         "# %s\n\nVidéo de l'essentiel du dossier « %s » (%s), paquet préparé par %s le %s.\n\n"
-        "Source : `sources/%s` (PROMPT.md, storyboard.json, sources.json). Montage : skill `ao-essentiel-motion`.\n"
+        "Source : `sources/%s` (PROMPT.md, storyboard.json, sources.json). Montage : kit `kits/ao-essentiel` et skill d Oscar du registre.\n"
         % (sb["titre"], sb["dossier"]["titre"], sb["dossier"].get("acheteur") or "", sb["auteur"]["prenom"], sb["prepare_le"][:16].replace("T", " à "), os.path.basename(chemin)))
     print("Projet prêt : %s" % projet)
     print("Voix : work/script.json (VoiceStudio, profil cc1920f7) ; Remotion : motion/ (%s)." % ("node_modules relié" if node_modules else "lancez npm install dans motion/"))

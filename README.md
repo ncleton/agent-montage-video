@@ -72,6 +72,11 @@ sur chaque nouvelle machine avant production.
 
 ## Organisation
 
+- `scripts/agent_host.py` : le service du poste de montage, qui prend les commandes vidéo des agents de l'ERP
+  Rossini (installé par `scripts/install_agent_host.sh`, skill `commande-erp`) ;
+- `styles/` : les styles des vidéos, `pixel-rpg` par défaut ;
+- `kits/ao-essentiel` : le gabarit de la vidéo de l'essentiel d'un appel d'offres ;
+
 - `AGENTS.md` : mission et règles de l'agent ;
 - `plugins/agent-montage-video/skills/` : skills (installation, vérification image par image, openvid, voix et bruitages, écriture musicale, vidéo de l'essentiel d'un appel d'offres à partir du paquet préparé par Rossini Sales Suite) ;
 - `scripts/` : pipeline (analyse, timeline, musique, HyperFrames, mixage, vérification, Mux) ;

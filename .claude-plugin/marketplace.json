@@ -7,7 +7,7 @@
     {
       "name": "agent-montage-video",
       "source": "./plugins/agent-montage-video",
-      "description": "Monte vos vidéos sur l'ordinateur distant LibreAgent : textes animés, motion design, démos d'interface, voix off, mixage, vérification image par image et publication Mux."
+      "description": "Monte vos vidéos sur le poste de montage ou votre ordinateur : motion design, styles (pixel-rpg par défaut), démos d'interface, voix off, vérification image par image, publication Mux, et commandes vidéo des agents de l'ERP Rossini."
     }
   ],
   "metadata": {

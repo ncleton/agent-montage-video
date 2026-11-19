@@ -1,0 +1,117 @@
+feat: migrate to open-source assets with modular manifest-based loading (#117)
+
+* feat: migrate to open-source assets with modular manifest-based loading
+
+The primary objective of this change is to replace all previously
+privately-licensed assets with fully open-source ones, make the asset
+importing process easier, and make the entire asset system more modular
+and extensible.
+
+## Asset system overhaul
+
+- Replace monolithic `furniture-catalog.json` with per-folder
+  `manifest.json` files (one per furniture item in `assets/furniture/`)
+- Each manifest declares its own rotation groups, state groups, and
+  animation groups via a recursive tree structure that gets flattened
+  at load time, eliminating the need for a separate centralized catalog
+- Add support for new manifest concepts: `mirrorSide` (auto-generates
+  mirrored "left" variant from a "side" sprite), `rotationScheme`
+  (2-way vs 4-way rotation), `animationGroup` with frame indexing
+  (multi-frame animated sprites for on-state electronics)
+- Split `floors.png` strip into individual `assets/floors/floor_N.png`
+  files and `walls.png` into `assets/walls/wall_N.png` files, making it
+  trivial to add/remove/reorder tile patterns without regenerating
+  combined spritesheets
+- Add wall set picker in the editor toolbar so users can choose between
+  multiple wall tile styles
+- Lower `PNG_ALPHA_THRESHOLD` from 128 to 2 and preserve semi-transparent
+  alpha in sprite data (`#RRGGBBAA` format) for higher-fidelity assets
+- Add `VOID` tile type as 255 (was 8) with migration for old layouts
+- Add 2 new floor tile slots (FLOOR_8, FLOOR_9) for future patterns
+
+## Open-source asset bundle
+
+- Include 25+ original furniture pieces as individual PNGs with
+  manifests: desks, chairs (wooden, cushioned), sofas, tables, PCs
+  with 3-frame screen animation, bookshelves, plants, paintings,
+  whiteboard, clock, coffee, bins, and more
+- Include 9 floor tile patterns and 1 wall tile set
+- Add new default layout (`default-layout-1.json`) using only the new
+  open-source assets
+- Remove `.gitignore` rules that excluded asset files from version
+  control — all assets are now open-source and tracked
+
+## Layout migration & versioning
+
+- Add `layoutRevision` field to layouts; bundled defaults are versioned
+  (e.g. `default-layout-1.json` has revision 1)
+- On startup, if the user's saved layout has an older revision than the
+  bundled default, it is automatically reset to the new default
+- Show a one-time migration notice modal explaining the layout reset
+  and the move to open-source assets
+- Add `LEGACY_TYPE_MAP` to migrate old furniture type strings (`desk`,
+  `chair`, `bookshelf`, etc.) to new manifest IDs (`DESK_FRONT`,
+  `WOODEN_CHAIR_FRONT`, `BOOKSHELF`, etc.)
+- Migrate old `VOID=8` tiles to `VOID=255`
+- "Export Default Layout" command now auto-increments revision numbers
+
+## Code cleanup
+
+- Remove ~1000 lines of hardcoded pixel-art sprite data from
+  `spriteData.ts` (DESK_SQUARE_SPRITE, PLANT_SPRITE, etc.) — all
+  sprites now loaded from PNGs at runtime
+- Remove `FurnitureType` enum and `FURNITURE_CATALOG` constant — the
+  catalog is now fully dynamic from manifests
+- Remove old 7-stage asset pipeline scripts (`0-import-tileset.ts`
+  through `5-export-assets.ts`, `export-characters.ts`,
+  `generate-walls.js`) and their working data
+- Consolidate asset-manager.html with expanded functionality
+- Simplify `createDefaultLayout()` to a minimal fallback (no furniture)
+  since the real default comes from `default-layout.json`
+- Move font file from `src/fonts/` to `public/fonts/` and update CSS
+  to use absolute path
+
+## Renderer updates
+
+- Add horizontal flip support for mirrored furniture instances
+  (`FurnitureInstance.mirrored` flag, canvas `scale(-1, 1)`)
+- Add furniture animation timer in `OfficeState` that cycles through
+  animation group frames at 0.2s intervals for active electronics
+- Colorize module now preserves alpha channel through both Colorize
+  and Adjust modes
+- Wall tile rendering supports multiple wall sets with `setIndex`
+
+## README
+
+- Update Office Assets section to reflect that all assets are now
+  fully open-source and included in the repository
+- Document the modular manifest-based asset structure
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+* fix: address PR #117 review findings
+
+  - Fix migration modal dismiss bug (derived state pattern)
+  - Guard VOID migration to preserve FLOOR_8 tiles on new layouts
+  - Extract bubble sprites to JSON files for readability
+  - Reformat default-layout-1.json for readability
+
+* fix: fix overlay z-ordering, hide UI in debug mode, and update assets
+
+- Lower ToolOverlay z-index below settings modal so status labels don't
+  cover the modal
+- Hide ToolOverlay and ZoomControls in debug mode
+- Position rotate hint below EditActionBar instead of shifting sideways
+- Remove NEW_ASSET template, add LARGE_PLANT asset
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+* fix: tweak migration modal copy ("meant" → "means")
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+---------
+
+Co-authored-by: Claude Opus 4.6 <noreply@anthropic.com>
+Co-authored-by: Florin Timbuc <florin@sowild.design>
+Co-authored-by: Pablo De Lucca <pablo@Pablos-Mac-mini.local>

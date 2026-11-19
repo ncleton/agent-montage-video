@@ -4,7 +4,7 @@ import { loadFont } from "@remotion/google-fonts/Montserrat";
 import storyboard from "./storyboard.json";
 import audio from "./audio.json";
 
-/* Vidéo de l'essentiel d'un appel d'offres (skill ao-essentiel-motion) : rendu du storyboard.json préparé par Oscar,
+/* Vidéo de l'essentiel d'un appel d'offres (kit ao-essentiel) : rendu du storyboard.json préparé par Oscar,
    motion designer de l'équipe Appels d'offres de Rossini Sales Suite. Chaque capture garde sa source à l'écran ; un
    agent nommé apparaît avec son portrait ; « Qui vérifie quoi » vient du pli de réponse. */
 

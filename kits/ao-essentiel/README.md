@@ -1,9 +1,8 @@
----
-name: ao-essentiel-motion
-description: Monter en motion design le paquet « Vidéo de l'essentiel » d'un appel d'offres préparé par Oscar, le motion designer de Rossini Sales Suite (ZIP « Vidéo de l'essentiel - <dossier> - <date>.zip » avec PROMPT.md, storyboard.json, captures sourcées, portraits et charte). Vérifier le paquet, préparer le projet Remotion, maquette, voix VoiceStudio, rendu par tranches, vérification image par image et publication Mux dont le lien revient dans L'essentiel du dossier. Utiliser dès qu'on donne un tel ZIP, qu'on parle de la vidéo de l'essentiel d'un AO ou du paquet d'Oscar.
----
+# Kit de la vidéo de l'essentiel d'un appel d'offres
 
-# Vidéo de l'essentiel d'un appel d'offres
+Outils d'Oscar, l'agent vidéo, pour monter la vidéo de l'essentiel d'un dossier d'appel d'offres. La procédure
+est son skill « Monter la vidéo de l'essentiel » dans le registre des agents (espace Appels d'offres), transmis avec
+chaque commande : ce dossier n'est plus un skill installé sur chaque ordinateur.
 
 Dans Rossini Sales Suite (vente.rossinienergy.com, rubrique Appels d'offres, écran « L'essentiel » d'un dossier),
 Oscar, le motion designer de l'équipe d'agents, prépare le scénario et les captures d'une vidéo courte (1 min 30 à
@@ -20,7 +19,7 @@ Trois exigences ne se négocient pas :
    apparaît avec sa photo (`avatars/personnes/`) ou ses initiales.
 3. **La charte Rossini** : police Montserrat, rouge #CC1719, encre #1D1D1B, fond #F0F0F2, logo du paquet.
 
-`$SK` désigne ce skill, `$AGENT` la racine du dépôt Agent Montage vidéo, `$MEET` le skill
+`$SK` désigne ce kit (`kits/ao-essentiel` du dépôt), `$AGENT` la racine du dépôt Agent Montage vidéo, `$MEET` le skill
 `meet-video-pedagogique` installé sur l'ordinateur de montage, dont les scripts de voix VoiceStudio sont réutilisés.
 S'il manque sur l'ordinateur, s'arrêter à l'étape 3 et le dire : la voix ne se fait pas autrement. Suivre aussi
 l'AGENTS.md du dépôt (voix VoiceStudio d'abord, rendu par tranches, pas de musique sans source choisie).

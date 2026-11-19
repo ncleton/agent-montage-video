@@ -1,0 +1,3 @@
+interface:
+  display_name: "Commande de l'ERP"
+  short_description: "Exécuter une commande vidéo d'un agent de l'ERP Rossini"
