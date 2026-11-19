@@ -187,6 +187,28 @@ def order_dir(order_id: str) -> Path:
     return ROOT / "projects" / ("commande-" + order_id)
 
 
+def _codex_alive(pid: int) -> bool:
+    """True while pid is still a Codex started by this service (its own process group, never a reused pid)."""
+    try:
+        os.kill(pid, 0)
+        if os.getpgid(pid) != pid:
+            return False
+    except (ProcessLookupError, PermissionError):
+        return False
+    command = subprocess.run(["ps", "-o", "command=", "-p", str(pid)], capture_output=True, text=True).stdout
+    return "codex" in command and "exec" in command
+
+
+class _Adopted:
+    """A Codex started before the service restarted: still followed (heartbeat, end) instead of left running blind."""
+
+    def __init__(self, pid: int):
+        self.pid = pid
+
+    def poll(self):
+        return None if _codex_alive(self.pid) else "inconnu"
+
+
 def prompt(order: dict, folder: Path, resumed: bool) -> str:
     space = order["space"]
     style = order["brief"].get("style", "pixel-rpg")
@@ -230,6 +252,13 @@ class Service:
     def start(self, server: dict, order: dict, lease: str) -> None:
         folder = order_dir(order["id"])
         resumed = folder.exists()
+        # A Codex left by an earlier service on this order (restart, then pause and claim again) stops first:
+        # one order never runs twice on the same folder.
+        old = folder / ".pid"
+        if old.is_file() and old.read_text().strip().isdigit() and _codex_alive(int(old.read_text())):
+            log(f"{order['id']} : arrêt du Codex précédent (pid {old.read_text().strip()}) avant la reprise")
+            os.killpg(int(old.read_text()), signal.SIGTERM)
+            time.sleep(3)
         for sub in ("sources", "work", "out"):
             (folder / sub).mkdir(parents=True, exist_ok=True)
         (folder / "order.json").write_text(json.dumps({**order, "server": server["name"]}, ensure_ascii=False, indent=2))
@@ -255,9 +284,28 @@ class Service:
                "PATH": str(Path.home() / ".local/bin") + ":/opt/homebrew/bin:/usr/local/bin:" + os.environ.get("PATH", "")}
         out = open(folder / "work/codex.log", "a")
         process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=out, stderr=subprocess.STDOUT, start_new_session=True)
+        (folder / ".pid").write_text(str(process.pid))
         self.jobs[order["id"]] = {"server": server, "lease": lease, "process": process, "folder": folder,
                                   "started": time.time(), "beat": time.time(), "log": out}
         log(f"{order['id']} : pris par ce poste ({'reprise' if resumed else 'nouvelle commande'}), Codex pid {process.pid}")
+
+    def adopt(self) -> None:
+        """At start: the Codex still running from before the restart keep their order (heartbeat, end reported)."""
+        servers = {s["name"]: s for s in self.config["servers"]}
+        for folder in sorted((ROOT / "projects").glob("commande-*")):
+            lease_file, pid_file, report = folder / ".lease", folder / ".pid", folder / ".report"
+            if not (lease_file.is_file() and pid_file.is_file()) or report.is_file():
+                continue
+            try:
+                state, pid = json.loads(lease_file.read_text()), int(pid_file.read_text().strip())
+            except (ValueError, OSError):
+                continue
+            if state.get("server") not in servers or not _codex_alive(pid):
+                continue
+            self.jobs[state["id"]] = {"server": servers[state["server"]], "lease": state["lease"],
+                                      "process": _Adopted(pid), "folder": folder, "started": time.time(),
+                                      "beat": 0.0, "log": open(os.devnull, "a")}
+            log(f"{state['id']} : travail en cours repris après le redémarrage du service (Codex pid {pid})")
 
     def tend(self) -> None:
         for ident, job in list(self.jobs.items()):
@@ -324,6 +372,7 @@ class Service:
     def serve(self) -> None:
         signal.signal(signal.SIGTERM, lambda *_: setattr(self, "stop", True))
         log("poste de montage : service démarré (" + ", ".join(s["name"] for s in self.config["servers"]) + ")")
+        self.adopt()
         last = 0.0
         while not self.stop:
             self.tend()
@@ -331,7 +380,7 @@ class Service:
                 self.poll()
                 last = time.time()
             time.sleep(5)
-        log("poste de montage : arrêt demandé ; les travaux en cours reprendront au redémarrage")
+        log("poste de montage : arrêt demandé ; les travaux en cours continuent et seront suivis au redémarrage")
 
 
 # --------------------------------------------------------------------------- report (called by Codex)
