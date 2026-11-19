@@ -16,7 +16,8 @@ résultat mesuré ici, jamais déclaré.
     python3 scripts/agent_host.py report fail --error "raison exacte et ce qu'il faut faire"
 
 Configuration : ~/.config/montage-video/agent-host.json (droits 600), jamais dans le dépôt :
-    {"servers": [{"name": "vente", "url": "https://…/leadgenerator-platform", "token": "rah_…"}], "model": "…"}
+    {"servers": [{"name": "vente", "url": "https://…/leadgenerator-platform", "token": "rah_…"}], "model": "gpt-6.2-sol", "codex_url": "…"}
+(model et codex_url facultatifs : par défaut le compte ChatGPT de l'équipe dans Codex, jamais la configuration Codex personnelle du Mac.)
 Le jeton d'un poste est donné une seule fois par un administrateur (outil manage_agent_hosts de l'ERP).
 
 « report » se lance depuis Codex, dans le dossier de la commande (projects/commande-<id>/) ou avec
@@ -51,6 +52,11 @@ VERSION = "1"
 POLL_SECONDS = 30
 HEARTBEAT_SECONDS = 60
 MAX_HOURS = 12
+# The computer works on the team's ChatGPT account through Codex (decision R1, never an API key), whatever the
+# personal Codex configuration of the Mac says: a local proxy (OpenCodex) once sent an order to Anthropic accounts
+# that had reached their limit and the render stopped at 74 % (19/11/2026). Both can be changed in agent-host.json.
+DEFAULT_MODEL = "gpt-6.2-sol"
+CHATGPT_CODEX_URL = "https://chatgpt.com/backend-api/codex"
 FRAME_REVIEW = ROOT / "plugins/agent-montage-video/skills/video-frame-review/scripts/detect_inserted.py"
 
 
@@ -282,8 +288,8 @@ class Service:
         codex = shutil.which("codex") or str(Path.home() / ".local/bin/codex")
         command = ["caffeinate", "-i", "-s", codex, "exec", "-C", str(ROOT), "--skip-git-repo-check",
                    "--dangerously-bypass-approvals-and-sandbox", "-o", str(folder / "work/derniere-reponse.txt")]
-        if self.config.get("model"):
-            command += ["-m", self.config["model"]]
+        command += ["-m", self.config.get("model") or DEFAULT_MODEL,
+                    "-c", 'openai_base_url="%s"' % (self.config.get("codex_url") or CHATGPT_CODEX_URL)]
         command.append(prompt(order, folder, resumed))
         env = {**os.environ, "AGENT_HOST_ORDER_DIR": str(folder), "AGENT_HOST_CONFIG": str(CONFIG),
                "PATH": str(Path.home() / ".local/bin") + ":/opt/homebrew/bin:/usr/local/bin:" + os.environ.get("PATH", "")}
