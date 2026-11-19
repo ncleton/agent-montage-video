@@ -18,6 +18,9 @@ par la personne. Tu l'exécutes ici, avec les outils de ce dépôt, et tu ne re�
   `work_agent_order` de l'ERP (`op: claim`, puis `source`, `progress`, `ask`, `finish`, `fail` avec le bail reçu). Avant
   de commencer, dire à la personne combien de temps le travail prendra et de laisser l'ordinateur allumé et branché,
   Codex ouvert, capot ouvert (l'écran peut se verrouiller) ; lancer chaque commande longue avec `caffeinate -i -s`.
+  Avant de prendre la commande, vérifier qu'il reste au moins 20 Go libres sur le disque du dépôt (`df -h .`) : un
+  rendu 4K qui remplit le disque s'arrête en route (19/11/2026). Sinon, ne pas la prendre et dire à la personne
+  combien de place libérer ; la commande attend en file.
 
 ## Procédure
 
