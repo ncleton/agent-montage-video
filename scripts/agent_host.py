@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import http.client
 import json
 import os
 import shutil
@@ -87,6 +88,42 @@ def _tls():
         return ssl.create_default_context()
 
 
+CONNECT_TIMEOUT = 5
+
+
+def _connect(host: str, port: int, timeout: float) -> socket.socket:
+    """First address that answers within 5 s, IPv4 before IPv6: a Mac without a working IPv6 route otherwise waits
+    75 s on each call to a server that has an IPv6 address (the sales server), as the platform's remote.py notes."""
+    infos = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
+    infos.sort(key=lambda info: info[0] != socket.AF_INET)
+    failure: OSError | None = None
+    for family, kind, proto, _, address in infos:
+        sock = socket.socket(family, kind, proto)
+        try:
+            sock.settimeout(min(CONNECT_TIMEOUT, timeout))
+            sock.connect(address)
+            sock.settimeout(timeout)
+            return sock
+        except OSError as exc:
+            sock.close()
+            failure = exc
+    raise failure or OSError("aucune adresse pour " + host)
+
+
+class _Connection(http.client.HTTPSConnection):
+    def connect(self) -> None:
+        self.sock = self._context.wrap_socket(_connect(self.host, self.port, self.timeout), server_hostname=self.host)
+
+
+class _Handler(urllib.request.HTTPSHandler):
+    def https_open(self, req):
+        return self.do_open(_Connection, req, context=self._context)
+
+
+def _open(request, timeout):
+    return urllib.request.build_opener(_Handler(context=_tls())).open(request, timeout=timeout)
+
+
 class ServerError(RuntimeError):
     def __init__(self, status, code, message):
         super().__init__(f"{status} {code} : {message}")
@@ -102,7 +139,7 @@ def call(server: dict, op: str, body: dict | None = None, timeout: int = 60) -> 
                  "User-Agent": "rossini-agent-host/" + VERSION},
     )
     try:
-        with urllib.request.urlopen(request, timeout=timeout, context=_tls()) as response:
+        with _open(request, timeout) as response:
             return json.load(response)
     except urllib.error.HTTPError as exc:
         try:
@@ -116,7 +153,7 @@ def download(server: dict, order: str, lease: str, index: int, target: Path) -> 
     url = (server["url"].rstrip("/") + f"/v1/agent-host/source/{order}/{index}?" + urllib.parse.urlencode({"lease": lease}))
     request = urllib.request.Request(url, headers={"Authorization": "Bearer " + server["token"]})
     try:
-        with urllib.request.urlopen(request, timeout=600, context=_tls()) as response, open(target, "wb") as out:
+        with _open(request, 600) as response, open(target, "wb") as out:
             shutil.copyfileobj(response, out, 1024 * 1024)
     except urllib.error.HTTPError as exc:
         try:
