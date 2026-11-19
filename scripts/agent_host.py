@@ -177,6 +177,11 @@ def machine_info() -> dict:
         info["gpu"] = subprocess.run(["sysctl", "-n", "machdep.cpu.brand_string"], capture_output=True, text=True).stdout.strip()
     except (OSError, ValueError):
         pass
+    # The server takes no order for a computer without room for one more render (a full disk stops it halfway).
+    try:
+        info["free_disk_bytes"] = shutil.disk_usage(ROOT).free
+    except OSError:
+        pass
     return info
 
 
