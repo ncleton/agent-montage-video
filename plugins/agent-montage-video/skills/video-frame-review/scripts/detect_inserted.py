@@ -19,6 +19,8 @@ ap.add_argument("--json")
 a = ap.parse_args()
 fps_s = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=r_frame_rate",
                         "-of", "default=nw=1:nk=1", a.video], capture_output=True, text=True).stdout.strip()
+# ffprobe 7+ repeats the value for stream groups (e.g. HEVC tiles): keep the first line.
+fps_s = fps_s.splitlines()[0].strip(",") if fps_s else fps_s
 if not fps_s:
     sys.exit("Cannot read the frame rate of %s (missing file or no video stream)." % a.video)
 num, den = (fps_s.split("/") + ["1"])[:2]

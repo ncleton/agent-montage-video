@@ -69,6 +69,7 @@ def main():
     ap.add_argument("--stall", type=int, default=180)
     ap.add_argument("--concurrency", type=int, default=6)
     ap.add_argument("--crf", type=int, default=17)
+    ap.add_argument("--width", type=int, default=3840, help="output width; 3840 = 4K, the house default (Nicolas, 13/11/2026)")
     ap.add_argument("--gl", help="Remotion --gl value (angle on the Mac, swangle on the Linux remote computer)")
     ap.add_argument("--browser-executable")
     ap.add_argument("--frames", help="only render this range, for example 0-599 (test)")
@@ -81,15 +82,16 @@ def main():
     print("bundle...", flush=True)
     run(["npx", "remotion", "bundle", o.entry, "--out-dir", bundle, "--log=error"])
     listing = run(remotion(["compositions", bundle], o))
-    m = re.search(r"^%s\s+(\d+)\s+\d+x\d+\s+(\d+)" % re.escape(o.composition), listing, re.M)
+    m = re.search(r"^%s\s+(\d+)\s+(\d+)x\d+\s+(\d+)" % re.escape(o.composition), listing, re.M)
     if not m:
         sys.exit("Composition %s not found in the bundle:\n%s" % (o.composition, listing[-800:]))
-    fps, total = int(m.group(1)), int(m.group(2))
+    fps, comp_w, total = int(m.group(1)), int(m.group(2)), int(m.group(3))
+    scale = o.width / comp_w
     first, last = 0, total - 1
     if o.frames:
         first, last = [int(x) for x in o.frames.split("-")]
     print("%s: %d frames at %d fps, rendering %d-%d" % (o.composition, total, fps, first, last), flush=True)
-    common = ["--concurrency=%d" % o.concurrency, "--timeout=60000", "--log=info"] + (["--gl=" + o.gl] if o.gl else [])
+    common = ["--concurrency=%d" % o.concurrency, "--timeout=60000", "--log=info", "--scale=%g" % scale] + (["--gl=" + o.gl] if o.gl else [])
 
     audio = os.path.join(o.work, "audio.wav")
     print("audio...", flush=True)

@@ -57,8 +57,8 @@ zoom by scrubbing the playhead and taking screenshots before exporting.
 
 ## Export
 
-1. Click "Export", then one of the quality buttons: "Export as 1080P 1920 × 1080"
-   (default for the web), "Export as 4K 3840 × 2160", "Export as 2K 2560 × 1440",
+1. Click "Export", then "Export as 4K 3840 × 2160": every delivered video is 4K
+   (house rule, AGENTS.md). Other buttons: "Export as 1080P 1920 × 1080", "Export as 2K 2560 × 1440",
    "Export as 720P 1280 × 720" (quick review), "Export as 480P 854 × 480" or
    "Export as GIF 1280 × 720".
 2. Wait for the "Export completed!" dialog by polling the page every few seconds

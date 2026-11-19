@@ -48,6 +48,14 @@ sections, accents), `work/audio/music.wav`, `hyperframes-project/index.html`,
 
 ## Motion design (Remotion)
 
+Pour une vidéo pédagogique ou un tutoriel à partir d'un texte ou d'un sujet,
+appliquer d'abord le skill `motion-explainer` du plugin. Transmettre le texte
+intégral aux agents de rédaction et de relecture, reformuler au plus près sans
+retirer de notions, et établir la couverture texte source / narration / scènes.
+Ce mode choisit le moteur selon le film : Remotion n'est pas imposé. Les règles
+ci-dessous s'appliquent quand Remotion est retenu. Une réunion enregistrée passe
+d'abord par `meet-video-pedagogique` pour son analyse sourcée.
+
 Crée un projet par vidéo dans `projects/<p>/motion/` avec
 `npx create-video@latest --blank`. Conventions maison : 60 images/s,
 `src/timeline.json` pour le texte des scènes et la durée des plans,
@@ -129,17 +137,19 @@ plus lent. Règles :
 
 ## Clés API
 
-Les clés sont stockées dans LibreAgent (section Clés API de l'agent) et injectées
-seulement dans la commande qui en a besoin. Lance toute commande qui utilise
-ElevenLabs ou Mux à travers `scripts/with_secrets.sh` :
+Les clés sont dans des fichiers locaux lisibles par le seul utilisateur, dans
+`~/.config/montage-video/` : `mux_tokens` (lignes `MUX_TOKEN_ID=` et
+`MUX_TOKEN_SECRET=`, jeton « Agent Montage vidéo » du compte Mux Rossini Energy,
+environnement Outil AO) et `elevenlabs_api_key` (la clé seule). Elles sont
+injectées seulement dans la commande qui en a besoin : lance toute commande qui
+utilise ElevenLabs ou Mux à travers `scripts/with_secrets.sh` :
 
     scripts/with_secrets.sh python3 scripts/publish_mux.py --video projects/<p>/out/<nom>.mp4 --title "<titre>"
 
 Variables : `ELEVENLABS_API_KEY`, `MUX_TOKEN_ID`, `MUX_TOKEN_SECRET`. N'affiche,
 n'écris et ne commite jamais une clé. Si une clé manque, le script s'arrête avec
-le nom de la variable : dis-le à l'utilisateur et renvoie-le vers la page Clés API
-de l'agent dans LibreAgent. Ne lui demande jamais de coller une clé dans la
-conversation.
+le nom de la variable : dis-le à l'utilisateur en indiquant le fichier à remplir.
+Ne lui demande jamais de coller une clé dans la conversation.
 
 ## Vidéo pédagogique à partir d'une réunion Meet
 
@@ -167,10 +177,22 @@ vérification suivent les règles de ce fichier. Sur le Mac, le rendu passe par 
 sans réglage ; seule une machine Linux sans GPU demande `LEMO_ANGLE=swiftshader`
 pour les styles WebGL ou 3D, environ 5 fois plus lentement.
 
+## Résolution : toujours en 4K
+
+Règle de Nicolas (13 novembre 2026) : tout rendu livré est en 4K, 3840 × 2160 à
+60 images/s. Les compositions restent dessinées en 1920 × 1080 et sont rendues à
+l'échelle 2 : HyperFrames `render --resolution 4k --video-bitrate 28M`, Remotion
+par `scripts/render_chunks.py` (sortie 3840 px de large par défaut), openvid avec
+le bouton « Export as 4K 3840 × 2160 ». Les images fixes de relecture peuvent
+rester en 1080p ; le fichier livré et le lien Mux, jamais.
+
 ## Publication Mux
 
 `scripts/publish_mux.py` crée un asset public, attend le rendu et écrit les URL de
-lecture dans `output/<nom>.mux.json`. Publie seulement une vidéo validée par la
+lecture dans `output/<nom>.mux.json`. Par défaut : qualité « premium » et
+résolution maximale 2160p (en « basic » ou « plus », Mux pixelise les zooms et les
+aplats, constaté sur la vidéo agents IA). Donner le lien `highest.mp4`, qui sert
+toujours la meilleure qualité. Publie seulement une vidéo validée par la
 vérification ci-dessous et après accord de l'utilisateur sur le titre.
 
 ## Vérification avant livraison

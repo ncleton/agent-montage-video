@@ -1,7 +1,7 @@
 """Publish a local video to Mux.
 
-Credentials come from MUX_TOKEN_ID and MUX_TOKEN_SECRET, injected by LibreAgent:
-run it through scripts/with_secrets.sh. They are never printed or written to disk.
+Credentials come from MUX_TOKEN_ID and MUX_TOKEN_SECRET, read from
+~/.config/montage-video/mux_tokens by scripts/with_secrets.sh. They are never printed.
 """
 
 from __future__ import annotations
@@ -25,7 +25,10 @@ API = "https://api.mux.com/video/v1"
 def credential(name: str) -> str:
     value = os.environ.get(name, "").strip()
     if not value:
-        raise SystemExit(f"{name} is missing: run this command through scripts/with_secrets.sh")
+        raise SystemExit(
+            f"{name} is missing: run this command through scripts/with_secrets.sh "
+            "and check ~/.config/montage-video/mux_tokens"
+        )
     return value
 
 
@@ -63,6 +66,8 @@ def upload_file(url: str, path: Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--video", type=Path, required=True)
+    parser.add_argument("--quality", default="premium", choices=["basic", "plus", "premium"])
+    parser.add_argument("--max-resolution", default="2160p", choices=["1080p", "1440p", "2160p"])
     parser.add_argument("--title", required=True)
     parser.add_argument("--metadata-output", type=Path, help="Defaults to output/<video name>.mux.json")
     parser.add_argument("--check-auth", action="store_true")
@@ -90,7 +95,8 @@ def main() -> None:
         {
             "new_asset_settings": {
                 "playback_policies": ["public"],
-                "video_quality": "basic",
+                "video_quality": args.quality,
+                "max_resolution_tier": args.max_resolution,
                 "static_renditions": [{"resolution": "highest"}],
                 "meta": {"title": args.title},
             },

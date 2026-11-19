@@ -1,0 +1,14 @@
+{
+  "name": "montage-video-hyperframes",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Moteur HyperFrames local, versions verrouillées pour les rendus du projet",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@fontsource/montserrat": "5.3.0",
+    "gsap": "3.15.1",
+    "hyperframes": "0.9.33"
+  }
+}

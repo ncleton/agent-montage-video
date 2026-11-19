@@ -1,0 +1,1921 @@
+{
+ "fps": 60,
+ "width": 1920,
+ "height": 1080,
+ "leadSec": 0.8,
+ "gapSec": 0.55,
+ "tailSec": 2.5,
+ "meeting": {
+  "title": "Gaël / Luca : note de calcul",
+  "date": "26 octobre 2026",
+  "label": "D'après la session de Tony Cléton avec Gaël Verger · 26 octobre 2026"
+ },
+ "capture": {
+  "w": 1440,
+  "h": 810
+ },
+ "voice": {
+  "provider": "voicestudio",
+  "endpoint": "http://localhost:3900",
+  "model": "voxcpm2",
+  "profile": "cc1920f7",
+  "language": "fr",
+  "num_step": 20,
+  "guidance_scale": 1.7,
+  "seeds": [
+   300,
+   301,
+   302
+  ],
+  "pronounce": {
+   "TGBT": "T-G-B-T",
+   "IRVE": "I-R-V-E",
+   "DC": "D-C",
+   "AC": "A-C",
+   "VRD": "V-R-D",
+   "RTE": "R-T-E",
+   "EDF": "E-D-F",
+   "kVA": "kilovoltampères",
+   "Lise PV": "Lise P-V",
+   "QR code": "Q-R code",
+   "ISO": "Iso",
+   "Renault 4": "Renault quatre"
+  }
+ },
+ "takes": {
+  "L": "b",
+  "N": "b",
+  "AF": "b",
+  "T": "b"
+ },
+ "chapters": [
+  {
+   "id": "c0",
+   "n": 0,
+   "title": "Introduction"
+  },
+  {
+   "id": "c1",
+   "n": 1,
+   "title": "Ce qui limite la puissance"
+  },
+  {
+   "id": "c2",
+   "n": 2,
+   "title": "La fiche d'un véhicule"
+  },
+  {
+   "id": "c3",
+   "n": 3,
+   "title": "Énergie et temps de charge"
+  },
+  {
+   "id": "c4",
+   "n": 4,
+   "title": "Monophasé ou triphasé"
+  },
+  {
+   "id": "c5",
+   "n": 5,
+   "title": "Les relevés sur site"
+  },
+  {
+   "id": "c6",
+   "n": 6,
+   "title": "La note de calcul"
+  },
+  {
+   "id": "c7",
+   "n": 7,
+   "title": "Gaines et outil devis"
+  },
+  {
+   "id": "c8",
+   "n": 8,
+   "title": "Bureau d'études et sécurité"
+  },
+  {
+   "id": "c9",
+   "n": 9,
+   "title": "À retenir"
+  }
+ ],
+ "scenes": [
+  {
+   "id": "intro",
+   "chapter": "c0",
+   "passage": "A",
+   "narration": "Cette vidéo reprend la formation donnée par Tony Cléton à Gaël Verger, le vingt-six octobre. L'enjeu est simple : pour qu'une note de calcul soit juste, le commercial doit rapporter de sa visite les bons éléments.",
+   "concepts": [
+    "objectifs"
+   ],
+   "visual": {
+    "type": "chapter",
+    "title": "Dimensionner une installation de recharge",
+    "subtitle": "Formation commerciale IRVE · ce qu'un commercial doit savoir et relever",
+    "intro": true
+   }
+  },
+  {
+   "id": "objectifs",
+   "chapter": "c0",
+   "passage": "A",
+   "narration": "Le support de formation fixe trois objectifs : calculer les ordres de grandeur électriques, estimer les besoins d'un parc, et repérer les éléments d'une visite technique. On les suit dans cet ordre.",
+   "concepts": [
+    "objectifs"
+   ],
+   "shots": [
+    {
+     "capture": "k-000231.jpg",
+     "tc": "00:02:31",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1,
+       "x": 0.5,
+       "y": 0.5
+      },
+      {
+       "at": "calculer",
+       "s": 1.7,
+       "x": 0.5,
+       "y": 0.45
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        400,
+        205,
+        1030,
+        245
+       ],
+       "at": "support"
+      },
+      {
+       "box": [
+        400,
+        315,
+        1030,
+        420
+       ],
+       "at": "objectifs",
+       "label": "Objectifs pédagogiques"
+      }
+     ],
+     "caption": "Support « Formation commerciale IRVE » partagé par Tony"
+    }
+   ],
+   "spoken": "Le support de formation fixe trois objectifs. Calculer les ordres de grandeur électriques. Estimer les besoins d'un parc. Et repérer les éléments d'une visite technique. On les suit dans cet ordre."
+  },
+  {
+   "id": "ch1",
+   "chapter": "c1",
+   "passage": "B",
+   "narration": "Première question : qu'est-ce qui fixe la vitesse de charge d'une voiture ?",
+   "concepts": [],
+   "visual": {
+    "type": "chapter",
+    "subtitle": "Le chargeur embarqué, les puissances courantes, le DC"
+   }
+  },
+  {
+   "id": "chargeur",
+   "chapter": "c1",
+   "passage": "B",
+   "narration": "En courant alternatif, c'est le chargeur embarqué dans le véhicule qui convertit l'énergie pour la batterie. C'est lui qui bride la voiture à une certaine puissance. Voilà pourquoi toutes les voitures ne chargent pas à la même vitesse sur la même borne.",
+   "concepts": [
+    "chargeur-embarque"
+   ],
+   "shots": [
+    {
+     "capture": "k-000358.jpg",
+     "tc": "00:03:58",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1,
+       "x": 0.5,
+       "y": 0.5
+      },
+      {
+       "at": "chargeur",
+       "s": 1.8,
+       "x": 0.5,
+       "y": 0.36
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        400,
+        255,
+        1030,
+        302
+       ],
+       "at": "chargeur",
+       "label": "Le chargeur embarqué bride la puissance"
+      },
+      {
+       "box": [
+        400,
+        368,
+        1030,
+        462
+       ],
+       "at": "voilà"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "puissances",
+   "chapter": "c1",
+   "passage": "C",
+   "narration": "Les Zoé et certaines Renault chargent à vingt-deux kilowatts, grâce à un chargeur compact breveté ; d'autres constructeurs le proposent en option. Mais la tendance, ce sont des voitures à onze kilowatts, ou sept virgule quatre en monophasé. Une Tesla, par exemple, charge à onze en triphasé et sept virgule quatre en monophasé. La charge rapide, elle, passe par les bornes DC. Rossini Energy fabrique surtout des bornes AC, de la charge très lente jusqu'à vingt-deux kilowatts.",
+   "concepts": [
+    "zoe-22",
+    "tendance-ac",
+    "tesla",
+    "rossini-ac"
+   ],
+   "visual": {
+    "type": "figures",
+    "title": "Les puissances de charge en courant alternatif",
+    "figures": [
+     {
+      "value": "22",
+      "unit": "kW",
+      "label": "Zoé et certaines Renault, en option ailleurs",
+      "at": "zoé"
+     },
+     {
+      "value": "11",
+      "unit": "kW",
+      "label": "La tendance, en triphasé (Tesla comprise)",
+      "at": "tendance"
+     },
+     {
+      "value": "7,4",
+      "unit": "kW",
+      "label": "En monophasé",
+      "at": "sept",
+      "color": "#444444"
+     }
+    ]
+   }
+  },
+  {
+   "id": "dc",
+   "chapter": "c1",
+   "passage": "D",
+   "narration": "Pourquoi les constructeurs abandonnent-ils le vingt-deux kilowatts embarqué ? Pour le poids et la place. Un chargeur qui encaisse seize ampères est plus léger et plus petit qu'un chargeur de trente-deux ampères, et chaque gramme compte. Pour charger vite, on préfère mettre un gros chargeur dans la borne : c'est la borne DC. Elle peut avoir un gros ventilateur et des câbles refroidis, et elle envoie du courant continu directement dans la batterie.",
+   "concepts": [
+    "abandon-22",
+    "borne-dc"
+   ],
+   "visual": {
+    "type": "diagram",
+    "name": "acdc"
+   }
+  },
+  {
+   "id": "ch2",
+   "chapter": "c2",
+   "passage": "E",
+   "narration": "Prenons un vrai cas : un client a commandé neuf Renault 4 pour ses véhicules de service. En combien de temps vont-elles charger ?",
+   "concepts": [
+    "cas-r4"
+   ],
+   "visual": {
+    "type": "chapter",
+    "subtitle": "Où trouver la batterie et les puissances d'un modèle"
+   }
+  },
+  {
+   "id": "fiche",
+   "chapter": "c2",
+   "passage": "E",
+   "narration": "Tony recommande le site Automobile Propre et sa fiche technique complète. Pour la Renault 4 : une batterie de quarante ou cinquante-deux kilowattheures, un chargeur alternatif de onze kilowatts, bidirectionnel, et une recharge DC de quatre-vingts ou cent kilowatts, selon l'option. Lisez toujours les deux puissances, AC et DC : le site met souvent la DC en avant. La batterie, elle, est la même dans les deux cas.",
+   "concepts": [
+    "automobile-propre",
+    "ac-dc-fiche"
+   ],
+   "shots": [
+    {
+     "capture": "k-000803.jpg",
+     "tc": "00:08:03",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1,
+       "x": 0.5,
+       "y": 0.5
+      },
+      {
+       "at": "batterie",
+       "s": 1.9,
+       "x": 0.42,
+       "y": 0.3
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        400,
+        140,
+        815,
+        172
+       ],
+       "at": "quarante",
+       "label": "40 kWh"
+      },
+      {
+       "box": [
+        400,
+        186,
+        815,
+        206
+       ],
+       "at": "cinquante",
+       "label": "52 kWh"
+      },
+      {
+       "box": [
+        400,
+        428,
+        815,
+        475
+       ],
+       "at": "chargeur",
+       "label": "AC : 11 kW bidirectionnel"
+      }
+     ],
+     "caption": "Fiche Renault 4 sur automobile-propre.com"
+    },
+    {
+     "capture": "k-000730.jpg",
+     "tc": "00:07:30",
+     "at": "recharge",
+     "cam": [
+      {
+       "at": "recharge",
+       "s": 2,
+       "x": 0.42,
+       "y": 0.25
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        400,
+        220,
+        815,
+        242
+       ],
+       "at": "quatre",
+       "label": "DC : 80 à 100 kW"
+      }
+     ],
+     "caption": "Fiche Renault 4 sur automobile-propre.com"
+    }
+   ]
+  },
+  {
+   "id": "v2g",
+   "chapter": "c2",
+   "passage": "F",
+   "narration": "Bidirectionnel veut dire que la voiture peut renvoyer de l'énergie vers le bâtiment ou vers le réseau. C'est ce qu'attendent RTE, Enedis, EDF et les constructeurs : charger quand l'énergie est bon marché, quand il y a du vent ou du soleil, et réinjecter quand le réseau en a besoin. Le client sera rémunéré par contrat. Et en cas de coupure, la voiture peut même alimenter la maison.",
+   "concepts": [
+    "bidirectionnel",
+    "reseau"
+   ],
+   "visual": {
+    "type": "diagram",
+    "name": "v2g"
+   }
+  },
+  {
+   "id": "iso",
+   "chapter": "c2",
+   "passage": "G",
+   "narration": "Ces échanges reposent sur une norme : l'ISO quinze mille cent dix-huit, aussi appelée Plug and Charge. La partie deux ne gère pas le bidirectionnel ; la partie vingt, si. L'Union européenne l'impose, alors que le protocole actuel entre la borne et la voiture reste basique. L'objectif de Rossini Energy : être compatible fin deux mille vingt-sept. C'est une estimation encore en discussion, et l'intelligence artificielle aidera à lire cette norme très longue.",
+   "concepts": [
+    "iso15118",
+    "protocole-actuel"
+   ],
+   "visual": {
+    "type": "checklist",
+    "title": "ISO 15118 · Plug and Charge",
+    "items": [
+     {
+      "text": "15118-2 : communication, sans bidirectionnel",
+      "at": "deux"
+     },
+     {
+      "text": "15118-20 : communication et puissance bidirectionnelles",
+      "at": "vingt"
+     },
+     {
+      "text": "Imposée par l'Union européenne",
+      "at": "union",
+      "sub": "Le protocole actuel borne-voiture reste basique"
+     },
+     {
+      "text": "Objectif Rossini Energy : fin 2027",
+      "at": "objectif",
+      "tone": "warn",
+      "sub": "Estimation en cours de discussion. À l'oral, Tony dit « NF C 15-118 » : le nom officiel est ISO 15118."
+     }
+    ]
+   }
+  },
+  {
+   "id": "ch3",
+   "chapter": "c3",
+   "passage": "H",
+   "narration": "Avant de calculer, il faut parler le même langage : kilowatts et kilowattheures.",
+   "concepts": [],
+   "visual": {
+    "type": "chapter",
+    "subtitle": "La baignoire, une vraie courbe de charge, le calcul"
+   }
+  },
+  {
+   "id": "baignoire",
+   "chapter": "c3",
+   "passage": "H",
+   "narration": "Imaginez une baignoire. Le robinet a un débit, en litres par heure : c'est la puissance, en kilowatts. L'eau accumulée dans la baignoire, en litres, c'est l'énergie, en kilowattheures. Un débit pendant un certain temps devient une capacité. Et attention au piège : un kilowattheure, ce sont des kilowatts multipliés par des heures, jamais divisés.",
+   "concepts": [
+    "baignoire",
+    "kwh-produit"
+   ],
+   "visual": {
+    "type": "diagram",
+    "name": "baignoire"
+   }
+  },
+  {
+   "id": "grafana",
+   "chapter": "c3",
+   "passage": "I",
+   "narration": "Sur Grafana, à l'adresse grafana point rossinienergy point com, on voit une vraie charge chez un client. La voiture est branchée à huit heures quarante-deux et charge tout de suite autour de sept virgule sept kilowatts, en monophasé. Environ trois heures à sept virgule sept kilowatts, cela donne vingt-trois kilowattheures : à peu près la moitié d'une batterie de cinquante-deux. Grafana montre aussi la connexion des bornes, l'état des véhicules sur les bornes Terza, ou les sessions par QR code.",
+   "concepts": [
+    "grafana",
+    "calcul-grafana"
+   ],
+   "shots": [
+    {
+     "capture": "k-001640.jpg",
+     "tc": "00:16:40",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1,
+       "x": 0.5,
+       "y": 0.5
+      },
+      {
+       "at": "branchée",
+       "s": 1.6,
+       "x": 0.33,
+       "y": 0.45
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        70,
+        28,
+        720,
+        46
+       ],
+       "at": "adresse",
+       "label": "grafana.rossinienergy.com",
+       "side": "bottom",
+       "until": "branchée"
+      },
+      {
+       "box": [
+        268,
+        345,
+        560,
+        412
+       ],
+       "at": "sept",
+       "label": "≈ 7,7 kW en monophasé",
+       "side": "top"
+      }
+     ],
+     "caption": "Grafana Rossini Energy : courbe de charge d'une borne"
+    },
+    {
+     "capture": "k-002256.jpg",
+     "tc": "00:22:56",
+     "at": "environ",
+     "cam": [
+      {
+       "at": "environ",
+       "s": 1.6,
+       "x": 0.4,
+       "y": 0.45
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        462,
+        315,
+        722,
+        420
+       ],
+       "at": "trois",
+       "label": "≈ 3 h × 7,7 kW ≈ 23 kWh",
+       "side": "top"
+      }
+     ],
+     "caption": "Grafana : période sélectionnée par Tony pour le calcul"
+    }
+   ]
+  },
+  {
+   "id": "courbe",
+   "chapter": "c3",
+   "passage": "J",
+   "narration": "Pourquoi conseille-t-on de charger entre dix et quatre-vingts pour cent ? Parce que la batterie est en stress sous vingt pour cent et au-dessus de quatre-vingts. Ponctuellement, ce n'est pas grave ; mais il ne faut pas la laisser des heures presque vide, surtout par temps froid. Au-delà de quatre-vingts pour cent, la voiture réduit d'elle-même sa puissance, comme on ralentit en fin de remplissage d'une chope de bière pour éviter la mousse. La borne ferme un contacteur ; c'est la voiture qui décide.",
+   "concepts": [
+    "plage-10-80",
+    "courbe-80"
+   ],
+   "shots": [
+    {
+     "capture": "k-001640.jpg",
+     "tc": "00:16:40",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 2.1,
+       "x": 0.36,
+       "y": 0.46
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        540,
+        348,
+        640,
+        415
+       ],
+       "at": "réduit",
+       "label": "Au-delà de 80 % : la puissance baisse",
+       "side": "top"
+      }
+     ],
+     "caption": "Grafana : fin de charge de la même session"
+    }
+   ]
+  },
+  {
+   "id": "calcul",
+   "chapter": "c3",
+   "passage": "K",
+   "narration": "Entre dix et quatre-vingts pour cent, la puissance reste stable : le calcul devient un simple rectangle. Il faut deux informations : la capacité de la batterie, en kilowattheures, et la puissance de recharge, en kilowatts. Le temps de charge, c'est l'énergie divisée par la puissance. Pour la Renault 4 : soixante-dix pour cent de cinquante-deux kilowattheures, soit trente-six virgule quatre, divisés par onze kilowatts. Résultat : trois virgule trois heures, environ trois heures vingt.",
+   "concepts": [
+    "rectangle",
+    "temps-charge",
+    "calcul-r4"
+   ],
+   "visual": {
+    "type": "formula",
+    "title": "Le temps de charge de la Renault 4, de 10 à 80 %",
+    "lines": [
+     {
+      "text": "Temps (h) = énergie (kWh) ÷ puissance (kW)",
+      "at": "temps",
+      "big": true
+     },
+     {
+      "text": "Énergie : 70 % × 52 kWh = 36,4 kWh",
+      "at": "soixante"
+     },
+     {
+      "text": "Temps : 36,4 kWh ÷ 11 kW ≈ 3,3 h",
+      "at": "divisés"
+     },
+     {
+      "text": "≈ 3 h 20",
+      "at": "résultat",
+      "big": true,
+      "color": "#e30613"
+     }
+    ]
+   }
+  },
+  {
+   "id": "minimum",
+   "chapter": "c3",
+   "passage": "L",
+   "narration": "Règle d'or : on calcule avec le minimum entre la puissance de la borne et celle du véhicule. Une borne de vingt-deux kilowatts avec une voiture à onze : on calcule à onze. Une borne monophasée de sept kilowatts avec une voiture à onze : on calcule à sept. Même chose en courant continu : sur une borne rapide de cent kilowatts, une Renault 4 sans option charge à quatre-vingts. Demandez au client quelle option il a ; s'il ne sait pas, prenez le pire cas.",
+   "concepts": [
+    "minimum",
+    "dc-pire-cas"
+   ],
+   "visual": {
+    "type": "diagram",
+    "name": "minimum"
+   }
+  },
+  {
+   "id": "ch4",
+   "chapter": "c4",
+   "passage": "M",
+   "narration": "Quatrième étape : d'où viennent ces sept virgule quatre et ces vingt-deux kilowatts ?",
+   "concepts": [],
+   "visual": {
+    "type": "chapter",
+    "subtitle": "Tension, courant, cos φ et nombre de phases"
+   }
+  },
+  {
+   "id": "ui",
+   "chapter": "c4",
+   "passage": "M",
+   "narration": "La puissance, c'est la tension multipliée par le courant. En Europe, on compte deux cent trente volts entre phase et neutre : en réalité entre deux cent vingt et deux cent quarante, et cent dix volts aux États-Unis. La tension est fixe ; c'est le courant que la voiture fait varier. Deux cent trente volts fois trente-deux ampères, cela donne sept mille quatre cents watts : sept virgule quatre kilowatts.",
+   "concepts": [
+    "puissance-ui"
+   ],
+   "shots": [
+    {
+     "capture": "k-003512.jpg",
+     "tc": "00:35:12",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1.5,
+       "x": 0.5,
+       "y": 0.42
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        400,
+        380,
+        1030,
+        432
+       ],
+       "at": "puissance",
+       "label": "Monophasé : P = U × I × cos φ"
+      },
+      {
+       "box": [
+        400,
+        283,
+        1030,
+        330
+       ],
+       "at": "fois",
+       "label": "230 V × 32 A = 7,4 kW",
+       "side": "bottom"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cosphi",
+   "chapter": "c4",
+   "passage": "N",
+   "narration": "Sur le support, vous verrez aussi cos phi. Imaginez qu'on tire un bateau depuis la berge, avec une corde. Une partie de l'effort fait avancer le bateau : c'est la puissance active, celle qui charge la voiture. Une autre partie tire de côté, sans être voulue : c'est la puissance réactive. Pour une borne de recharge, on considère qu'on tire dans l'axe : cos phi vaut un.",
+   "concepts": [
+    "cos-phi"
+   ],
+   "visual": {
+    "type": "diagram",
+    "name": "bateau"
+   }
+  },
+  {
+   "id": "tri",
+   "chapter": "c4",
+   "passage": "N",
+   "narration": "En triphasé, trois fils laissent passer le même courant qu'un seul fil en monophasé : on a trois fois plus de puissance. Trente-deux ampères donnent donc vingt-deux kilowatts, et seize ampères, onze kilowatts. Rossini Energy vend surtout du triphasé, car la plupart des entreprises en sont équipées.",
+   "concepts": [
+    "triphase",
+    "vente-tri"
+   ],
+   "shots": [
+    {
+     "capture": "k-003512.jpg",
+     "tc": "00:35:12",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1.5,
+       "x": 0.5,
+       "y": 0.55
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        400,
+        440,
+        1030,
+        473
+       ],
+       "at": "triphasé",
+       "label": "Triphasé : P = 3 × 230 × I × cos φ"
+      },
+      {
+       "box": [
+        400,
+        480,
+        1030,
+        515
+       ],
+       "at": "trente",
+       "label": "32 A → 22 kW · 16 A → 11 kW"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "mono",
+   "chapter": "c4",
+   "passage": "O",
+   "narration": "Le monophasé sert aux particuliers, aux petites entreprises, ou aux clients qui choisissent une charge lente sur beaucoup de bornes, par exemple pour autoconsommer leur solaire tout au long de la journée. Il coûte moins cher : on enlève deux brins sur quatre et les composants sont plus petits. Mais ce n'est pas trois fois moins cher : la VRD, l'armoire, l'ordinateur de pilotage ou le poteau restent les mêmes.",
+   "concepts": [
+    "mono-usages",
+    "mono-cout"
+   ],
+   "visual": {
+    "type": "checklist",
+    "title": "Quand proposer du monophasé ?",
+    "items": [
+     {
+      "text": "Particuliers et petites entreprises",
+      "at": "particuliers",
+      "tone": "ok"
+     },
+     {
+      "text": "Charge lente sur beaucoup de bornes",
+      "at": "lente",
+      "tone": "ok",
+      "sub": "Par exemple pour autoconsommer du solaire en journée"
+     },
+     {
+      "text": "Moins cher : deux brins sur quatre, composants plus petits",
+      "at": "coûte",
+      "tone": "ok"
+     },
+     {
+      "text": "Mais pas trois fois moins cher",
+      "at": "mais",
+      "tone": "warn",
+      "sub": "VRD, armoire, ordinateur de pilotage et poteau restent les mêmes"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ch5",
+   "chapter": "c5",
+   "passage": "P",
+   "narration": "Passons au terrain : ce qu'il faut relever pendant la visite technique.",
+   "concepts": [],
+   "visual": {
+    "type": "chapter",
+    "subtitle": "Puissance souscrite, tarif et TGBT"
+   }
+  },
+  {
+   "id": "souscrite",
+   "chapter": "c5",
+   "passage": "P",
+   "narration": "D'abord, la puissance souscrite. Demandez-la à chaque prospect : sur le golf visité par l'équipe, c'était cent vingt kVA. Elle fixe le tarif, bleu, jaune ou vert, et le tarif entre dans les calculs, notamment celui du courant de court-circuit.",
+   "concepts": [
+    "puissance-souscrite",
+    "tarif-icc"
+   ],
+   "shots": [
+    {
+     "capture": "k-004140.jpg",
+     "tc": "00:41:40",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1.5,
+       "x": 0.5,
+       "y": 0.36
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        400,
+        160,
+        1030,
+        190
+       ],
+       "at": "souscrite"
+      },
+      {
+       "box": [
+        400,
+        205,
+        1030,
+        265
+       ],
+       "at": "bleu",
+       "label": "Bleu : jusqu'à 36 kVA",
+       "side": "right"
+      },
+      {
+       "box": [
+        400,
+        285,
+        1030,
+        362
+       ],
+       "at": "jaune",
+       "label": "Jaune : de 36 à 250 kVA",
+       "side": "right"
+      },
+      {
+       "box": [
+        400,
+        380,
+        1030,
+        442
+       ],
+       "at": "vert",
+       "label": "Vert : bureau d'études",
+       "side": "right"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "tgbt",
+   "chapter": "c5",
+   "passage": "Q",
+   "narration": "Ensuite, le TGBT, le tableau général basse tension. Regardez le jeu de barres et les répartiteurs : y a-t-il des emplacements libres pour se raccorder ? Sur cette photo, un fil est branché dans presque tous les trous, sauf trois. C'est serré, mais faisable. Et même s'il y a de la place, il faut pouvoir y glisser le câble.",
+   "concepts": [
+    "repartiteur"
+   ],
+   "shots": [
+    {
+     "capture": "k-004320.jpg",
+     "tc": "00:43:20",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1,
+       "x": 0.5,
+       "y": 0.5
+      },
+      {
+       "at": "photo",
+       "s": 1.7,
+       "x": 0.5,
+       "y": 0.45
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        528,
+        130,
+        900,
+        625
+       ],
+       "at": "répartiteurs",
+       "label": "Répartiteur : repérer les places libres",
+       "side": "right"
+      }
+     ],
+     "caption": "Photo de répartiteur dans le support de formation"
+    }
+   ]
+  },
+  {
+   "id": "ch6",
+   "chapter": "c6",
+   "passage": "R",
+   "narration": "Ces données servent à remplir la note de calcul, qui donne la section des câbles et les protections.",
+   "concepts": [],
+   "visual": {
+    "type": "chapter",
+    "subtitle": "Le tableur de Tony, pas à pas"
+   }
+  },
+  {
+   "id": "nextcloud",
+   "chapter": "c6",
+   "passage": "R",
+   "narration": "Le fichier Excel est sur Nextcloud, dans le dossier des clients, rubrique exemple borne, documents à ajouter. Téléchargez-le. Sous Windows, ses macros sont bloquées : faites un clic droit sur le fichier, Propriétés, cochez Débloquer, puis Appliquer. Rouvrez-le et cliquez sur Activer le contenu.",
+   "concepts": [
+    "nextcloud-excel",
+    "debloquer"
+   ],
+   "shots": [
+    {
+     "capture": "k-004452.jpg",
+     "tc": "00:44:52",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1,
+       "x": 0.5,
+       "y": 0.5
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        175,
+        305,
+        1430,
+        328
+       ],
+       "at": "exemple",
+       "label": "Exemple borne · documents à ajouter",
+       "side": "bottom"
+      }
+     ],
+     "caption": "Nextcloud Rossini Energy, dossier des clients"
+    },
+    {
+     "capture": "k-004720.jpg",
+     "tc": "00:47:20",
+     "at": "windows",
+     "cam": [
+      {
+       "at": "windows",
+       "s": 1.5,
+       "x": 0.42,
+       "y": 0.62
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        462,
+        415,
+        742,
+        700
+       ],
+       "at": "propriétés",
+       "until": "débloquer"
+      },
+      {
+       "box": [
+        678,
+        640,
+        730,
+        656
+       ],
+       "at": "débloquer",
+       "label": "Débloquer, puis Appliquer",
+       "side": "bottom"
+      }
+     ],
+     "caption": "Propriétés du fichier « Note de calcul consuel V2.24 »"
+    }
+   ]
+  },
+  {
+   "id": "cases",
+   "chapter": "c6",
+   "passage": "S",
+   "narration": "Dans le tableur, les cases bleues sont les valeurs à saisir, les cases grises sont les résultats. Ce n'est pas une note certifiée, mais elle respecte la norme et donne un premier calcul rapide pour le devis. On y indique le triphasé ou le monophasé, la puissance souscrite, qui donne le tarif, la longueur maximale, qui sert à la chute de tension, et la puissance du parc.",
+   "concepts": [
+    "cases",
+    "excel-statut",
+    "entrees"
+   ],
+   "shots": [
+    {
+     "capture": "k-005400.jpg",
+     "tc": "00:54:00",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1,
+       "x": 0.5,
+       "y": 0.5
+      },
+      {
+       "at": "indique",
+       "s": 2.1,
+       "x": 0.44,
+       "y": 0.3
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        438,
+        133,
+        705,
+        395
+       ],
+       "at": "bleues",
+       "label": "Cases bleues : à saisir",
+       "until": "grises"
+      },
+      {
+       "box": [
+        703,
+        133,
+        828,
+        395
+       ],
+       "at": "grises",
+       "label": "Cases grises : résultats",
+       "side": "right",
+       "until": "certifiée"
+      },
+      {
+       "box": [
+        438,
+        133,
+        828,
+        173
+       ],
+       "at": "triphasé",
+       "until": "longueur"
+      },
+      {
+       "box": [
+        438,
+        175,
+        572,
+        213
+       ],
+       "at": "longueur",
+       "label": "Longueur",
+       "side": "bottom",
+       "until": "parc"
+      },
+      {
+       "box": [
+        438,
+        215,
+        572,
+        255
+       ],
+       "at": "parc",
+       "label": "Puissance du parc",
+       "side": "bottom"
+      }
+     ],
+     "caption": "Tableur « Note de calcul consuel V2.24 » sur l'écran de Tony"
+    }
+   ]
+  },
+  {
+   "id": "pilotage",
+   "chapter": "c6",
+   "passage": "T",
+   "narration": "Pour la puissance du parc, on ne multiplie presque jamais la puissance des bornes par leur nombre. Un ordinateur de pilotage partage la puissance disponible : les premières voitures chargent à fond, puis, quand une nouvelle arrive, chacune ralentit un peu, et ainsi de suite. Au-delà de quatre bornes, on peut diviser par deux. Six points de vingt-deux kilowatts font cent trente-deux kilowatts ; on retient soixante-six kilowatts.",
+   "concepts": [
+    "pilotage"
+   ],
+   "visual": {
+    "type": "diagram",
+    "name": "pilotage"
+   }
+  },
+  {
+   "id": "protecran",
+   "chapter": "c6",
+   "passage": "U",
+   "narration": "Le tableur calcule alors le courant maximal et propose une protection en tête de ligne. Sur l'écran de Tony, un parc de quarante-quatre kilowatts donne soixante-trois virgule huit ampères, et une protection de soixante-dix ampères.",
+   "concepts": [
+    "protection"
+   ],
+   "shots": [
+    {
+     "capture": "k-005400.jpg",
+     "tc": "00:54:00",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 2.2,
+       "x": 0.44,
+       "y": 0.29
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        438,
+        215,
+        572,
+        255
+       ],
+       "at": "quarante",
+       "label": "44 kW",
+       "side": "bottom"
+      },
+      {
+       "box": [
+        703,
+        215,
+        828,
+        255
+       ],
+       "at": "soixante",
+       "label": "63,8 A",
+       "side": "bottom"
+      },
+      {
+       "box": [
+        572,
+        215,
+        705,
+        255
+       ],
+       "at": "protection#2",
+       "label": "Protection : 70 A",
+       "side": "top"
+      }
+     ],
+     "caption": "Exemple affiché par Tony pendant la réunion"
+    }
+   ]
+  },
+  {
+   "id": "protcalc",
+   "chapter": "c6",
+   "passage": "U",
+   "narration": "Avec soixante-six kilowatts, l'équipe obtient quatre-vingt-quinze virgule sept ampères. On choisit donc une protection de cent ampères, et un câble calibré pour cent ampères. Chaque câble doit être protégé : le câble, c'est la taille du tuyau. Au-delà de son courant, il surchauffe, peut brûler, ou perd de l'énergie.",
+   "concepts": [
+    "protection"
+   ],
+   "visual": {
+    "type": "formula",
+    "title": "Exemple de l'équipe : parc piloté à 66 kW",
+    "lines": [
+     {
+      "text": "66 000 W ÷ (3 × 230 V) ≈ 95,7 A",
+      "at": "obtient",
+      "big": true
+     },
+     {
+      "text": "Protection en tête de ligne : 100 A",
+      "at": "protection"
+     },
+     {
+      "text": "Câble calibré pour 100 A",
+      "at": "câble"
+     },
+     {
+      "text": "Au-delà : surchauffe, risque de brûler, pertes",
+      "at": "surchauffe",
+      "color": "#e30613"
+     },
+     {
+      "text": "Valeurs saisies par l'équipe sur son poste, hors partage d'écran",
+      "at": "obtient",
+      "color": "#5b6573"
+     }
+    ]
+   }
+  },
+  {
+   "id": "cables",
+   "chapter": "c6",
+   "passage": "V",
+   "narration": "Côté câble, le souple est plus simple à poser, mais plus cher : pour une grande longueur, comme les cinquante mètres du golf, on prend du semi-rigide. Le cuivre conduit mieux, donc sa section est plus petite ; l'aluminium est moins cher, avec une section plus grosse. En général : aluminium entre le TGBT et le tableau IRVE, cuivre du tableau IRVE vers les bornes. Sauf si le client impose son choix.",
+   "concepts": [
+    "souple-semi",
+    "cuivre-alu"
+   ],
+   "shots": [
+    {
+     "capture": "k-011210.jpg",
+     "tc": "01:12:10",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 2.1,
+       "x": 0.44,
+       "y": 0.37
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        438,
+        278,
+        572,
+        322
+       ],
+       "at": "semi",
+       "label": "Semi-rigide",
+       "side": "top"
+      },
+      {
+       "box": [
+        572,
+        278,
+        705,
+        322
+       ],
+       "at": "aluminium",
+       "label": "Aluminium",
+       "side": "bottom"
+      }
+     ],
+     "caption": "Tableur de Tony après redémarrage"
+    }
+   ]
+  },
+  {
+   "id": "chute",
+   "chapter": "c6",
+   "passage": "W",
+   "narration": "La règle à retenir : la chute de tension entre le TGBT et la borne doit rester inférieure à cinq pour cent, quoi qu'il arrive. Le tableur a deux feuilles : la feuille bleue pour le câble du TGBT au tableau IRVE, la feuille verte pour les câbles du tableau IRVE vers les bornes. C'est la somme des deux qui doit rester sous cinq pour cent.",
+   "concepts": [
+    "chute-tension",
+    "deux-feuilles"
+   ],
+   "visual": {
+    "type": "diagram",
+    "name": "chute"
+   }
+  },
+  {
+   "id": "section",
+   "chapter": "c6",
+   "passage": "X",
+   "narration": "Si la chute est trop forte, augmentez la section retenue. Pendant la réunion, un câble de seize millimètres carrés donnait deux virgule quatre-vingt-dix-neuf pour cent ; à vingt-cinq, on tombe à un virgule quatre-vingt-onze. Tony a d'ailleurs trouvé seize millimètres carrés étonnant pour quatre-vingt-quinze ampères : vérifiez la cohérence. Vers les bornes, on met souvent du six millimètres carrés en cuivre, parfois du dix, à calculer selon la pose. Un logiciel interne plus complet arrive dans les deux prochains mois.",
+   "concepts": [
+    "section-retenue",
+    "valeurs-classiques",
+    "nouvel-outil"
+   ],
+   "shots": [
+    {
+     "capture": "k-005400.jpg",
+     "tc": "00:54:00",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 2.1,
+       "x": 0.5,
+       "y": 0.38
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        703,
+        352,
+        828,
+        395
+       ],
+       "at": "section",
+       "label": "Section retenue : peut être augmentée",
+       "side": "top"
+      },
+      {
+       "box": [
+        703,
+        258,
+        828,
+        300
+       ],
+       "at": "seize",
+       "label": "Chute de tension (%)",
+       "side": "top"
+      },
+      {
+       "box": [
+        322,
+        752,
+        410,
+        772
+       ],
+       "at": "bornes",
+       "label": "Feuille verte : câbles IRVE → bornes",
+       "side": "top"
+      }
+     ],
+     "caption": "Tableur de Tony ; les valeurs citées viennent du poste de l'équipe"
+    }
+   ]
+  },
+  {
+   "id": "pose",
+   "chapter": "c6",
+   "passage": "Y",
+   "narration": "Le mode de pose change aussi le résultat. Choisissez le cas le plus contraignant : si le câble passe deux mètres en chemin de câbles puis soixante mètres sous terre, cochez la pose enterrée, numéro soixante et un. Un nouveau paramètre apparaît : le coefficient de type de sol, sec ou humide. Notez aussi la température : un local chauffé à quarante-cinq degrés doit figurer dans la note ; sous terre, à cinquante centimètres, on compte vingt degrés.",
+   "concepts": [
+    "mode-pose",
+    "temperature-sol"
+   ],
+   "shots": [
+    {
+     "capture": "k-011210.jpg",
+     "tc": "01:12:10",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1,
+       "x": 0.5,
+       "y": 0.5
+      },
+      {
+       "at": "coefficient",
+       "s": 1.9,
+       "x": 0.4,
+       "y": 0.45
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        0,
+        133,
+        438,
+        750
+       ],
+       "at": "mode",
+       "label": "Modes de pose",
+       "side": "right",
+       "until": "coefficient"
+      },
+      {
+       "box": [
+        438,
+        418,
+        635,
+        468
+       ],
+       "at": "coefficient",
+       "label": "Coefficient de type de sol",
+       "side": "bottom"
+      },
+      {
+       "box": [
+        572,
+        322,
+        705,
+        372
+       ],
+       "at": "température",
+       "label": "Température ambiante",
+       "side": "top"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "circuits",
+   "chapter": "c6",
+   "passage": "Z",
+   "narration": "Autre point important : le nombre de circuits. Plusieurs câbles dans une même gaine se chauffent les uns les autres, donc la section doit augmenter ; dans l'exemple, elle passe à soixante-dix millimètres carrés. Comptez les câbles de puissance qui partagent le passage. Sur un chemin de câbles, il y en a souvent cinq ou six : mettez sept, car vous ne serez pas forcément les derniers à en ajouter.",
+   "concepts": [
+    "circuits"
+   ],
+   "shots": [
+    {
+     "capture": "k-011210.jpg",
+     "tc": "01:12:10",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 2.1,
+       "x": 0.48,
+       "y": 0.45
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        572,
+        375,
+        705,
+        415
+       ],
+       "at": "circuits",
+       "label": "Nombre de circuits",
+       "side": "bottom"
+      },
+      {
+       "box": [
+        703,
+        375,
+        828,
+        415
+       ],
+       "at": "soixante-dix",
+       "label": "Section retenue : 70 mm²",
+       "side": "top"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ch7",
+   "chapter": "c7",
+   "passage": "AA",
+   "narration": "Sur le terrain, les gaines méritent une attention particulière.",
+   "concepts": [],
+   "visual": {
+    "type": "chapter",
+    "subtitle": "Câbles existants, règle des deux tiers, outil devis"
+   }
+  },
+  {
+   "id": "gaine",
+   "chapter": "c7",
+   "passage": "AA",
+   "narration": "Sur cette photo envoyée pendant la réunion, une gaine contient déjà un câble. Prenez toujours ce genre de photo : un câble de communication ne change rien, un câble de puissance doit être ajouté à la note de calcul. Passez une aiguille pour vérifier que la gaine arrive bien là où l'armoire est prévue. Et mesurez son diamètre, en lisant le marquage des câbles : à l'œil nu, même avec l'habitude, on se trompe.",
+   "concepts": [
+    "gaine-existante"
+   ],
+   "shots": [
+    {
+     "capture": "k-011935.jpg",
+     "tc": "01:19:35",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1,
+       "x": 0.42,
+       "y": 0.5
+      },
+      {
+       "at": "aiguille",
+       "s": 1.5,
+       "x": 0.5,
+       "y": 0.45
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        45,
+        25,
+        1175,
+        765
+       ],
+       "at": "communication",
+       "until": "aiguille"
+      }
+     ],
+     "caption": "Photo de gaine envoyée sur Slack pendant la réunion"
+    }
+   ]
+  },
+  {
+   "id": "tiers",
+   "chapter": "c7",
+   "passage": "AB",
+   "narration": "Combien de place laisser ? Tony a vérifié avec ChatGPT : la bonne pratique est de laisser deux tiers de la gaine libres. Ce n'est pas obligatoire, mais cela facilite le tirage, respecte les rayons de courbure et laisse de la place pour de futurs câbles. Un câble cinq G soixante-dix fait quarante-trois millimètres : il passe dans une gaine de soixante-trois, mais c'est très serré et déconseillé. Pour une question normative de ce genre, ChatGPT ou votre conducteur de travaux peuvent vous répondre.",
+   "concepts": [
+    "deux-tiers",
+    "chatgpt"
+   ],
+   "shots": [
+    {
+     "capture": "k-011730.jpg",
+     "tc": "01:17:30",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1.6,
+       "x": 0.52,
+       "y": 0.68
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        550,
+        640,
+        960,
+        690
+       ],
+       "at": "tiers",
+       "label": "Règle du tiers : 2/3 libres",
+       "side": "top"
+      },
+      {
+       "box": [
+        550,
+        573,
+        960,
+        595
+       ],
+       "at": "cinq",
+       "label": "5G70 : 43 mm, très serré",
+       "side": "top"
+      }
+     ],
+     "caption": "Réponse de ChatGPT affichée par Tony"
+    }
+   ]
+  },
+  {
+   "id": "devis",
+   "chapter": "c7",
+   "passage": "AC",
+   "narration": "Ce réflexe va entrer dans l'outil devis : Gaël propose à Simon-Pierre d'ajouter la mesure du diamètre des gaines dans l'onglet quatre, Visite technique, à la ligne du passage de câbles entre TGBT et armoire. Retenez l'essentiel : votre rôle est de récolter les données. Au début, demandez le calcul à Camille, à l'agence de Lille, ou à votre conducteur de travaux.",
+   "concepts": [
+    "mesurer-gaine",
+    "recolter"
+   ],
+   "visual": {
+    "type": "checklist",
+    "title": "Dans l'outil devis",
+    "items": [
+     {
+      "text": "Onglet 4 · Visite technique",
+      "at": "onglet",
+      "sub": "Ligne « Passage de câbles TGBT – armoire »"
+     },
+     {
+      "text": "Ajouter : mesurer le diamètre des gaines",
+      "at": "diamètre",
+      "tone": "ok",
+      "sub": "Proposition envoyée à Simon-Pierre"
+     },
+     {
+      "text": "Votre rôle : récolter les données",
+      "at": "rôle"
+     },
+     {
+      "text": "Le calcul : Camille (agence de Lille) ou le conducteur de travaux",
+      "at": "calcul"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ch8",
+   "chapter": "c8",
+   "passage": "AD",
+   "narration": "Que deviennent vos relevés ensuite ? Et comment travailler en sécurité ?",
+   "concepts": [],
+   "visual": {
+    "type": "chapter",
+    "subtitle": "Lise PV, filiation, tableau IRVE, habilitation"
+   }
+  },
+  {
+   "id": "lisepv",
+   "chapter": "c8",
+   "passage": "AD",
+   "narration": "Camille reprend vos données dans Lise PV, un logiciel qui refait la note de calcul de toute l'installation. Il y saisit la puissance d'abonnement du TGBT, en kVA ; le logiciel en déduit le courant de court-circuit, qui sert à dimensionner les protections.",
+   "concepts": [
+    "lise-pv"
+   ],
+   "shots": [
+    {
+     "capture": "k-012605.jpg",
+     "tc": "01:26:05",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 2.4,
+       "x": 0.5,
+       "y": 0.48
+      }
+     ],
+     "hl": [],
+     "caption": "Lancement de Lise PV par Tony"
+    },
+    {
+     "capture": "k-012630.jpg",
+     "tc": "01:26:30",
+     "at": "saisit",
+     "cam": [
+      {
+       "at": "saisit",
+       "s": 1,
+       "x": 0.5,
+       "y": 0.5
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        1238,
+        152,
+        1432,
+        170
+       ],
+       "at": "abonnement",
+       "label": "Abonnement (kVA)",
+       "side": "left"
+      },
+      {
+       "box": [
+        1235,
+        555,
+        1432,
+        600
+       ],
+       "at": "court",
+       "label": "Courants de court-circuit",
+       "side": "left"
+      }
+     ],
+     "caption": "Schéma unifilaire d'exemple dans Lise PV"
+    }
+   ]
+  },
+  {
+   "id": "filiation",
+   "chapter": "c8",
+   "passage": "AE",
+   "narration": "C'est aussi pour ça qu'on photographie le TGBT : il faut la référence du disjoncteur général. Si le disjoncteur en amont est de la même marque et coupe très vite, il protège celui qu'on installe en dessous : c'est la filiation, qui permet de poser un disjoncteur plus petit. Un simple sectionneur, lui, n'entre pas dans le calcul.",
+   "concepts": [
+    "photo-disjoncteur",
+    "filiation"
+   ],
+   "visual": {
+    "type": "diagram",
+    "name": "filiation"
+   }
+  },
+  {
+   "id": "liseparams",
+   "chapter": "c8",
+   "passage": "AE",
+   "narration": "Dans Lise PV, on retrouve nos paramètres : longueur, mode de pose, température, circuits, métal. Avec quarante degrés dans la pièce, trente-cinq millimètres carrés passent à cinquante millimètres carrés.",
+   "concepts": [
+    "lise-params"
+   ],
+   "shots": [
+    {
+     "capture": "k-013440.jpg",
+     "tc": "01:34:40",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1,
+       "x": 0.5,
+       "y": 0.5
+      },
+      {
+       "at": "quarante",
+       "s": 1.8,
+       "x": 0.88,
+       "y": 0.3
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        1238,
+        108,
+        1432,
+        200
+       ],
+       "at": "paramètres",
+       "side": "left",
+       "until": "quarante"
+      },
+      {
+       "box": [
+        1238,
+        152,
+        1432,
+        170
+       ],
+       "at": "quarante",
+       "label": "Température ambiante",
+       "side": "left"
+      },
+      {
+       "box": [
+        1238,
+        276,
+        1432,
+        292
+       ],
+       "at": "trente",
+       "label": "Section : 35 mm² → 50 mm²",
+       "side": "left"
+      }
+     ],
+     "caption": "Lise PV : caractéristiques du câble"
+    }
+   ]
+  },
+  {
+   "id": "tableau",
+   "chapter": "c8",
+   "passage": "AF",
+   "narration": "Le tableau IRVE que nous installons contient un disjoncteur magnétothermique, un disjoncteur différentiel et des contacteurs. Une séance sur l'électricité générale est prévue pour détailler ces composants.",
+   "concepts": [
+    "tableau-irve"
+   ],
+   "shots": [
+    {
+     "capture": "k-013552.jpg",
+     "tc": "01:35:52",
+     "at": null,
+     "cam": [
+      {
+       "at": null,
+       "s": 1.4,
+       "x": 0.5,
+       "y": 0.4
+      }
+     ],
+     "hl": [
+      {
+       "box": [
+        540,
+        100,
+        892,
+        558
+       ],
+       "at": "tableau",
+       "label": "Armoire IRVE",
+       "side": "right"
+      }
+     ],
+     "caption": "Photo d'armoire IRVE du support de formation"
+    }
+   ]
+  },
+  {
+   "id": "securite",
+   "chapter": "c8",
+   "passage": "AF",
+   "narration": "Un point de sécurité, sans exception : sous les plastrons du TGBT, il y a de la tension. Ne les retirez qu'avec une habilitation électrique, ou en présence d'un technicien habilité, de chez nous ou du site. Tony a déjà pris une décharge : un disjoncteur différentiel l'a protégé. Si la protection est absente ou défectueuse, c'est un risque de mort. Certains sites industriels refusent d'ailleurs l'accès aux TGBT sans habilitation.",
+   "concepts": [
+    "plastrons",
+    "differentiel-anecdote",
+    "acces-industrie"
+   ],
+   "visual": {
+    "type": "checklist",
+    "title": "Sécurité devant un TGBT",
+    "items": [
+     {
+      "text": "Sous les plastrons : de la tension",
+      "at": "plastrons",
+      "tone": "no"
+     },
+     {
+      "text": "Les retirer seulement avec une habilitation électrique",
+      "at": "retirez",
+      "tone": "no",
+      "sub": "Ou en présence d'un technicien habilité, de Rossini Energy ou du site"
+     },
+     {
+      "text": "Protection absente ou défectueuse : risque de mort",
+      "at": "absente",
+      "tone": "no"
+     },
+     {
+      "text": "Certains sites refusent l'accès sans habilitation",
+      "at": "certains",
+      "tone": "warn"
+     }
+    ]
+   }
+  },
+  {
+   "id": "habilitation",
+   "chapter": "c8",
+   "passage": "AG",
+   "narration": "Pour se former : seul, chez Socotec, avec d'autres entreprises ; ou, à partir de cinq personnes, un formateur vient chez nous. Une nouvelle session est prévue.",
+   "concepts": [
+    "formation-habilitation"
+   ],
+   "visual": {
+    "type": "figures",
+    "title": "Passer l'habilitation électrique",
+    "figures": [
+     {
+      "value": "1",
+      "unit": "pers.",
+      "label": "Session chez Socotec, avec d'autres entreprises",
+      "at": "seul"
+     },
+     {
+      "value": "5+",
+      "unit": "pers.",
+      "label": "Un formateur vient chez Rossini Energy",
+      "at": "cinq"
+     }
+    ]
+   }
+  },
+  {
+   "id": "recap",
+   "chapter": "c9",
+   "passage": "AG",
+   "narration": "À retenir avant chaque visite : la puissance souscrite et le tarif ; une photo du TGBT avec la référence du disjoncteur général ; les places libres dans les répartiteurs, avec une personne habilitée ; les longueurs, le mode de pose et la température ; le diamètre et l'occupation des gaines ; et, pour les véhicules, la batterie et les puissances AC et DC.",
+   "concepts": [],
+   "visual": {
+    "type": "checklist",
+    "title": "À relever à chaque visite",
+    "items": [
+     {
+      "text": "Puissance souscrite et tarif",
+      "at": "souscrite",
+      "tone": "ok"
+     },
+     {
+      "text": "Photo du TGBT et référence du disjoncteur général",
+      "at": "photo",
+      "tone": "ok"
+     },
+     {
+      "text": "Places libres dans les répartiteurs (personne habilitée)",
+      "at": "places",
+      "tone": "ok"
+     },
+     {
+      "text": "Longueurs, mode de pose, température",
+      "at": "longueurs",
+      "tone": "ok"
+     },
+     {
+      "text": "Diamètre et occupation des gaines",
+      "at": "diamètre",
+      "tone": "ok"
+     },
+     {
+      "text": "Véhicules : batterie, puissances AC et DC",
+      "at": "véhicules",
+      "tone": "ok"
+     }
+    ]
+   }
+  },
+  {
+   "id": "suites",
+   "chapter": "c9",
+   "passage": "AH",
+   "narration": "Prochaines étapes : Tony prépare un document sur la mesure bâtiment et une séance d'électricité générale ; Gaël transmet la proposition sur les gaines à Simon-Pierre ; et le travail sur l'ISO quinze mille cent dix-huit se poursuit l'an prochain, avec Federico. Bonne visite technique !",
+   "concepts": [
+    "suites"
+   ],
+   "visual": {
+    "type": "checklist",
+    "title": "Prochaines étapes",
+    "items": [
+     {
+      "text": "Document sur la mesure bâtiment",
+      "at": "document",
+      "sub": "Tony"
+     },
+     {
+      "text": "Séance d'électricité générale : magnétothermique, différentiel",
+      "at": "séance",
+      "sub": "Tony et Gaël"
+     },
+     {
+      "text": "Mesure des gaines dans l'outil devis",
+      "at": "proposition",
+      "sub": "Gaël, auprès de Simon-Pierre"
+     },
+     {
+      "text": "Compatibilité ISO 15118",
+      "at": "travail",
+      "sub": "Tony et Federico, l'an prochain"
+     }
+    ]
+   }
+  }
+ ]
+}
