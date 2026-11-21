@@ -186,9 +186,18 @@ RossiniEnergy (plugin Vidéos RossiniEnergy, ou `rossini_video.py ingest` dans
 
 ## Démos d'interface (openvid)
 
-Pour un enregistrement d'écran (app, site, logiciel), utilise le skill
+Pour un enregistrement d'écran déjà fourni (app, site, logiciel), utilise le skill
 `openvid-interface-video`. `scripts/openvid.sh` installe openvid au commit vérifié
 dans `tools/openvid` au premier lancement, puis le démarre sur le port 3077.
+
+## Tutoriels de nos outils : le studio de tournage
+
+Une vidéo de prise en main ou de formation d'un outil que nous avons construit (Bigup, Rossini CRM, Appels
+d'offres, Formation, Administration, Plane, tout outil futur) se tourne dans son studio de tournage : skill
+`studio-de-tournage`. Copie locale de l'outil au commit déployé, compte de démonstration aux droits de base,
+entreprises réelles et personnes fictives, aucun accès de production. Tournage par Playwright
+(`tools/studio`, `scripts/studio_record.mjs`), zoom automatique (`scripts/studio_camera.py`), montage par le kit
+`kits/tuto-interface`. Les studios vivent dans `studios/<outil>/` : scripts versionnés, données et secrets hors Git.
 
 ## Films en code dans un style nommé (Lemo-Opuscar)
 

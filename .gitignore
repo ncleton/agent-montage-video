@@ -21,3 +21,8 @@ __pycache__/
 .env.*
 tools/lemo-opuscar/
 tools/hyperframes/node_modules/
+
+# Studios de tournage : données de vitrine, bases et secrets locaux
+studios/*/data/
+studios/*/.dev.vars
+.dev.vars

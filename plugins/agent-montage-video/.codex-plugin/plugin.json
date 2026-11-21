@@ -1,6 +1,6 @@
 {
   "name": "agent-montage-video",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Monte vos vidéos sur le poste de montage ou votre ordinateur : motion design, styles (pixel-rpg par défaut), démos d'interface, voix off, vérification image par image, publication Mux, et commandes vidéo des agents de l'ERP Rossini.",
   "author": {
     "name": "Nicolas Cléton"
@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "Montage vidéo",
     "shortDescription": "Montage vidéo, poste de montage et commandes de l'ERP",
-    "longDescription": "Oscar, l'agent vidéo de Rossini Energy. Analyse les rushes, construit la timeline, ajoute textes animés (HyperFrames) et motion design (Remotion), réalise des films en code (Lemo-Opuscar) ou dans le style pixel-rpg, habille les démos d'interface (openvid), place la voix off VoiceStudio puis ElevenLabs, vérifie chaque image avant livraison et publie sur Mux. Sur le poste de montage, un service prend les commandes vidéo passées par les agents de l'ERP (Apolline, Margaux) et rend un résultat mesuré.",
+    "longDescription": "Oscar, l'agent vidéo de Rossini Energy. Analyse les rushes, construit la timeline, ajoute textes animés (HyperFrames) et motion design (Remotion), réalise des films en code (Lemo-Opuscar) ou dans le style pixel-rpg, tourne les tutoriels de nos outils dans un studio local (Playwright, zoom automatique) et habille les démos d'interface (openvid), place la voix off VoiceStudio puis ElevenLabs, vérifie chaque image avant livraison et publie sur Mux. Sur le poste de montage, un service prend les commandes vidéo passées par les agents de l'ERP (Apolline, Margaux) et rend un résultat mesuré.",
     "developerName": "Nicolas Cléton",
     "category": "Productivity",
     "capabilities": [
