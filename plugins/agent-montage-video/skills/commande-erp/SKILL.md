@@ -31,6 +31,7 @@ par la personne. Tu l'exécutes ici, avec les outils de ce dépôt, et tu ne re�
 - [ ] Faire la vidéo selon l'AGENTS.md du dépôt (voix VoiceStudio, rendu par tranches, 4K) et le style demandé
       (`styles/<style>/README.md`). Vidéo pédagogique : skill `motion-explainer`, et `meet-video-pedagogique` pour une
       réunion enregistrée. Appels d'offres : le skill d'Oscar transmis dans `order.json` et `kits/ao-essentiel`.
+      Tutoriel d'un outil de l'ERP (`brief.interface`) : skill `studio-de-tournage`.
 - [ ] À chaque étape : `report progress --step "…" --percent N --eta <secondes>`, avec `--checkpoint
       work/checkpoint.json` (étapes faites, tranches rendues) et une image d'aperçu (`--preview`) quand elle existe.
 - [ ] Publier la vidéo vérifiée : `scripts/with_secrets.sh python3 scripts/publish_mux.py --video out/<film>.mp4
@@ -40,6 +41,22 @@ par la personne. Tu l'exécutes ici, avec les outils de ce dépôt, et tu ne re�
       "…"` et un `--check <id>="mesure"` par critère ajouté au bon. Le script mesure lui-même durée et résolution
       (ffprobe), vérifie la vidéo image par image (`video-frame-review`) et lit le lien Mux ; le serveur confronte ces
       mesures au bon. S'il refuse, corriger et recommencer.
+
+## Premier jet et version définitive
+
+- `brief.voice` vaut `voicestudio` par défaut : c'est le **premier jet**, voix gratuite et locale. Le résumé le dit
+  (« premier jet en voix VoiceStudio ») ; l'agent qui a commandé proposera ensuite la voix définitive à la personne.
+  Tu rends la vidéo à cet agent (Apolline, Margaux), cheffe de projet, jamais directement à la personne : le serveur
+  la prévient en son nom une fois qu'elle a repris le résultat.
+- `brief.revision_of` = `ord_…` : **version définitive** d'une commande livrée. Reprendre
+  `projects/commande-<revision_of>/` (scénario, tournage `work/rec`, caméra, montage, style) dans le dossier de cette
+  commande ; ne refaire que ce que le bon change. Voix ElevenLabs (`brief.voice` = `elevenlabs`, payante, acceptée
+  par la personne sur la carte du bon) avec le skill `voice-intonation` (Eleven v3, meilleure prise sur plusieurs,
+  mesure de l'intonation), clé par `scripts/with_secrets.sh`. Recaler gestes, sous-titres et caméra sur la nouvelle
+  voix, rendre, vérifier image par image, publier sur Mux. Le premier jet reste sur Mux : l'agent qui a commandé le
+  remplace dans sa leçon ; ne le supprimer que lorsqu'aucune leçon ne l'utilise.
+- Le dossier du premier jet manque (autre poste, nettoyé) : `report fail` avec cette raison exacte ; ne jamais
+  retourner une vidéo pour éviter l'échec sans le dire.
 
 ## Questions : une seule série, à la personne
 
