@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { cpus, loadavg } from "node:os";
-import { studioChromeOptions } from "./studio_chrome.mjs";
+import { studioChromeOptions, studioCache } from "./studio_chrome.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(join(ROOT, "tools/studio/package.json"));
@@ -81,6 +81,7 @@ const context = await browser.newContext({
   timezoneId: scenario.timezone ?? "Europe/Paris", colorScheme: scenario.theme === "dark" ? "dark" : "light",
   extraHTTPHeaders: scenario.headers ?? {},
 });
+await studioCache(context, scenario);
 const page = await context.newPage();
 const target = (t, where = page) => {
   if (!t || typeof t !== "object") fail("cible manquante ou invalide : " + JSON.stringify(t));

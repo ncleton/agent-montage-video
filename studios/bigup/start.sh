@@ -43,6 +43,9 @@ open("hubspot-test-portal", "w").write(str(portal))
 ' || fail "portail HubSpot refusé (voir ci-dessus) ; retirer $DATA/hubspot-test-token."
 fi
 
+# Schéma de la plateforme au commit du studio, comme deploy.sh le fait avant chaque version (service provision).
+env -i PATH=/usr/bin:/bin HOME="$HOME"   LEADGENERATOR_DATABASE_URL="postgresql://postgres:$(cat pg-password)@127.0.0.1:$PG_PORT/studio"   LEADGENERATOR_RUNTIME_PASSWORD="$(cat runtime-password)"   venv/bin/leadgenerator-platform-provision > provision.log 2>&1 || fail "migration de la plateforme refusée (journal : $DATA/provision.log)."
+
 if [ "$(up http://127.0.0.1:$PLATFORM_PORT/health)" = "000" ]; then
   detach env -i PATH=/usr/bin:/bin HOME="$HOME" \
     ${HUBSPOT_TEST_TOKEN:+HUBSPOT_ACCESS_TOKEN=$HUBSPOT_TEST_TOKEN} \
@@ -84,5 +87,7 @@ for pair in "commercial $COMMERCIAL_PORT" "admin $ADMIN_PORT"; do
     wait_for http://127.0.0.1:$2/ 20 "Le relais $1" "$DATA/relay-$1.log"
   fi
 done
+# Le score de chaque prospect est calculé par le serveur (row_scores) : clients gagnés puis passage de score.
+"$STUDIO_DIR/score.sh" > "$DATA/score.log" 2>&1 || fail "score des prospects non calculé (journal : $DATA/score.log)."
 echo "Studio Bigup prêt : commercial de démonstration http://127.0.0.1:$COMMERCIAL_PORT (réglage : http://127.0.0.1:$ADMIN_PORT)"
 

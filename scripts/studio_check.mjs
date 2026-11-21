@@ -14,7 +14,7 @@ import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { studioChromeOptions } from "./studio_chrome.mjs";
+import { studioChromeOptions, studioCache } from "./studio_chrome.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(join(ROOT, "tools/studio/package.json"));
@@ -40,6 +40,7 @@ const ADVISORY = [[/\bNon (?:trouvé|mesurée?|publié|confirmé)\b/i, "valeur f
 const browser = await chromium.launch(studioChromeOptions(scenario));
 const context = await browser.newContext({ viewport: scenario.viewport ?? { width: 1920, height: 1080 }, locale: scenario.locale ?? "fr-FR",
   timezoneId: scenario.timezone ?? "Europe/Paris", colorScheme: scenario.theme === "dark" ? "dark" : "light", extraHTTPHeaders: scenario.headers ?? {} });
+await studioCache(context, scenario);
 const page = await context.newPage();
 const target = (t, where = page) => {
   let loc;

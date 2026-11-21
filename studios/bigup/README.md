@@ -11,9 +11,17 @@ Google, ni jeton HubSpot de Rossini.
 
 ## Démarrer, arrêter, semer
 
-    ./start.sh          # Postgres, Drive du studio, plateforme, Site, relais d'identité
+    ./start.sh          # Postgres, migration de la plateforme, Drive du studio, plateforme, Site, relais, score
     seed/all.sh         # entreprises, secteurs de tournée, HubSpot de test, case Prospects (25)
+    data/venv/bin/python seed/seed_shared_table.py   # Tableur partagé : la liste des stations de ski (475 lignes)
+    ./score.sh          # clients gagnés (portail de test) puis passage de score, relançable à la main
     ./stop.sh
+
+Mettre le studio au code en production : data/site au commit de la dernière version Sites publiée (journal de
+publication), puis npm --prefix data/site run build ; data/platform au commit de l'image leadgenerator-platform de
+l'API en production (docker ps sur contabo-leadgen) ; puis ./stop.sh et ./start.sh. start.sh applique le schéma de
+la plateforme (service provision, comme deploy.sh) et score.sh recalcule le score de chaque prospect : depuis le
+21/11/2026, seul le serveur le calcule (row_scores), d'après les clients gagnés qu'il lit dans HubSpot.
 
 Le contrôle avant tournage : `node ../../scripts/studio_check.mjs <scenario.json> <sortie>` (règle 6 du studio).
 
@@ -31,6 +39,15 @@ Le contrôle avant tournage : `node ../../scripts/studio_check.mjs <scenario.jso
   0ACtpltj6bPe6Uk9PVA sur trois niveaux avec le connecteur et réécrire ce fichier, puis relancer `./start.sh`.
 
 ## Données de vitrine
+
+- Tableur partagé (seed/seed_shared_table.py) : la liste de production « Stations de ski France · recharge et
+  ombrières » entière, partagée en lecture à Camille comme Nicolas partage une liste générée sur demande. Chaque
+  personne devient un double fictif (contact de ligne, mentions dans les réponses, nom de famille seul ou collé), les
+  profils LinkedIn sont retirés ; le semis échoue s'il reste un nom réel. --campaign <id> partage une autre liste
+  (Weldom : 72a41e0f-a2e4-420a-8388-bfc86bccd769).
+- Images IGN : les scénarios de Bigup portent "cache": {"dir": "work/cache-images", "hosts": ["data\\.geopf\\.fr"]}
+  (scripts/studio_chrome.mjs) : le Géoportail refuse les rafales d'orthophotos du Tableur, le cache les sert à
+  l'identique au contrôle et au tournage.
 
 - Entreprises réelles d'un livret de production (lecture seule par SSH), avec leurs réponses sourcées, parking,
   cadastre, score et logo. Chaque vraie personne devient un double fictif ; le semis échoue s'il en reste une.

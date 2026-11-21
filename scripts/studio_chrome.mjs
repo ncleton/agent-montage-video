@@ -22,3 +22,44 @@ export function studioChromeOptions(scenario) {
     ],
   };
 }
+
+// Cache disque des images publiques qu'un écran charge par rafales (orthophotos IGN du Tableur, Nicolas 21/11/2026) :
+// le Géoportail refuse parfois une rafale et l'écran affiche « Image IGN indisponible » sur une ligne au hasard.
+// scenario.cache = { "dir": "work/cache-images", "hosts": ["data\\.geopf\\.fr"] } : chaque image est demandée une fois,
+// avec des essais espacés, gardée sur le disque, puis servie à l'identique au contrôle comme au tournage.
+export async function studioCache(context, scenario) {
+  const cache = scenario.cache;
+  if (!cache) return;
+  const { mkdirSync, existsSync, readFileSync, writeFileSync } = await import("node:fs");
+  const { join, resolve } = await import("node:path");
+  const { createHash } = await import("node:crypto");
+  const dir = resolve(cache.dir ?? "work/cache-images");
+  mkdirSync(dir, { recursive: true });
+  const hosts = new RegExp("^https?://(?:" + (cache.hosts ?? ["data\\.geopf\\.fr"]).join("|") + ")/");
+  await context.route((url) => hosts.test(url.href), async (route) => {
+    const key = createHash("sha256").update(route.request().url()).digest("hex");
+    const body = join(dir, key + ".bin"), meta = join(dir, key + ".json");
+    if (existsSync(body) && existsSync(meta)) {
+      const m = JSON.parse(readFileSync(meta, "utf8"));
+      return route.fulfill({ status: 200, contentType: m.contentType, body: readFileSync(body), headers: { "access-control-allow-origin": "*" } });
+    }
+    let last = "";
+    for (let attempt = 0; attempt < 6; attempt++) {
+      try {
+        const res = await route.fetch({ timeout: 30000 });
+        const type = res.headers()["content-type"] ?? "";
+        if (res.ok() && type.startsWith("image/")) {
+          const buffer = await res.body();
+          writeFileSync(body, buffer);
+          writeFileSync(meta, JSON.stringify({ url: route.request().url(), contentType: type }));
+          return route.fulfill({ status: 200, contentType: type, body: buffer, headers: { "access-control-allow-origin": "*" } });
+        }
+        last = res.status() + " " + type;
+      } catch (e) { last = e.message.split("\n")[0]; }
+      await new Promise((r) => setTimeout(r, 800 * (attempt + 1) + Math.random() * 600));
+    }
+    console.error("cache d'images : " + route.request().url().slice(0, 160) + " refusée six fois (" + last + ")");
+    return route.continue();
+  });
+}
+
