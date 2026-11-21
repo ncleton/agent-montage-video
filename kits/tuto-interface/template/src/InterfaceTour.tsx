@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Audio, Img, OffthreadVideo, Sequence, interpolate, Easing, spring, staticFile, useCurrentFrame, useVideoConfig, type CalculateMetadataFunction } from "remotion";
+import { AbsoluteFill, Audio, Freeze, Img, OffthreadVideo, Sequence, interpolate, Easing, spring, staticFile, useCurrentFrame, useVideoConfig, type CalculateMetadataFunction } from "remotion";
 import { loadFont } from "@remotion/google-fonts/Montserrat";
 
 const { fontFamily } = loadFont("normal", { weights: ["500", "600", "700"], subsets: ["latin", "latin-ext"] });
@@ -171,9 +171,17 @@ export const InterfaceTour: React.FC<TourProps> = (props) => {
           <Frame look={look} x={pad} y={top} w={winW} h={winH} u={u}>
             <div style={{ position: "absolute", width: W, height: H, left: 0, top: 0, transformOrigin: "0 0",
               transform: "scale(" + k + ") translate(" + (W / 2 - cam.x * cam.scale) + "px," + (H / 2 - cam.y * cam.scale) + "px) scale(" + cam.scale + ")" }}>
-              <Sequence from={introF} durationInFrames={tourF} layout="none">
-                <OffthreadVideo src={staticFile(video)} muted style={{ width: W, height: H }} />
-              </Sequence>
+              {/* Pendant que la fenêtre entre et sort, elle montre la première et la dernière image du tournage, figées :
+                  jamais une fenêtre vide (écran blanc avant la fermeture). */}
+              {f < introF ? (
+                <Freeze frame={0}><OffthreadVideo src={staticFile(video)} muted style={{ width: W, height: H }} /></Freeze>
+              ) : f >= outroAt ? (
+                <Freeze frame={tourF - 1}><OffthreadVideo src={staticFile(video)} muted style={{ width: W, height: H }} /></Freeze>
+              ) : (
+                <Sequence from={introF} durationInFrames={tourF} layout="none">
+                  <OffthreadVideo src={staticFile(video)} muted style={{ width: W, height: H }} />
+                </Sequence>
+              )}
             </div>
             {ripples.map((st) => {
               const at = timeline.frames[Math.min(st, tourF - 1)].cursor, p = toWin(at.x * zoom, at.y * zoom);
