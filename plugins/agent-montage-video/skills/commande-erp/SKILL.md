@@ -44,6 +44,8 @@ par la personne. Tu l'exécutes ici, avec les outils de ce dépôt, et tu ne re�
       les dossiers d'appels d'offres (bases de la vente et de l'AO) : utilisée nulle part, la retirer (suppression
       définitive, notée dans le résumé avec son titre) puis publier. Aucune ancienne version libre : `report fail` avec
       la liste des vidéos et ce qu'il faut décider.
+- [ ] Un studio construit ou modifié pour la commande (`studios/<outil>/`, scripts du dépôt) est enregistré dans Git et
+      poussé avant de terminer : scripts, README, `assets/` ; `data/` reste hors Git. Le prochain tournage part de là.
 - [ ] Terminer : `report finish --video out/<film>.mp4 --mux out/<film>.mux.json --subtitles work/<film>.srt --summary
       "…"` et un `--check <id>="mesure"` par critère ajouté au bon. Le script mesure lui-même durée et résolution
       (ffprobe), vérifie la vidéo image par image (`video-frame-review`) et lit le lien Mux ; le serveur confronte ces

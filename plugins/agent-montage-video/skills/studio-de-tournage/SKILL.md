@@ -26,7 +26,9 @@ où l'on peut tout cliquer sans risque. On ne filme jamais l'outil en production
 6. **Aucun manque à l'écran** : chaque écran filmé est complet, comme chez un commercial bien installé. Pas de message
    d'erreur, de réglage manquant (« HubSpot n'est pas configuré »), d'état vide (« Aucun secteur n'est prévu »), de
    chargement sans fin (« Calcul... », « Recherche en attente »), de valeur « À valider » ou « introuvable », de ligne
-   répétée (six fois la même source) ni de fiche ou de panneau qui sort de l'écran. Un manque se corrige dans le studio
+   répétée (six fois la même source), d'image cassée, de couverture ou de logo vide (une icône à la place de l'image)
+   ni de fiche ou de panneau qui sort de l'écran. Le studio n'a pas internet : une image de démonstration est un
+   fichier du studio (`studios/<outil>/assets`) servi par le Site local. Un manque se corrige dans le studio
    (semis, réglage, secteur de tournée, portail de test), jamais en évitant l'écran ni en le recadrant ; un défaut de
    l'outil lui-même (étiquettes en double) se corrige dans l'outil et se publie. Les volumes sont ceux de la
    production : la case Prospects de Bigup montre toujours 25 prospects, dont quelques ajouts manuels.
