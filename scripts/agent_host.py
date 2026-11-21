@@ -39,6 +39,7 @@ import ssl
 import subprocess
 import sys
 import time
+import tomllib
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -52,14 +53,19 @@ VERSION = "1"
 POLL_SECONDS = 30
 HEARTBEAT_SECONDS = 60
 MAX_HOURS = 12
-# The model and the endpoint of Codex come from agent-host.json, never from the personal Codex configuration of the
-# Mac. Since 21/11/2026 Oscar works on Claude Opus 5.5 (Nicolas) through the local OpenCodex proxy:
-#   "model": "anthropic/claude-opus-5-5", "codex_url": "http://127.0.0.1:10100/v1"
+# Which model Oscar works with (Nicolas, 21/11/2026) : the one OpenCodex is set to. agent-host.json says
+#   "model": "opencodex"
+# and every new order reads, at its start, the model and the proxy address OpenCodex writes in the Codex
+# configuration of the Mac (~/.codex/config.toml, « model » and « openai_base_url ») : a model switched in OpenCodex
+# is the model of the next order, and the Claude account the proxy picks is the account Oscar uses. An order already
+# running keeps the model it started with. A fixed model is still possible ("model" and "codex_url"); without either,
+# the team's ChatGPT account.
 # A local proxy once sent an order to Anthropic accounts that had reached their limit and the render stopped at
-# 74 % (19/11/2026): with a Claude model, the computer takes no new order while every Anthropic account of the
-# proxy is at its limit (claude_quota), and says until when. Without those two keys: the team's ChatGPT account.
+# 74 % (19/11/2026): the computer takes no new order while every account of the model's provider is at its limit
+# (provider_quota), and says until when.
 DEFAULT_MODEL = "gpt-6.2-sol"
 CHATGPT_CODEX_URL = "https://chatgpt.com/backend-api/codex"
+CODEX_CONFIG = Path.home() / ".codex/config.toml"
 OPENCODEX_QUOTA = Path.home() / ".opencodex/provider-account-quota-cache.json"
 QUOTA_LIMIT = 97  # percent of a window used: above it, an account cannot carry a whole render
 FRAME_REVIEW = ROOT / "plugins/agent-montage-video/skills/video-frame-review/scripts/detect_inserted.py"
@@ -199,11 +205,30 @@ def machine_info() -> dict:
 # --------------------------------------------------------------------------- the service
 
 
-def claude_quota(model: str) -> str | None:
-    """None when the model can take an order now; otherwise why not and until when (every Anthropic account of the
-    OpenCodex proxy at its limit). A stale or unreadable quota record never blocks: the proxy itself then decides."""
-    if not model.startswith("anthropic/"):
+def engine(config: dict) -> tuple[str, str]:
+    """The model and the Codex endpoint of the next order: OpenCodex's current choice when the computer follows it."""
+    if config.get("model") == "opencodex":
+        try:
+            codex = tomllib.loads(CODEX_CONFIG.read_text())
+        except (OSError, tomllib.TOMLDecodeError) as exc:
+            raise RuntimeError(f"configuration Codex illisible ({CODEX_CONFIG}) : {exc}") from None
+        model, url = codex.get("model"), codex.get("openai_base_url")
+        if not isinstance(model, str) or not model or not isinstance(url, str) or not url:
+            raise RuntimeError(
+                f"OpenCodex n'a pas réglé Codex sur ce Mac ({CODEX_CONFIG} sans model ou openai_base_url) : "
+                "relancer OpenCodex, ou fixer model et codex_url dans agent-host.json."
+            )
+        return model, url
+    return config.get("model") or DEFAULT_MODEL, config.get("codex_url") or CHATGPT_CODEX_URL
+
+
+def provider_quota(model: str) -> str | None:
+    """None when the model can take an order now; otherwise why not and until when (every account of the model's
+    provider in the OpenCodex proxy at its limit). A stale or unreadable quota record never blocks: the proxy itself
+    then decides."""
+    if "/" not in model:
         return None
+    provider = model.split("/", 1)[0]
     try:
         rows = json.loads(OPENCODEX_QUOTA.read_text()).get("rows", {})
     except (OSError, ValueError):
@@ -211,7 +236,7 @@ def claude_quota(model: str) -> str | None:
     now = time.time() * 1000
     accounts, resets = 0, []
     for key, row in rows.items():
-        if not key.startswith("anthropic") or not isinstance(row, dict):
+        if key.split("\x00", 1)[0] != provider or not isinstance(row, dict):
             continue
         if now - float(row.get("updatedAt") or 0) > 3 * 3600 * 1000:
             return None
@@ -227,7 +252,7 @@ def claude_quota(model: str) -> str | None:
     if not accounts:
         return None
     until = datetime.fromtimestamp(min(resets) / 1000).strftime("%d/%m à %H h %M")
-    return f"comptes Claude de ce poste à leur limite jusqu'au {until} : la commande attend en file"
+    return f"comptes {provider} d'OpenCodex à leur limite pour {model} jusqu'au {until} : la commande attend en file"
 
 
 def order_dir(order_id: str) -> Path:
@@ -324,8 +349,8 @@ class Service:
         codex = shutil.which("codex") or str(Path.home() / ".local/bin/codex")
         command = ["caffeinate", "-i", "-s", codex, "exec", "-C", str(ROOT), "--skip-git-repo-check",
                    "--dangerously-bypass-approvals-and-sandbox", "-o", str(folder / "work/derniere-reponse.txt")]
-        command += ["-m", self.config.get("model") or DEFAULT_MODEL,
-                    "-c", 'openai_base_url="%s"' % (self.config.get("codex_url") or CHATGPT_CODEX_URL)]
+        model, url = engine(self.config)
+        command += ["-m", model, "-c", 'openai_base_url="%s"' % url]
         command.append(prompt(order, folder, resumed))
         env = {**os.environ, "AGENT_HOST_ORDER_DIR": str(folder), "AGENT_HOST_CONFIG": str(CONFIG),
                "PATH": str(Path.home() / ".local/bin") + ":/opt/homebrew/bin:/usr/local/bin:" + os.environ.get("PATH", "")}
@@ -334,7 +359,9 @@ class Service:
         (folder / ".pid").write_text(str(process.pid))
         self.jobs[order["id"]] = {"server": server, "lease": lease, "process": process, "folder": folder,
                                   "started": time.time(), "beat": time.time(), "log": out}
-        log(f"{order['id']} : pris par ce poste ({'reprise' if resumed else 'nouvelle commande'}), Codex pid {process.pid}")
+        (folder / "work/modele.txt").write_text(f"{model} par {url}\n")
+        log(f"{order['id']} : pris par ce poste ({'reprise' if resumed else 'nouvelle commande'}), "
+            f"modèle {model}, Codex pid {process.pid}")
 
     def adopt(self) -> None:
         """At start: the Codex still running from before the restart keep their order (heartbeat, end reported)."""
@@ -392,7 +419,10 @@ class Service:
 
     def poll(self) -> None:
         info = machine_info()
-        waiting = claude_quota(self.config.get("model") or DEFAULT_MODEL)
+        try:
+            waiting = provider_quota(engine(self.config)[0])
+        except RuntimeError as exc:
+            waiting = str(exc)
         if waiting and waiting != getattr(self, "_waiting", None):
             log("poste de montage : " + waiting)
         self._waiting = waiting
@@ -412,7 +442,7 @@ class Service:
             if claimed.get("order"):
                 try:
                     self.start(server, claimed["order"], claimed["lease"])
-                except (ServerError, OSError) as exc:
+                except (ServerError, OSError, RuntimeError) as exc:
                     log(f"{claimed['order']['id']} : départ impossible ({exc})")
                     try:
                         call(server, "fail", {"id": claimed["order"]["id"], "lease": claimed["lease"],
