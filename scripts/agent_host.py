@@ -52,11 +52,16 @@ VERSION = "1"
 POLL_SECONDS = 30
 HEARTBEAT_SECONDS = 60
 MAX_HOURS = 12
-# The computer works on the team's ChatGPT account through Codex (decision R1, never an API key), whatever the
-# personal Codex configuration of the Mac says: a local proxy (OpenCodex) once sent an order to Anthropic accounts
-# that had reached their limit and the render stopped at 74 % (19/11/2026). Both can be changed in agent-host.json.
+# The model and the endpoint of Codex come from agent-host.json, never from the personal Codex configuration of the
+# Mac. Since 21/11/2026 Oscar works on Claude Opus 5.5 (Nicolas) through the local OpenCodex proxy:
+#   "model": "anthropic/claude-opus-5-5", "codex_url": "http://127.0.0.1:10100/v1"
+# A local proxy once sent an order to Anthropic accounts that had reached their limit and the render stopped at
+# 74 % (19/11/2026): with a Claude model, the computer takes no new order while every Anthropic account of the
+# proxy is at its limit (claude_quota), and says until when. Without those two keys: the team's ChatGPT account.
 DEFAULT_MODEL = "gpt-6.2-sol"
 CHATGPT_CODEX_URL = "https://chatgpt.com/backend-api/codex"
+OPENCODEX_QUOTA = Path.home() / ".opencodex/provider-account-quota-cache.json"
+QUOTA_LIMIT = 97  # percent of a window used: above it, an account cannot carry a whole render
 FRAME_REVIEW = ROOT / "plugins/agent-montage-video/skills/video-frame-review/scripts/detect_inserted.py"
 
 
@@ -192,6 +197,37 @@ def machine_info() -> dict:
 
 
 # --------------------------------------------------------------------------- the service
+
+
+def claude_quota(model: str) -> str | None:
+    """None when the model can take an order now; otherwise why not and until when (every Anthropic account of the
+    OpenCodex proxy at its limit). A stale or unreadable quota record never blocks: the proxy itself then decides."""
+    if not model.startswith("anthropic/"):
+        return None
+    try:
+        rows = json.loads(OPENCODEX_QUOTA.read_text()).get("rows", {})
+    except (OSError, ValueError):
+        return None
+    now = time.time() * 1000
+    accounts, resets = 0, []
+    for key, row in rows.items():
+        if not key.startswith("anthropic") or not isinstance(row, dict):
+            continue
+        if now - float(row.get("updatedAt") or 0) > 3 * 3600 * 1000:
+            return None
+        accounts += 1
+        full = [
+            float(row[f + "ResetAt"])
+            for f in ("fiveHour", "weekly")
+            if float(row.get(f + "Percent") or 0) >= QUOTA_LIMIT and float(row.get(f + "ResetAt") or 0) > now
+        ]
+        if not full:
+            return None
+        resets.append(max(full))
+    if not accounts:
+        return None
+    until = datetime.fromtimestamp(min(resets) / 1000).strftime("%d/%m à %H h %M")
+    return f"comptes Claude de ce poste à leur limite jusqu'au {until} : la commande attend en file"
 
 
 def order_dir(order_id: str) -> Path:
@@ -356,13 +392,17 @@ class Service:
 
     def poll(self) -> None:
         info = machine_info()
+        waiting = claude_quota(self.config.get("model") or DEFAULT_MODEL)
+        if waiting and waiting != getattr(self, "_waiting", None):
+            log("poste de montage : " + waiting)
+        self._waiting = waiting
         for server in self.config["servers"]:
             try:
                 hello = call(server, "hello", {"info": info})
             except (ServerError, OSError) as exc:
                 log(f"{server['name']} : {exc}")
                 continue
-            if hello.get("slots", 0) <= 0:
+            if hello.get("slots", 0) <= 0 or waiting:
                 continue
             try:
                 claimed = call(server, "claim")
