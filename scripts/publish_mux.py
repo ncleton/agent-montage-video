@@ -11,6 +11,7 @@ import base64
 import hashlib
 import json
 import os
+import re
 import time
 import urllib.error
 import urllib.request
@@ -45,7 +46,15 @@ def request_json(path: str, auth: str, body: dict | None = None) -> dict:
         with urllib.request.urlopen(request, timeout=40) as response:
             return json.load(response)
     except urllib.error.HTTPError as exc:
-        raise RuntimeError(f"Mux API HTTP {exc.code} on {path}") from None
+        try:
+            error = json.loads(exc.read(4096)).get("error", {})
+        except (ValueError, AttributeError):
+            error = {}
+        messages = error.get("messages", []) if isinstance(error, dict) else []
+        detail = " | ".join(message for message in messages if isinstance(message, str)) if isinstance(messages, list) else ""
+        detail = re.sub(r"https?://[^\s]+", "[URL masquée]", detail.replace(auth, "[identifiants masqués]"))[:600]
+        suffix = f": {detail}" if detail else ""
+        raise RuntimeError(f"Mux API HTTP {exc.code} on {path}{suffix}") from None
 
 
 def upload_file(url: str, path: Path) -> None:

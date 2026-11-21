@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { cpus, loadavg } from "node:os";
+import { studioChromeOptions } from "./studio_chrome.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(join(ROOT, "tools/studio/package.json"));
@@ -45,10 +46,19 @@ const framesDir = join(out, "frames");
 mkdirSync(framesDir, { recursive: true });
 mkdirSync(join(out, "shots"), { recursive: true });
 
-// Un poste surchargé filme saccadé (Chrome n'envoie plus ses images) : on attend qu'il se calme, 10 minutes au plus.
+// Un poste surchargé filme saccadé. Le load average peut rester élevé quand
+// des tâches attendent le disque ; on confirme avec le temps CPU réellement libre.
 {
   const limit = cpus().length * 1.5;
-  for (let waited = 0; loadavg()[0] > limit; waited += 15) {
+  const cpuTimes = () => cpus().reduce(({ idle, total }, { times }) => ({
+    idle: idle + times.idle,
+    total: total + Object.values(times).reduce((sum, value) => sum + value, 0),
+  }), { idle: 0, total: 0 });
+  for (let waited = 0; loadavg()[0] > limit; waited += 16) {
+    const before = cpuTimes();
+    await new Promise((resolveWait) => setTimeout(resolveWait, 1000));
+    const after = cpuTimes();
+    if (after.idle - before.idle >= 0.4 * (after.total - before.total)) break;
     if (waited >= 600) fail("poste surchargé depuis 10 minutes (charge " + loadavg()[0].toFixed(1) + " pour " + cpus().length + " cœurs) : la prise serait saccadée. Relancez quand le poste est calme.");
     if (waited === 0) console.log("studio_record : poste chargé (" + loadavg()[0].toFixed(1) + "), attente avant de filmer…");
     await new Promise((r) => setTimeout(r, 15000));
@@ -60,7 +70,12 @@ const density = scenario.density ?? 2;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const now = () => Date.now() / 1000;
 
-const browser = await chromium.launch({ headless: true });
+const chrome = studioChromeOptions(scenario);
+const browser = await chromium.launch({ headless: true, args: [
+  ...(chrome.args ?? []),
+  "--force-device-scale-factor=" + density,
+  "--window-size=" + view.width + "," + view.height,
+] });
 const context = await browser.newContext({
   viewport: view, deviceScaleFactor: density, locale: scenario.locale ?? "fr-FR",
   timezoneId: scenario.timezone ?? "Europe/Paris", colorScheme: scenario.theme === "dark" ? "dark" : "light",
@@ -219,12 +234,16 @@ await browser.close();
 if (frames.length < 2) fail("aucune image filmée : la page n'a rien affiché (vérifiez l'adresse du studio).");
 
 // Assemblage à 60 i/s constants : chaque image dure jusqu'à la suivante.
-const list = frames.map((f, k) => "file '" + f.file.replace(/'/g, "'\\''") + "'\nduration " + Math.max(0.001, ((frames[k + 1]?.t ?? tEnd) - f.t)).toFixed(4)).join("\n") + "\nfile '" + frames.at(-1).file + "'\n";
+const quote = (file) => "file '" + file.replace(/'/g, "'\\''") + "'\noption framerate 1000";
+const list = "ffconcat version 1.0\n" + frames.map((f, k) =>
+  quote(f.file) + "\nduration " + Math.max(0.001, ((frames[k + 1]?.t ?? tEnd) - f.t)).toFixed(4),
+).join("\n") + "\n" + quote(frames.at(-1).file) + "\n";
 writeFileSync(join(out, "frames.txt"), list);
 const W = view.width * density, H = view.height * density;
 const ff = spawnSync("ffmpeg", ["-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", join(out, "frames.txt"),
-  "-vf", "fps=" + FPS + ",scale=" + W + ":" + H + ":flags=lanczos,format=yuv420p", "-c:v", "libx264", "-preset", "slow", "-crf", "12",
-  "-t", ((Math.round((tEnd - t0) * FPS)) / FPS).toFixed(4), "-movflags", "+faststart", join(out, "raw.mp4")], { stdio: "inherit" });
+  "-vf", "fps=" + FPS + ":start_time=0,tpad=stop_mode=clone:stop_duration=1,format=yuv420p",
+  "-fps_mode", "cfr", "-c:v", "libx264", "-preset", "veryfast", "-crf", "12",
+  "-frames:v", String(Math.round((tEnd - t0) * FPS)), "-movflags", "+faststart", join(out, "raw.mp4")], { stdio: "inherit" });
 if (ff.status !== 0) fail("l'assemblage ffmpeg a échoué (code " + ff.status + ").");
 
 // Journal au format TimelineData : position du curseur à chaque image, en pixels CSS.

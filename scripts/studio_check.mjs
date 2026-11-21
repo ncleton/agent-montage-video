@@ -14,6 +14,7 @@ import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { studioChromeOptions } from "./studio_chrome.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(join(ROOT, "tools/studio/package.json"));
@@ -36,7 +37,7 @@ const BLOCKING = [
 const LOADING = /Chargement|Calcul(?:…|\.\.\.)|Recherche(?:…|\.\.\.)|Recherche en cours|(?:Recherche|Calcul) en attente|en file d['’]attente/i;
 const ADVISORY = [[/\bNon (?:trouvé|mesurée?|publié|confirmé)\b/i, "valeur finale « Non trouvé » : préférer une entreprise mieux renseignée pour un gros plan"]];
 
-const browser = await chromium.launch();
+const browser = await chromium.launch(studioChromeOptions(scenario));
 const context = await browser.newContext({ viewport: scenario.viewport ?? { width: 1920, height: 1080 }, locale: scenario.locale ?? "fr-FR",
   timezoneId: scenario.timezone ?? "Europe/Paris", colorScheme: scenario.theme === "dark" ? "dark" : "light", extraHTTPHeaders: scenario.headers ?? {} });
 const page = await context.newPage();
@@ -87,6 +88,19 @@ async function inspect(label) {
     return bad;
   });
   for (const o of overflow) found.push({ level: "bloquant", why: "panneau ou fenêtre qui dépasse de l'écran", text: o });
+  // Image cassée ou emplacement vide (couverture d'un sujet sans image, logo absent) : un manque visible.
+  const empty = await page.evaluate(() => {
+    const W = window.innerWidth, H = window.innerHeight, bad = [];
+    const shown = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el);
+      return r.width > 16 && r.height > 16 && r.bottom > 0 && r.right > 0 && r.top < H && r.left < W && cs.visibility !== "hidden" && cs.display !== "none" && +cs.opacity > 0.05; };
+    for (const img of document.querySelectorAll("img")) if (img.complete && img.naturalWidth === 0 && img.getAttribute("src") && shown(img)) bad.push("image cassée " + img.getAttribute("src").slice(0, 80));
+    for (const el of document.querySelectorAll('[class*="--empty"]')) if (shown(el)) {
+      const card = el.closest("article, li, a, button, [class*=card]") || el.parentElement;
+      bad.push("emplacement vide (" + [...el.classList].find((c) => c.endsWith("--empty")) + ") : " + ((card && card.innerText) || "").trim().split("\n")[0].slice(0, 80));
+    }
+    return bad;
+  });
+  for (const e of empty) found.push({ level: "bloquant", why: "image ou couverture manquante", text: e });
   const blocking = found.filter((f) => f.level === "bloquant");
   const shot = blocking.length ? join(out, "ecran-" + String(screens.length).padStart(2, "0") + "-" + label.replace(/[^a-z0-9-]+/gi, "_") + ".png") : null;
   if (shot) await page.screenshot({ path: shot, fullPage: true });
