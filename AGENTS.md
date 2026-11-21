@@ -197,7 +197,13 @@ d'offres, Formation, Administration, Plane, tout outil futur) se tourne dans son
 `studio-de-tournage`. Copie locale de l'outil au commit déployé, compte de démonstration aux droits de base,
 entreprises réelles et personnes fictives, aucun accès de production. Tournage par Playwright
 (`tools/studio`, `scripts/studio_record.mjs`), zoom automatique (`scripts/studio_camera.py`), montage par le kit
-`kits/tuto-interface`. Les studios vivent dans `studios/<outil>/` : scripts versionnés, données et secrets hors Git.
+`kits/tuto-interface` dans le style du bon (`styles/<nom>/kit.json`, pixel-rpg par défaut). Les studios vivent dans
+`studios/<outil>/` : scripts versionnés, données et secrets hors Git (modèle : `studios/bigup`, son README).
+
+Aucun écran filmé ne montre d'erreur, de réglage manquant, d'état vide ou de chargement (Nicolas, 21/11/2026 : « je
+veux pas ces messages d'erreurs dans les vidéos »). `scripts/studio_check.mjs` relit chaque écran du scénario et
+`scripts/studio_record.mjs` refuse de filmer sans un contrôle réussi sur le scénario exact. Un manque se corrige dans
+le studio (semis, réglage, portail de test), jamais en évitant l'écran. La caméra montre en entier ce qui s'ouvre.
 
 ## Films en code dans un style nommé (Lemo-Opuscar)
 
