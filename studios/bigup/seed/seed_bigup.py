@@ -107,6 +107,20 @@ class Fiction:
                 "email": f"{slug(first)}.{slug(last)}@example.fr", "phone": f"01 99 00 {h % 90 + 10:02d} {(h // 7) % 90 + 10:02d}"}
 
 
+def complete_contact(info: dict, fake: dict) -> None:
+    """Une recherche d'email ou de téléphone notée sans valeur se lit « Email introuvable » à l'écran (règle 6 du studio :
+    aucun manque filmé). La personne fictive reçoit donc ses coordonnées fictives (example.fr, plage 01 99 00 réservée
+    à la fiction) pour chaque champ recherché, et sa recherche est notée trouvée."""
+    searched = info.get("searched_fields") or []
+    for field in searched:
+        if field == "work_email" and not info.get("work_email"):
+            info["work_email"] = fake["email"]
+        elif field in ("phone", "mobile_phone") and not info.get(field):
+            info[field] = fake["phone"]
+    if searched or info.get("enrichment_status") == "pending":
+        info["enrichment_status"] = "found"
+
+
 class Names:
     """Table des vraies personnes et de leur double fictif, appliquée à tout le texte d'un enregistrement.
 
@@ -409,6 +423,7 @@ def main() -> None:
             info.update({"first_name": fake["first_name"], "last_name": fake["last_name"]})
             for gone in ("phone", "mobile_phone", "photo"):
                 info.pop(gone, None)
+            complete_contact(info, fake)
     for table, items in records.items():
         for item in items:
             item["data"] = people.replace(item["data"])

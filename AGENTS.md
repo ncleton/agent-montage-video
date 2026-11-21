@@ -201,7 +201,8 @@ entreprises réelles et personnes fictives, aucun accès de production. Tournage
 `studios/<outil>/` : scripts versionnés, données et secrets hors Git (modèle : `studios/bigup`, son README).
 
 Aucun écran filmé ne montre d'erreur, de réglage manquant, d'état vide ou de chargement (Nicolas, 21/11/2026 : « je
-veux pas ces messages d'erreurs dans les vidéos »). `scripts/studio_check.mjs` relit chaque écran du scénario et
+veux pas ces messages d'erreurs dans les vidéos »). `scripts/studio_check.mjs` relit chaque écran du scénario, après
+chaque geste aussi (lignes répétées, « introuvable », « Calcul... », panneau qui dépasse de l'écran compris), et
 `scripts/studio_record.mjs` refuse de filmer sans un contrôle réussi sur le scénario exact. Un manque se corrige dans
 le studio (semis, réglage, portail de test), jamais en évitant l'écran. La caméra montre en entier ce qui s'ouvre.
 

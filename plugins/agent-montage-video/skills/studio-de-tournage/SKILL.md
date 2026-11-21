@@ -25,9 +25,11 @@ où l'on peut tout cliquer sans risque. On ne filme jamais l'outil en production
 5. **Local seulement** : tout écoute sur 127.0.0.1, sur le poste de montage.
 6. **Aucun manque à l'écran** : chaque écran filmé est complet, comme chez un commercial bien installé. Pas de message
    d'erreur, de réglage manquant (« HubSpot n'est pas configuré »), d'état vide (« Aucun secteur n'est prévu »), de
-   chargement sans fin ni de valeur « À valider ». Un manque se corrige dans le studio (semis, réglage, secteur de
-   tournée, portail de test), jamais en évitant l'écran ni en le recadrant. Les volumes sont ceux de la production :
-   la case Prospects de Bigup montre toujours 25 prospects, dont quelques ajouts manuels.
+   chargement sans fin (« Calcul... », « Recherche en attente »), de valeur « À valider » ou « introuvable », de ligne
+   répétée (six fois la même source) ni de fiche ou de panneau qui sort de l'écran. Un manque se corrige dans le studio
+   (semis, réglage, secteur de tournée, portail de test), jamais en évitant l'écran ni en le recadrant ; un défaut de
+   l'outil lui-même (étiquettes en double) se corrige dans l'outil et se publie. Les volumes sont ceux de la
+   production : la case Prospects de Bigup montre toujours 25 prospects, dont quelques ajouts manuels.
 
 Avant de tourner, vérifier et noter dans le dossier du projet (`work/studio-check.md`) : commit de l'outil, compte
 et rôle filmés, absence de chaque secret de production (variables lues, pas supposées), échantillon d'entreprises,
@@ -42,8 +44,9 @@ et une capture de la page de départ relue.
    gestes du rôle filmé, un repère `mark` par phrase de la voix. Format et cibles :
    [references/scenario.md](references/scenario.md).
 3. **Contrôle des écrans** : `node scripts/studio_check.mjs work/scenario.json work/check` rejoue le scénario sans filmer et lit
-   chaque écran (ouverture, chaque repère, fin). Un constat bloquant arrête tout : corriger le studio, relancer, et
-   noter le résultat dans `work/studio-check.md`.
+   chaque écran : ouverture, chaque repère, **après chaque geste** (le panneau qu'un clic ouvre est relu) et fin. Un
+   constat bloquant arrête tout : corriger le studio, relancer, et noter le résultat dans `work/studio-check.md`.
+   Après le rendu, la revue image par image (`video-frame-review`) vérifie encore que rien n'est coupé par le cadre.
 4. **Tournage** : `node scripts/studio_record.mjs work/scenario.json work/rec` -> `raw.mp4` (4K, 60 i/s) et
    `timeline.json` (curseur, clics, frappes, repères). Une étape introuvable arrête le tournage avec la cible
    exacte : corriger le scénario, jamais la page.

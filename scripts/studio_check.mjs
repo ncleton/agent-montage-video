@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // Contrôle des écrans d'un tournage (skill studio-de-tournage) : rejoue le scénario dans le studio, sans filmer, et lit
-// tout le texte visible à l'ouverture, à chaque repère « mark » et à la fin. Le tournage n'a lieu que si aucun écran ne
-// montre d'erreur, de réglage manquant, d'état vide ou de chargement sans fin.
+// tout le texte visible à l'ouverture, à chaque repère « mark », après chaque geste (clic, survol, touche, saisie) et à
+// la fin : un panneau ouvert par un clic est relu, pas seulement l'écran d'avant. Le tournage n'a lieu que si aucun
+// écran ne montre d'erreur, de réglage manquant, d'état vide, de chargement sans fin, de ligne répétée ni de fenêtre ou
+// de panneau qui sort de l'écran.
 //
 //   node scripts/studio_check.mjs <scenario.json> <dossier-de-sortie>
 //
@@ -31,7 +33,7 @@ const BLOCKING = [
   [/\b(?:À|A) valider\b|\b(?:À|A) rechercher\b/i, "valeur non résolue"],
   [/\bundefined\b|\bNaN\b|\[object Object\]/, "valeur non résolue (code)"],
 ];
-const LOADING = /Chargement|Calcul…|Recherche…|Recherche en cours/i;
+const LOADING = /Chargement|Calcul(?:…|\.\.\.)|Recherche(?:…|\.\.\.)|Recherche en cours|(?:Recherche|Calcul) en attente|en file d['’]attente/i;
 const ADVISORY = [[/\bNon (?:trouvé|mesurée?|publié|confirmé)\b/i, "valeur finale « Non trouvé » : préférer une entreprise mieux renseignée pour un gros plan"]];
 
 const browser = await chromium.launch();
@@ -65,6 +67,26 @@ async function inspect(label) {
     if (LOADING.test(line)) found.push({ level: "bloquant", why: "chargement qui ne finit pas en 20 s", text: line.slice(0, 220) });
     for (const [re, why] of ADVISORY) if (re.test(line)) found.push({ level: "conseil", why, text: line.slice(0, 220) });
   }
+  // Même ligne trois fois de suite (ex. six sources « Responsable technique · Julien Roux ») : doublon de données.
+  for (let k = 0; k + 2 < lines.length; k++) {
+    if (lines[k].length > 3 && lines[k] === lines[k + 1] && lines[k] === lines[k + 2]) {
+      let n = 3; while (lines[k + n] === lines[k]) n++;
+      found.push({ level: "bloquant", why: "ligne répétée " + n + " fois (doublon de données)", text: lines[k].slice(0, 220) });
+      k += n - 1;
+    }
+  }
+  // Fenêtre, fiche ou panneau ouvert qui dépasse de l'écran.
+  const overflow = await page.evaluate(() => {
+    const W = window.innerWidth, H = window.innerHeight, bad = [];
+    for (const el of document.querySelectorAll('[role="dialog"], [aria-modal="true"], [role="alertdialog"], [role="complementary"], [data-state="open"]')) {
+      const cs = getComputedStyle(el); const r = el.getBoundingClientRect();
+      if (cs.display === "none" || cs.visibility === "hidden" || r.width < 40 || r.height < 40) continue;
+      if (cs.position !== "fixed" && cs.position !== "absolute") continue;
+      if (r.left < -2 || r.top < -2 || r.right > W + 2 || r.bottom > H + 2) bad.push((el.getAttribute("aria-label") || el.innerText || "").trim().split("\n")[0].slice(0, 80) + " [" + [r.left, r.top, r.right, r.bottom].map(Math.round).join(", ") + "]");
+    }
+    return bad;
+  });
+  for (const o of overflow) found.push({ level: "bloquant", why: "panneau ou fenêtre qui dépasse de l'écran", text: o });
   const blocking = found.filter((f) => f.level === "bloquant");
   const shot = blocking.length ? join(out, "ecran-" + String(screens.length).padStart(2, "0") + "-" + label.replace(/[^a-z0-9-]+/gi, "_") + ".png") : null;
   if (shot) await page.screenshot({ path: shot, fullPage: true });
@@ -102,7 +124,11 @@ for (const [i, step] of (scenario.steps ?? []).entries()) {
       default: fail("étape " + i + " : geste inconnu « " + step.action + " ».");
     }
   } catch (e) { screens.push({ label: "étape " + i, found: [{ level: "bloquant", why: "geste impossible", text: String(e.message).split("\n")[0] }] }); console.log("BLOQUANT étape " + i + " (" + step.action + ") : " + String(e.message).split("\n")[0]); break; }
-  if (!["pause", "mark", "screenshot", "expect"].includes(step.action)) await page.waitForTimeout(step.delay ?? 650);
+  if (!["pause", "mark", "screenshot", "expect"].includes(step.action)) {
+    await page.waitForTimeout(step.delay ?? 650);
+    // Ce que le geste a ouvert est filmé : le relire aussi.
+    if (step.action !== "wait") await inspect("après " + step.action + " " + JSON.stringify(step.target ?? step.key ?? step.url ?? "").slice(0, 60));
+  }
 }
 await inspect("fin");
 await browser.close();

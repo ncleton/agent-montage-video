@@ -1,6 +1,6 @@
 {
   "name": "agent-montage-video",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Monte vos vidéos sur le poste de montage ou votre ordinateur : motion design, styles (pixel-rpg par défaut), démos d'interface, voix off, vérification image par image, publication Mux, et commandes vidéo des agents de l'ERP Rossini.",
   "author": {
     "name": "Nicolas Cléton"
