@@ -49,15 +49,26 @@ def main():
     else:
         conn.execute("INSERT INTO lead_platform.configurations (id,workspace_id,owner_id,revision,data,archived) VALUES (%s,%s,'studio-admin',1,%s,false)", (str(uuid.uuid4()), WS, body))
 
-    first = open_home()
     book = conn.execute("SELECT selection_id FROM lead_platform.monthly_books WHERE workspace_id=%s AND owner_email=%s", (WS, COMMERCIAL)).fetchone()
     if not book:
         fail("aucun livret du mois pour Camille : lancer d'abord seed/seed_bigup.py.")
     sel_id = book[0]
-    data = conn.execute("SELECT data FROM lead_platform.selections WHERE id=%s", (sel_id,)).fetchone()[0]
+    before = conn.execute("SELECT revision FROM lead_platform.selections WHERE id=%s", (sel_id,)).fetchone()[0]
+    first = open_home()
+    data, after = conn.execute("SELECT data, revision FROM lead_platform.selections WHERE id=%s", (sel_id,)).fetchone()
+    sites = conn.execute("SELECT count(*) FROM lead_platform.opportunities WHERE workspace_id=%s AND data->>'kind'='site' AND NOT archived", (WS,)).fetchone()[0]
+    # Bigup a déjà recalculé le livret si sa liste n'est plus celle du semis (toutes les entreprises).
+    synced = after != before or len(data.get("row_ids") or []) < sites
     rule = data.get("rule") or {}
-    scores = {r["row_id"]: r for r in (first.get("report") or {}).get("rows", [])}
-    green = [r for r in data.get("row_ids") or [] if not any(f.get("row_id") == r for f in rule.get("forced") or [])]
+    # Notes calculées par Bigup dans le navigateur, telles que la case les affiche (verte à partir de 60).
+    shown_rows = [r for r in first.get("rows") or [] if r.get("id")]
+    scores = {r["id"]: {"score": r["score"], "technical": True} for r in shown_rows}
+    forced_ids = {f.get("row_id") for f in rule.get("forced") or []}
+    if synced:
+        # La liste verte que Bigup vient d'enregistrer en recalculant le livret : elle fait foi.
+        green = [r for r in data.get("row_ids") or [] if r not in forced_ids]
+    else:
+        green = [r["id"] for r in sorted(shown_rows, key=lambda r: -r["score"]) if r["score"] >= 60 and r["id"] not in forced_ids]
     kept, extra = green[:GREEN_MAX], green[GREEN_MAX:]
     manual_count = TOTAL - len(kept)
     if manual_count > TOTAL - 15:

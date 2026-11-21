@@ -90,10 +90,19 @@ for (const [i, step] of (scenario.steps ?? []).entries()) {
       case "wait": step.target ? await target(step.target).waitFor({ state: "visible", timeout: step.timeout ?? 30000 }) : await page.waitForTimeout(step.ms ?? 1000); break;
       case "goto": await page.goto(new URL(step.url, page.url()).href, { waitUntil: "networkidle" }); break;
       case "screenshot": break;
+      case "expect": {
+        // Valeur attendue à l'écran (ex. la case Prospects de Bigup montre toujours 25 prospects).
+        const got = ((await target(step.target).textContent({ timeout: 15000 }).catch(() => "")) || "").trim();
+        const ok = step.text !== undefined ? got === String(step.text) : got.length > 0;
+        const entry = { label: "attendu " + JSON.stringify(step.target), found: ok ? [] : [{ level: "bloquant", why: "valeur attendue « " + step.text + " »", text: "lu « " + got + " »" }] };
+        screens.push(entry);
+        console.log((ok ? "ok       " : "BLOQUANT ") + "attendu « " + step.text + " » : lu « " + got + " »");
+        break;
+      }
       default: fail("étape " + i + " : geste inconnu « " + step.action + " ».");
     }
   } catch (e) { screens.push({ label: "étape " + i, found: [{ level: "bloquant", why: "geste impossible", text: String(e.message).split("\n")[0] }] }); console.log("BLOQUANT étape " + i + " (" + step.action + ") : " + String(e.message).split("\n")[0]); break; }
-  if (!["pause", "mark", "screenshot"].includes(step.action)) await page.waitForTimeout(step.delay ?? 650);
+  if (!["pause", "mark", "screenshot", "expect"].includes(step.action)) await page.waitForTimeout(step.delay ?? 650);
 }
 await inspect("fin");
 await browser.close();

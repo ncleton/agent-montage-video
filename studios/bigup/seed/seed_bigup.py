@@ -267,6 +267,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--owner", default="luca@rossinienergy.com", help="livret de production d'où tirer les entreprises")
     parser.add_argument("--month", default="2026-11")
+    parser.add_argument("--campaign", default=None, help="campagne de production d'où tirer les entreprises (par défaut celle du livret)")
     parser.add_argument("--count", type=int, default=60)
     parser.add_argument("--seed", type=int, default=None, help="tirage reproductible")
     args = parser.parse_args()
@@ -278,40 +279,101 @@ def main() -> None:
     if not book:
         fail(f"aucun livret de {args.owner} pour {args.month} en production.")
     book = book[0]
-    campaign = book["campaign_id"]
+    campaigns = [c for c in (args.campaign or book["campaign_id"]).split(",") if c]
+    campaign = campaigns[0]  # la campagne du studio : les lignes des autres campagnes la rejoignent
     prod_workspace = prod(f"SELECT row_to_json(c) FROM (SELECT workspace_id FROM lead_platform.campaigns WHERE id={q(campaign)}) c;")[0]["workspace_id"]
-
-    candidates = prod(f"""SELECT row_to_json(c) FROM (
-      SELECT o.id, o.data->>'operator_siren' AS siren, o.data->>'name' AS name, s.score,
-        (SELECT co.id FROM lead_platform.companies co WHERE co.workspace_id=o.workspace_id AND co.siren=o.data->>'operator_siren' AND NOT co.archived LIMIT 1) AS company_id
-      FROM lead_platform.opportunities o JOIN lead_platform.row_scores s ON s.campaign_id=o.campaign_id AND s.row_id=o.id
-      WHERE o.campaign_id={q(campaign)} AND o.data->>'kind'='site' AND NOT o.archived AND s.tier IN ('A','B')
-        AND EXISTS (SELECT 1 FROM lead_platform.tasks t WHERE t.campaign_id=o.campaign_id AND t.data->>'row_id'=o.id AND t.data->>'kind'='site_parking')
-        -- Recherche terminée sur tout ce que la fiche montre (règle 6 du studio : ni « Calcul… » ni « Recherche… »).
-        AND NOT EXISTS (SELECT 1 FROM lead_platform.configurations k WHERE k.campaign_id=o.campaign_id AND NOT k.archived
-              AND k.data->>'category'='table_research_column' AND k.data->>'label' = ANY({arr(FICHE_COLUMNS)})
-              AND NOT EXISTS (SELECT 1 FROM lead_platform.tasks t WHERE t.campaign_id=o.campaign_id AND t.data->>'row_id'=o.id
-                              AND t.data->>'column_id'=k.id AND t.data->>'state' IN ('done','not_found','skipped','review')))) c;""")
     logo_dir = f"{PROD_FILES}/contact-photos/{hashlib.sha256(prod_workspace.encode()).hexdigest()[:20]}/logos"
-    ids = [c["company_id"] or c["id"] for c in candidates]
-    listing = subprocess.run(["ssh", PROD, f"cd {logo_dir} && ls " + " ".join(f"{i}.json" for i in ids) + " 2>/dev/null"],
-                             capture_output=True, text=True, timeout=120).stdout.split()
-    with_logo = [c for c in candidates if f"{c['company_id'] or c['id']}.json" in listing]
+
+    def candidates_of(cid: str) -> list[dict]:
+        found = prod(f"""SELECT row_to_json(c) FROM (
+          SELECT o.id, o.campaign_id, o.data->>'operator_siren' AS siren, o.data->>'name' AS name, s.score,
+            (SELECT co.id FROM lead_platform.companies co WHERE co.workspace_id=o.workspace_id AND co.siren=o.data->>'operator_siren' AND NOT co.archived LIMIT 1) AS company_id
+          FROM lead_platform.opportunities o JOIN lead_platform.row_scores s ON s.campaign_id=o.campaign_id AND s.row_id=o.id
+          WHERE o.campaign_id={q(cid)} AND o.data->>'kind'='site' AND NOT o.archived AND s.tier IN ('A','B')
+            AND EXISTS (SELECT 1 FROM lead_platform.tasks t WHERE t.campaign_id=o.campaign_id AND t.data->>'row_id'=o.id AND t.data->>'kind'='site_parking')
+            -- Recherche terminée sur tout ce que la fiche montre (règle 6 du studio : ni « Calcul… » ni « Recherche… »).
+            AND NOT EXISTS (SELECT 1 FROM lead_platform.configurations k WHERE k.campaign_id=o.campaign_id AND NOT k.archived
+                  AND k.data->>'category'='table_research_column' AND k.data->>'label' = ANY({arr(FICHE_COLUMNS)})
+                  AND NOT EXISTS (SELECT 1 FROM lead_platform.tasks t WHERE t.campaign_id=o.campaign_id AND t.data->>'row_id'=o.id
+                                  AND t.data->>'column_id'=k.id AND t.data->>'state' IN ('done','not_found','skipped','review')))) c;""")
+        ids = [c["company_id"] or c["id"] for c in found]
+        listing = subprocess.run(["ssh", PROD, f"cd {logo_dir} && ls " + " ".join(f"{i}.json" for i in ids) + " 2>/dev/null"],
+                                 capture_output=True, text=True, timeout=120).stdout.split() if ids else []
+        return [c for c in found if f"{c['company_id'] or c['id']}.json" in listing]
+
+    with_logo, seen = [], set()
+    for cid in campaigns:
+        for c in candidates_of(cid):
+            if c["siren"] and c["siren"] in seen:
+                continue  # une même entreprise n'apparaît qu'une fois
+            seen.add(c["siren"])
+            with_logo.append(c)
     if len(with_logo) < 30:
-        fail(f"{len(with_logo)} entreprises vertes ou bleues à la recherche terminée, avec logo et parking, dans ce livret :"
-             " au moins 30 sont nécessaires pour 25 prospects. Choisir un autre livret (--owner, --month).")
+        fail(f"{len(with_logo)} entreprises vertes ou bleues à la recherche terminée, avec logo et parking, dans ces campagnes :"
+             " au moins 30 sont nécessaires pour 25 prospects. Ajouter une campagne (--campaign a,b,c).")
     chosen = random.Random(seed).sample(with_logo, min(args.count, len(with_logo)))
     rows = [c["id"] for c in chosen]
     print(f"Tirage {seed} : {len(chosen)} entreprises sur {len(with_logo)} candidates — " + ", ".join(c["name"] for c in chosen))
 
-    records: dict[str, list[dict]] = {}
+    records: dict[str, list[dict]] = {"opportunities": [], "tasks": []}
     base = "SELECT row_to_json(r) FROM (SELECT * FROM lead_platform.{t} WHERE {w}) r;"
     records["campaigns"] = prod(base.format(t="campaigns", w=f"id={q(campaign)}"))
     records["configurations"] = prod(base.format(t="configurations", w=f"campaign_id={q(campaign)} AND NOT archived AND data->>'category' IN ('campaign_table','table_column','table_priority','table_research_column')"))
-    records["opportunities"] = prod(base.format(t="opportunities", w=f"campaign_id={q(campaign)} AND NOT archived AND (id=ANY({arr(rows)}) OR (data->>'kind'='imported_row' AND data->'source_row_ids' ?| {arr(rows)}))"))
-    records["tasks"] = prod(base.format(t="tasks", w=f"campaign_id={q(campaign)} AND NOT archived AND data->>'row_id'=ANY({arr(rows)}) AND data->>'kind' IN ('research_cell','site_parking','site_land','aper_exemption')"))
+    target_columns = {c["data"].get("label"): c["id"] for c in records["configurations"] if c["data"].get("category") == "table_research_column"}
+    target_people = next((c["id"] for c in records["configurations"] if c["data"].get("category") == "campaign_table"), None)
+    scores, borrowed_search_rows = [], []
+    for cid in campaigns:
+        mine = [c["id"] for c in chosen if c["campaign_id"] == cid]
+        if not mine:
+            continue
+        opps = prod(base.format(t="opportunities", w=f"campaign_id={q(cid)} AND NOT archived AND (id=ANY({arr(mine)}) OR (data->>'kind'='imported_row' AND data->'source_row_ids' ?| {arr(mine)}))"))
+        tasks = prod(base.format(t="tasks", w=f"campaign_id={q(cid)} AND NOT archived AND data->>'row_id'=ANY({arr(mine)}) AND data->>'kind' IN ('research_cell','site_parking','site_land','aper_exemption')"))
+        sc = prod(base.format(t="row_scores", w=f"campaign_id={q(cid)} AND row_id=ANY({arr(mine)})"))
+        if cid != campaign:
+            # Les lignes rejoignent la campagne du studio : chaque réponse va à la question de même intitulé.
+            source = prod(base.format(t="configurations", w=f"campaign_id={q(cid)} AND NOT archived AND data->>'category' IN ('table_research_column','campaign_table')"))
+            label_of = {c["id"]: c["data"].get("label") for c in source if c["data"].get("category") == "table_research_column"}
+            people = {c["id"] for c in source if c["data"].get("category") == "campaign_table"}
+            # Les entrées de la recherche d'interlocuteurs de ces lignes (organisation, état, trouvés) les suivent.
+            borrowed_search_rows += [e for c in source if c["data"].get("category") == "campaign_table"
+                                     for e in (c["data"].get("people_search") or {}).get("rows") or [] if e.get("row_id") in set(mine)]
+            kept = []
+            for t in tasks:
+                t["campaign_id"] = campaign
+                if t["data"].get("kind") == "research_cell":
+                    target = target_columns.get(label_of.get(t["data"].get("column_id")))
+                    if not target:
+                        continue
+                    t["data"]["column_id"] = target
+                kept.append(t)
+            tasks = kept
+            for o in opps:
+                o["campaign_id"] = campaign
+                if o["data"].get("table_id") in people and target_people:
+                    o["data"]["table_id"] = target_people
+                if o["data"].get("person_table_id") in people and target_people:
+                    o["data"]["person_table_id"] = target_people
+            for x in sc:
+                x["campaign_id"] = campaign
+        records["opportunities"] += opps
+        records["tasks"] += tasks
+        scores += sc
     records["companies"] = prod(base.format(t="companies", w=f"siren=ANY({arr([c['siren'] for c in chosen if c['siren']])}) AND NOT archived"))
-    scores = prod(base.format(t="row_scores", w=f"campaign_id={q(campaign)} AND row_id=ANY({arr(rows)})"))
+    # Un interlocuteur ne reste rattaché qu'aux entreprises du studio (il peut couvrir d'autres sites en production).
+    for o in records["opportunities"]:
+        if o["data"].get("kind") == "imported_row":
+            o["data"]["source_row_ids"] = [i for i in o["data"].get("source_row_ids") or [] if i in set(rows)]
+            person = o["data"].get("person") or {}
+            if person.get("principal_for"):
+                person["principal_for"] = [i for i in person["principal_for"] if i in set(rows)]
+    records["opportunities"] = [o for o in records["opportunities"] if o["data"].get("kind") != "imported_row" or o["data"]["source_row_ids"]]
+    # La table des interlocuteurs couvre les lignes venues des autres campagnes (sinon : « rattachement du contact absent »).
+    for table in records["configurations"]:
+        search = table["data"].get("people_search") if table["data"].get("category") == "campaign_table" else None
+        if isinstance(search, dict):
+            own = [e for e in search.get("rows") or [] if e.get("row_id") in set(rows)]
+            known = {e.get("row_id") for e in own}
+            search["rows"] = own + [e for e in borrowed_search_rows if e.get("row_id") not in known]
 
     # Une réponse désigne sa question par l'identifiant de l'enregistrement de la question.
     labels = {c["id"]: c["data"].get("label") for c in records["configurations"] if c["data"].get("category") == "table_research_column"}
@@ -380,6 +442,8 @@ def main() -> None:
                  "scores": {r: s["score"] for s in scores for r in [s["row_id"]]},
                  "entered": {r: entered_at for r in rows}, "refreshed_at": entered_at, "refreshed_by": ADMIN_EMAIL})
     rule["counts"] = {"green": len(rows), "scope": len(rows), "reserve": 0, "deferred": 0, "set_aside": 0}
+    departments = sorted({m.group(1)[:2] for c in chosen for m in [re.search(r"\b(\d{5})\b", next((r["data"].get("address") or "" for r in records["opportunities"] if r["id"] == c["id"]), ""))] if m})
+    rule.update({"campaign_id": campaign, "departments": departments})
     rule = scrub(rule, prod_workspace, fiction, "rule")
     selection_data = {**scrub(selection, prod_workspace, fiction, "selection"), "rule": rule, "row_ids": sorted(rows, key=lambda r: -(rule["scores"].get(r) or 0)), "lead_ids": [], "contact_ids": [],
                       "name": f"Livret du mois · {COMMERCIAL_NAME}", "month": studio_month}
@@ -428,6 +492,14 @@ def main() -> None:
     found = sum((local_logos / f"{i}.json").exists() for i in wanted)
     if found != len(wanted):
         fail(f"{len(wanted) - found} logos n'ont pas été copiés.")
+    # Zone du commercial de démonstration : les départements de ses entreprises, comme l'agence de Lille.
+    read = subprocess.run(["node", str(STUDIO / "seed" / "call.mjs"), "commercial", "get_sales_home", "{}", "site"], capture_output=True, text=True, timeout=60)
+    revision = ((json.loads(read.stdout).get("home") or {}).get("revision") or 0) if read.returncode == 0 else 0
+    zone = {"idempotency_key": "studio-zone-" + uuid.uuid4().hex, "expected_revision": revision,
+            "data": {"email": COMMERCIAL_EMAIL, "zone_label": "Agence Lille", "departments": departments[:10]}}
+    done = subprocess.run(["node", str(STUDIO / "seed" / "call.mjs"), "admin", "manage_sales_home", json.dumps(zone)], capture_output=True, text=True, timeout=60)
+    if done.returncode:
+        fail("zone du commercial refusée : " + done.stderr[-300:])
     print(f"Studio semé : {len(rows)} prospects pour {COMMERCIAL_EMAIL} ({studio_month}), {len(records['tasks'])} réponses, {found} logos, tirage {seed}.")
 
 

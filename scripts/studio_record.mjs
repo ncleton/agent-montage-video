@@ -15,6 +15,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import { cpus, loadavg } from "node:os";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(join(ROOT, "tools/studio/package.json"));
@@ -44,6 +45,15 @@ const framesDir = join(out, "frames");
 mkdirSync(framesDir, { recursive: true });
 mkdirSync(join(out, "shots"), { recursive: true });
 
+// Un poste surchargé filme saccadé (Chrome n'envoie plus ses images) : on attend qu'il se calme, 10 minutes au plus.
+{
+  const limit = cpus().length * 1.5;
+  for (let waited = 0; loadavg()[0] > limit; waited += 15) {
+    if (waited >= 600) fail("poste surchargé depuis 10 minutes (charge " + loadavg()[0].toFixed(1) + " pour " + cpus().length + " cœurs) : la prise serait saccadée. Relancez quand le poste est calme.");
+    if (waited === 0) console.log("studio_record : poste chargé (" + loadavg()[0].toFixed(1) + "), attente avant de filmer…");
+    await new Promise((r) => setTimeout(r, 15000));
+  }
+}
 const FPS = 60;
 const view = { width: scenario.viewport?.width ?? 1920, height: scenario.viewport?.height ?? 1080 };
 const density = scenario.density ?? 2;
@@ -177,7 +187,8 @@ for (const [i, step] of (scenario.steps ?? []).entries()) {
         }
         break;
       }
-      case "press": await page.keyboard.press(step.key); events.push({ type: "key", timeMs: (now() - t0) * 1000 }); break;
+      // Une touche de navigation (Échap, flèches, Entrée) n'est pas une frappe : la caméra ne la suit pas.
+      case "press": await page.keyboard.press(step.key); events.push({ type: "press", key: step.key, timeMs: (now() - t0) * 1000 }); break;
       case "select": { const loc = await pointAt(step.target); await loc.selectOption(step.value); events.push({ type: "click", timeMs: (now() - t0) * 1000 }); break; }
       case "scroll": {
         if (step.target) await pointAt(step.target);
@@ -188,10 +199,11 @@ for (const [i, step] of (scenario.steps ?? []).entries()) {
       case "wait": step.target ? await target(step.target).waitFor({ state: "visible", timeout: step.timeout ?? 30000 }) : await sleep(step.ms ?? 1000); break;
       case "goto": await page.goto(new URL(step.url, page.url()).href, { waitUntil: "networkidle" }); break;
       case "screenshot": await page.screenshot({ path: join(out, "shots", step.name + ".png") }); break;
+      case "expect": break; // vérifié par studio_check.mjs avant le tournage
       default: fail(where + " : geste inconnu. Gestes : click, type, press, hover, scroll, select, wait, pause, goto, mark, screenshot.");
     }
   } catch (e) { fail(where + " : " + String(e.message || e).split("\n")[0]); }
-  if (!["pause", "mark", "screenshot"].includes(step.action)) {
+  if (!["pause", "mark", "screenshot", "expect"].includes(step.action)) {
     await sleep(step.delay ?? DEFAULT_DELAY);
     if (["click", "press", "type", "select", "goto"].includes(step.action)) {
       const view = await openedView().catch(() => null);
