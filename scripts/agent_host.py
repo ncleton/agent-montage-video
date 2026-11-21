@@ -205,6 +205,38 @@ def machine_info() -> dict:
 # --------------------------------------------------------------------------- the service
 
 
+QUIET_SECONDS = 600
+
+
+def last_report(folder: Path, started: float) -> float:
+    """When Oscar last reported its progress itself (report progress), or when the work started."""
+    try:
+        return max(started, float((folder / ".progress-at").read_text()))
+    except (OSError, ValueError):
+        return started
+
+
+def narration(folder: Path) -> str:
+    """Oscar's latest sentence of work in its Codex log (the text after the last « codex » line), 200 characters."""
+    try:
+        with open(folder / "work/codex.log", "rb") as log_file:
+            log_file.seek(0, os.SEEK_END)
+            log_file.seek(max(0, log_file.tell() - 200_000))
+            text = log_file.read().decode("utf-8", errors="replace")
+    except OSError:
+        return ""
+    at = text.rfind("\ncodex\n")
+    if at < 0:
+        return ""
+    lines = []
+    for line in text[at + 7 :].splitlines():
+        if not line.strip() or line.strip() in ("exec", "codex", "tokens used") or line.startswith("/bin/"):
+            break
+        lines.append(line.strip())
+    said = " ".join(lines).strip().strip("*")
+    return (said[:197] + "…") if len(said) > 200 else said
+
+
 def engine(config: dict) -> tuple[str, str]:
     """The model and the Codex endpoint of the next order: OpenCodex's current choice when the computer follows it."""
     if config.get("model") == "opencodex":
@@ -295,8 +327,9 @@ def prompt(order: dict, folder: Path, resumed: bool) -> str:
         "order.json.",
         "Règles de la commande : " + order.get("rules", ""),
         "Applique chaque valeur par défaut listée dans order.json (defaults) et cite-la dans le résumé final.",
-        "À chaque étape (script, voix, maquette, rendu, vérification) : python3 scripts/agent_host.py report progress "
-        "--step \"…\" --percent N [--eta secondes] [--checkpoint work/checkpoint.json] [--preview une-image.jpg].",
+        "À chaque étape (script, voix, maquette, rendu, vérification), et au moins toutes les 10 minutes, la personne "
+        "suit ta carte d'avancement : python3 scripts/agent_host.py report progress --step \"une phrase simple de ce "
+        "que tu fais\" --percent N [--eta secondes] [--checkpoint work/checkpoint.json] [--preview une-image.jpg].",
         "Une seule série de questions bloquantes au plus, à la personne, seulement si aucune valeur par défaut ne règle "
         "la décision : écris-les dans work/questions.json ([{text, why, choices:[…]}]) puis python3 scripts/agent_host.py "
         "report ask --questions work/questions.json, et arrête-toi : la commande reprendra avec les réponses.",
@@ -391,8 +424,15 @@ class Service:
                     continue
                 if time.time() - job["beat"] >= HEARTBEAT_SECONDS:
                     lease = json.loads((folder / ".lease").read_text())["lease"]
+                    beat = {"id": ident, "lease": lease}
+                    # The person follows the order on its card: when Oscar has said nothing for 10 minutes, its own
+                    # latest sentence of work becomes the step shown (the percentage stays), never a frozen card.
+                    said = narration(folder)
+                    if said and said != job.get("said") and time.time() - last_report(folder, job["started"]) >= QUIET_SECONDS:
+                        beat["step"] = said
+                        job["said"] = said
                     try:
-                        call(job["server"], "progress", {"id": ident, "lease": lease})
+                        call(job["server"], "progress", beat)
                     except ServerError as exc:
                         if exc.code == "lease_mismatch":
                             log(f"{ident} : la commande a été annulée ou reprise ailleurs, arrêt du travail")
@@ -520,6 +560,7 @@ def report(args) -> None:
     state, server, folder = current()
     body = {"id": state["id"], "lease": state["lease"]}
     if args.op == "progress":
+        (folder / ".progress-at").write_text(str(time.time()))
         body.update({k: v for k, v in (("step", args.step), ("percent", args.percent), ("eta_s", args.eta)) if v is not None})
         if args.checkpoint:
             body["checkpoint"] = json.loads(Path(args.checkpoint).read_text())
