@@ -199,6 +199,8 @@ entreprises réelles et personnes fictives, aucun accès de production. Tournage
 (`tools/studio`, `scripts/studio_record.mjs`), zoom automatique (`scripts/studio_camera.py`), montage par le kit
 `kits/tuto-interface` dans le style du bon (`styles/<nom>/kit.json`, pixel-rpg par défaut). Les studios vivent dans
 `studios/<outil>/` : scripts versionnés, données et secrets hors Git (modèle : `studios/bigup`, son README).
+Avant d'écrire un scénario, lire le README du studio de l'outil : sa section « Ce que chaque tutoriel montre » liste
+les passages obligés (Bigup › Tournées : cliquer de zone en zone sur la carte, filtres et zones montrés d'abord).
 
 Aucun écran filmé ne montre d'erreur, de réglage manquant, d'état vide ou de chargement (Nicolas, 21/11/2026 : « je
 veux pas ces messages d'erreurs dans les vidéos »). `scripts/studio_check.mjs` relit chaque écran du scénario, après

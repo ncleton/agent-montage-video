@@ -43,7 +43,8 @@ et une capture de la page de départ relue.
    puis le garder dans `studios/<outil>/` (scripts versionnés, données et secrets hors Git). Sinon le mettre au
    commit déployé et le relancer.
 2. **Scénario** : écrire le parcours (`work/scenario.json`) d'après le bon de commande : un objectif par vidéo, les
-   gestes du rôle filmé, un repère `mark` par phrase de la voix. Format et cibles :
+   gestes du rôle filmé, un repère `mark` par phrase de la voix, et chaque passage obligé de la section « Ce que
+   chaque tutoriel montre » du README du studio pour les écrans filmés. Format et cibles :
    [references/scenario.md](references/scenario.md).
 3. **Contrôle des écrans** : `node scripts/studio_check.mjs work/scenario.json work/check` rejoue le scénario sans filmer et lit
    chaque écran : ouverture, chaque repère, **après chaque geste** (le panneau qu'un clic ouvre est relu) et fin. Un

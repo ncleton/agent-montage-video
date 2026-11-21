@@ -56,3 +56,28 @@ Le contrôle avant tournage : `node ../../scripts/studio_check.mjs <scenario.jso
 - HubSpot de test : Camille propriétaire, Pipeline Bornes et Pipeline Ombrières, 8 transactions en cours, 6
   rendez-vous fictifs dans la semaine.
 
+## Ce que chaque tutoriel montre
+
+Passages obligés : le scénario de tout tutoriel qui filme l'écran concerné les reprend, et le résumé final dit à
+quel minutage chacun apparaît. Un passage impossible dans le studio se corrige dans le studio (semis, secteur),
+jamais en le sautant.
+
+### Tournées : les zones et les filtres d'abord
+
+Nicolas, 21/11/2026 : « on doit voir qu'on peut cliquer de zone en zone sur la carte. L'objectif est qu'ils
+comprennent tout de suite l'importance des filtres et des zones. »
+
+- Version : Site au commit 92faf92 (Bigup v1041) ou plus récent, la première où un clic sur la carte ouvre une zone
+  (#376 à #381). Un studio plus ancien se remet au commit déployé avant le contrôle des écrans.
+- Premier chapitre des Tournées, dans la première minute passée sur cet écran : la carte de la semaine avec la zone
+  ouverte en couleur et les entreprises des autres zones grisées. La voix dit pourquoi : on prospecte zone par zone,
+  et la liste, les filtres et leurs compteurs sont ceux de la zone ouverte.
+- De zone en zone sur la carte, au moins deux passages : la main sur une autre zone qui s'éclaire, le clic qui
+  l'ouvre (les couleurs changent, puis la carte se déplace ; la liste, les filtres et les compteurs deviennent ceux
+  de la nouvelle zone) ; une entreprise grisée cliquée qui ouvre sa zone ; un clic dans le gris, loin des zones, qui
+  ramène la carte sans changer de zone ; « Toutes les zones », qui cadre toutes les zones du commercial.
+- Les filtres : un filtre décoché puis recoché, la liste et la carte qui suivent, les compteurs lisibles (zoom de la
+  caméra), et le rappel qu'un choix reste au passage suivant. Montrés tôt, avant la prise de rendez-vous.
+- Studio : au moins deux zones de Camille (« Métropole lilloise » et la seconde du semis) avec des prospects et des
+  comptes dans chacune, pour que la zone ouverte et la zone grisée soient toutes deux pleines à l'écran.
+
