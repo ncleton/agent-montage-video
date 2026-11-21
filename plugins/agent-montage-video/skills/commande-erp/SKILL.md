@@ -37,6 +37,13 @@ par la personne. Tu l'exécutes ici, avec les outils de ce dépôt, et tu ne re�
 - [ ] Publier la vidéo vérifiée : `scripts/with_secrets.sh python3 scripts/publish_mux.py --video out/<film>.mp4
       --title "<titre du bon>" --metadata-output out/<film>.mux.json` (la personne a accepté la publication Mux en
       validant le bon).
+      Compte Mux plein (« Free plan is limited to 10 assets ») : ne pas échouer. Nicolas a demandé de retirer les
+      anciennes versions (21/11/2026). Lister les vidéos Mux ; une **ancienne version** est une vidéo remplacée par une
+      plus récente du même sujet (titre en v1 quand une v2 existe, premier jet remplacé par sa version définitive).
+      Avant de la retirer, chercher son identifiant de lecture dans les leçons (base ClassroomIO, tables `block`) et dans
+      les dossiers d'appels d'offres (bases de la vente et de l'AO) : utilisée nulle part, la retirer (suppression
+      définitive, notée dans le résumé avec son titre) puis publier. Aucune ancienne version libre : `report fail` avec
+      la liste des vidéos et ce qu'il faut décider.
 - [ ] Terminer : `report finish --video out/<film>.mp4 --mux out/<film>.mux.json --subtitles work/<film>.srt --summary
       "…"` et un `--check <id>="mesure"` par critère ajouté au bon. Le script mesure lui-même durée et résolution
       (ffprobe), vérifie la vidéo image par image (`video-frame-review`) et lit le lien Mux ; le serveur confronte ces
