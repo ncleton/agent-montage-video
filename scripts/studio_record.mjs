@@ -14,6 +14,7 @@ import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(join(ROOT, "tools/studio/package.json"));
@@ -26,6 +27,18 @@ const [scenarioPath, outArg] = process.argv.slice(2);
 if (!scenarioPath || !outArg) fail("usage : node scripts/studio_record.mjs <scenario.json> <dossier-de-sortie>");
 if (!existsSync(scenarioPath)) fail("scénario introuvable : " + scenarioPath);
 const scenario = JSON.parse(readFileSync(scenarioPath, "utf8"));
+// Verrou de la règle 6 du studio : on ne filme qu'après un contrôle des écrans réussi sur ce scénario exact
+// (scripts/studio_check.mjs), de moins de deux heures. Un écran avec une erreur ou un manque ne peut pas être filmé.
+{
+  const checkFile = join(dirname(resolve(scenarioPath)), "check", "check.json");
+  if (!existsSync(checkFile)) fail("aucun contrôle des écrans pour ce scénario : lancez « node scripts/studio_check.mjs " + scenarioPath + " " + join(dirname(scenarioPath), "check") + " » avant de filmer.");
+  const check = JSON.parse(readFileSync(checkFile, "utf8"));
+  const sha = createHash("sha256").update(readFileSync(scenarioPath)).digest("hex");
+  const age = (Date.now() - Date.parse(check.at)) / 3600000;
+  if (check.scenario_sha256 !== sha) fail("le scénario a changé depuis le dernier contrôle des écrans : relancez studio_check.mjs.");
+  if (check.blocking) fail("le dernier contrôle des écrans a " + check.blocking + " constat(s) bloquant(s) (" + checkFile + ") : corrigez le studio avant de filmer.");
+  if (!(age < 2)) fail("le contrôle des écrans date de plus de deux heures : relancez studio_check.mjs juste avant de filmer.");
+}
 const out = resolve(outArg);
 const framesDir = join(out, "frames");
 mkdirSync(framesDir, { recursive: true });
@@ -114,11 +127,36 @@ async function pointAt(t) {
   await moveTo(x, y);
   return loc;
 }
+// Ce que la caméra doit montrer en entier : la boîte de l'élément visé et, après le geste, le panneau ou la fenêtre
+// qui s'est ouvert (dialogue, panneau latéral, fiche). En pixels CSS.
+async function boxOf(loc) {
+  const b = await loc.boundingBox().catch(() => null);
+  return b ? { x: +b.x.toFixed(1), y: +b.y.toFixed(1), w: +b.width.toFixed(1), h: +b.height.toFixed(1) } : null;
+}
+async function openedView() {
+  return page.evaluate(() => {
+    const vw = innerWidth, vh = innerHeight;
+    const nodes = [...document.querySelectorAll('[role=dialog],[aria-modal=true],dialog[open],aside,[class*=drawer],[class*=modal],[class*=sheet],[class*=panel]')];
+    let best = null;
+    for (const n of nodes) {
+      const st = getComputedStyle(n);
+      if (st.visibility === "hidden" || st.display === "none" || Number(st.opacity) === 0) continue;
+      if (!["fixed", "absolute", "sticky"].includes(st.position) && n.tagName !== "DIALOG" && !n.matches("[role=dialog],[aria-modal=true]")) continue;
+      const r = n.getBoundingClientRect();
+      const x = Math.max(0, r.left), y = Math.max(0, r.top), w = Math.min(vw, r.right) - x, h = Math.min(vh, r.bottom) - y;
+      if (w < vw * 0.15 || h < vh * 0.15) continue;
+      if (!best || w * h > best.w * best.h) best = { x, y, w, h };
+    }
+    return best;
+  });
+}
+let lastBox = null;
 async function click(t) {
-  await pointAt(t);
+  const loc = await pointAt(t);
+  lastBox = await boxOf(loc);
   await sleep(140);
   log(true); await page.mouse.down(); await sleep(70); await page.mouse.up(); log(false);
-  events.push({ type: "click", timeMs: (now() - t0) * 1000 });
+  events.push({ type: "click", timeMs: (now() - t0) * 1000, ...(lastBox ? { box: lastBox } : {}) });
 }
 
 const DEFAULT_DELAY = scenario.defaultDelay ?? 650;
@@ -153,7 +191,13 @@ for (const [i, step] of (scenario.steps ?? []).entries()) {
       default: fail(where + " : geste inconnu. Gestes : click, type, press, hover, scroll, select, wait, pause, goto, mark, screenshot.");
     }
   } catch (e) { fail(where + " : " + String(e.message || e).split("\n")[0]); }
-  if (!["pause", "mark", "screenshot"].includes(step.action)) await sleep(step.delay ?? DEFAULT_DELAY);
+  if (!["pause", "mark", "screenshot"].includes(step.action)) {
+    await sleep(step.delay ?? DEFAULT_DELAY);
+    if (["click", "press", "type", "select", "goto"].includes(step.action)) {
+      const view = await openedView().catch(() => null);
+      events.push({ type: "view", timeMs: (now() - t0) * 1000, box: view });
+    }
+  }
 }
 await sleep(scenario.tailMs ?? 900); log();
 const tEnd = now();

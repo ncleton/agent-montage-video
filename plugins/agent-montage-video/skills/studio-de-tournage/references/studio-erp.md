@@ -1,45 +1,54 @@
 # Construire le studio d'un outil de l'ERP
 
-Un studio = trois services locaux sur le poste de montage, plus un jeu de données de vitrine. Il se construit une
-fois par outil, dans `studios/<outil>/`, et se met à jour au commit déployé avant chaque tournage.
+Un studio, ce sont des services locaux sur le poste de montage et un jeu de vitrine, gardés dans `studios/<outil>/` :
+scripts versionnés, données et secrets dans `studios/<outil>/data/` (hors Git). Modèle complet : `studios/bigup`.
 
-| Pièce | D'où elle vient | En local |
-|---|---|---|
-| Site de l'outil | dépôt du Site (ex. leadgenerator-site), commit publié | `npm ci`, `npm run build`, `npm start` (wrangler dev local) ; variables dans `.dev.vars` |
-| Serveur de plateforme | dépôt sales-marketplace, commit en production | `leadgenerator-platform` (point d'entrée de l'image), base Postgres du studio |
-| Base | conteneur Docker Postgres dédié au studio | schéma créé par la plateforme, puis jeu de vitrine |
-| Relais d'identité | script du studio | pose les en-têtes du compte de démonstration |
+| Pièce | En local (exemple Bigup) |
+|---|---|
+| Base | Postgres natif du studio (micromamba, `data/pg`, port 55810) : Docker n'est pas requis |
+| Plateforme | le paquet du dépôt de l'outil au commit en production, lancé par `studio_platform.py` (port 55811) |
+| Site | le Site au commit publié, `npm run build`, wrangler dev local (port 55812), base D1 locale migrée |
+| Relais d'identité | `relay.mjs` : pose les en-têtes ChatGPT d'un compte fictif (commercial 55813, administrateur 55814) |
+| HubSpot | un portail de test développeur (gratuit, `DEVELOPER_TEST`), jamais le portail de Rossini (6053297) |
+| Google Drive | `drive_double.py` (port 55815) : instantané en lecture seule du vrai Drive partagé, lu par le connecteur Google Drive |
+
+`start.sh` démarre tout, chaque service dans sa propre session (il survit au terminal), vérifie le portail HubSpot
+et refuse de démarrer sur un autre portail qu'un compte de test ; `stop.sh` arrête tout.
 
 ## Identité sans ChatGPT
 
-En production, ChatGPT Sites pose `oai-authenticated-user-id`, `oai-authenticated-user-email` et
-`oai-authenticated-user-full-name` ; le Site les lit (`authenticatedActor`, lib/platform-service.mjs) et signe
-ses appels à la plateforme avec `LEADGENERATOR_GATEWAY_SECRET`. Au studio, un relais local devant `npm start` pose
-ces en-têtes pour le compte de démonstration. Le scénario peut aussi les passer (`headers`). Aucun compte ChatGPT
-de plus.
+En production, ChatGPT Sites pose `oai-authenticated-user-id`, `-email` et `-full-name` ; le Site signe ses appels
+à la plateforme avec `LEADGENERATOR_GATEWAY_SECRET`. Au studio, le relais pose ces en-têtes pour un compte fictif et
+`seed/call.mjs` signe les appels de semis avec le secret du studio (48 caractères tirés au hasard).
 
-## Variables
+## Compte de démonstration
 
-Site (`.dev.vars`) : `LEADGENERATOR_SERVICE_URL=http://127.0.0.1:<port>` (le Site n'accepte le http qu'en
-127.0.0.1 ou localhost), `LEADGENERATOR_GATEWAY_SECRET` (48 caractères tirés au hasard pour le studio),
-`LEADGENERATOR_WORKSPACE_ID` et `LEADGENERATOR_SITE_ID` du studio. Plateforme : `LEADGENERATOR_DATABASE_URL` (base
-du studio), le même secret, le même espace et site, `LEADGENERATOR_ADMIN_SUBJECT` d'un administrateur fictif.
-Rien d'autre : toute variable d'un service extérieur reste vide, pour que la règle 4 tienne.
+Un collègue fictif du rôle (Bigup : Camille Martin, commerciale), réglé comme les collègues de ce rôle en production :
+lire en lecture seule le réglage le plus courant (Bigup : Tournées et « Enrichissement · Un contact » en écriture,
+comme 11 commerciaux sur 17) et l'appliquer par l'outil d'administration de l'outil. Zone, agence et secteurs de
+tournée réglés comme un commercial bien installé.
 
 ## Jeu de vitrine
 
-- Lire un échantillon d'entreprises en production, en lecture seule, par SSH sur le serveur de l'outil : champs
-  publics seulement (identité, adresse, logo et ses sources, score, parking et cadastre, réponses sourcées).
-  Jamais les personnes, les échanges, les comptes connectés ni la configuration.
-- Créer les personnes, rendez-vous, tournées et échanges en données fictives cohérentes (prénoms français
-  courants, domaines `example.fr`, numéros `01 99 00 xx xx`).
-- Régler les accès du compte de démonstration comme pour un collègue du rôle (Administration de l'outil), et
-  vérifier en l'ouvrant que le menu est celui de ce rôle.
-- Le script de semis vit dans `studios/<outil>/seed` ; il refuse de tourner si une variable de production est
-  présente dans son environnement.
+- Entreprises réelles : échantillon tiré au hasard dans un livret de production, en lecture seule (transaction read
+  only, par SSH) : ligne, réponses sourcées, parking, cadastre, score, logo (fichiers copiés).
+- Personnes fictives : chaque vraie personne est remplacée partout par le même double fictif, sans accents ni casse
+  oubliés (« Prénom Nom », « NOM Prénom », first_name/last_name, identifiant de profil), en gardant la structure des
+  réponses pour que le score reste celui de la production. Les noms d'entreprise sont protégés (« ETABLISSEMENTS GUY
+  MARIN » reste la société). E-mails nominatifs en `@example.fr`, mobiles en `01 99 00 …`, profils LinkedIn fictifs,
+  liens HubSpot retirés, notes d'appel et décisions internes vidées. Le semis échoue si une seule vraie personne reste.
+- HubSpot de test : propriétaire fictif sans e-mail d'invitation, pipelines de Rossini, entreprises réelles avec
+  interlocuteurs fictifs, transactions en cours et rendez-vous fictifs de la semaine.
+- Volumes de la production : Bigup montre 25 prospects (au plus 21 verts selon la note calculée par le navigateur,
+  le reste en ajouts manuels « Ajouté par moi »). `seed_finish.py` le vérifie en ouvrant l'accueil.
 
-## Mise à jour avant un tournage
+Ordre : `seed/all.sh` (entreprises, secteurs, HubSpot de test, case Prospects). Le semis refuse de tourner si une
+variable d'un service extérieur est présente dans son environnement.
+
+## Avant un tournage
 
 Revenir au commit déployé du Site et de la plateforme, reconstruire, relancer, rejouer le semis si le schéma a
-changé, puis refaire la vérification `work/studio-check.md`. Un studio qui ne démarre pas s'arrête avec l'erreur
-exacte : on ne filme pas une autre version.
+changé, rafraîchir l'instantané du Drive, puis `node scripts/studio_check.mjs` sur le scénario : aucun écran ne doit
+montrer d'erreur, de réglage manquant, d'état vide ou de chargement sans fin (règle 6 du studio). Un studio qui ne
+démarre pas s'arrête avec l'erreur exacte : on ne filme pas une autre version.
+

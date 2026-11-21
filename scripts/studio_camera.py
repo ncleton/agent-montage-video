@@ -10,7 +10,8 @@ composition Remotion du kit tuto-interface interpole avec un amorti. Règles (sk
 - une action (clic, frappe) groupée avec ses voisines proches dans le temps et l'espace forme un plan ;
 - le zoom arrive avant l'action (le spectateur voit où l'on va cliquer) et reste tant que l'action dure ;
 - il sort quand l'écran entier redevient utile, ou glisse directement vers le plan suivant s'il est proche ;
-- le cadre ne sort jamais de l'image ; un plan large zoome moins pour tout montrer.
+- le cadre ne sort jamais de l'image et montre en entier l'élément touché et ce qu'il ouvre (panneau, fenêtre,
+  fiche, enregistrés par studio_record.mjs) ; au-delà des deux tiers de l'écran, pas de zoom.
 
     python3 scripts/studio_camera.py timeline.json camera.json [--scale 1.6] [--lead 0.9] [--hold 1.1]
 """
@@ -26,7 +27,7 @@ from pathlib import Path
 def cluster_events(events, cursor, fps, gap_s, near_px):
     """Actions voisines dans le temps (gap_s) et dans l'espace (near_px, pixels CSS) : un seul plan."""
     groups = []
-    for e in sorted(events, key=lambda e: e["timeMs"]):
+    for e in sorted((e for e in events if e.get("type") in ("click", "key")), key=lambda e: e["timeMs"]):
         f = min(len(cursor) - 1, max(0, round(e["timeMs"] / 1000 * fps)))
         x, y = cursor[f]["x"], cursor[f]["y"]
         if x < 0 or y < 0:
@@ -51,11 +52,25 @@ def plan(timeline: dict, scale: float, lead_s: float, hold_s: float, ease_s: flo
     groups = cluster_events(timeline.get("events", []), cursor, fps, gap_s=1.8, near_px=0.3 * css_w)
     ease, lead, hold = round(ease_s * fps), round(lead_s * fps), round(hold_s * fps)
 
+    events = timeline.get("events", [])
+    boxes = [(round(e["timeMs"] / 1000 * fps), e["box"]) for e in events if e.get("box")]
+    views = [(round(e["timeMs"] / 1000 * fps), e.get("box")) for e in events if e.get("type") == "view"]
+
     def shot(group):
+        """Le cadre montre en entier ce que le geste touche et ce qu'il ouvre ; jamais un élément coupé."""
         xs, ys = [p[1] for p in group], [p[2] for p in group]
-        span_w, span_h = (max(xs) - min(xs)) + 0.25 * css_w, (max(ys) - min(ys)) + 0.25 * css_h
-        s = max(1.0, min(scale, 0.8 * css_w / span_w, 0.8 * css_h / span_h))
-        cx, cy = statistics.median(xs) * zoom, statistics.median(ys) * zoom
+        first, last = group[0][0], group[-1][0] + hold
+        region = [(min(xs), min(ys), max(xs), max(ys))]
+        region += [(b["x"], b["y"], b["x"] + b["w"], b["y"] + b["h"]) for f, b in boxes if first - 2 <= f <= last]
+        region += [(b["x"], b["y"], b["x"] + b["w"], b["y"] + b["h"]) for f, b in views if b and first <= f <= last]
+        x0, y0 = min(r[0] for r in region), min(r[1] for r in region)
+        x1, y1 = max(r[2] for r in region), max(r[3] for r in region)
+        span_w, span_h = max(x1 - x0, 0.25 * css_w), max(y1 - y0, 0.25 * css_h)
+        if span_w > 0.66 * css_w or span_h > 0.66 * css_h:
+            s = 1.0  # une fiche, une fenêtre ou un panneau qui prend l'écran se montre en entier, sans zoom
+        else:
+            s = max(1.0, min(scale, 0.86 * css_w / span_w, 0.86 * css_h / span_h))
+        cx, cy = (x0 + x1) / 2 * zoom, (y0 + y1) / 2 * zoom
         half_w, half_h = width / (2 * s), height / (2 * s)
         cx = min(max(cx, half_w), width - half_w)
         cy = min(max(cy, half_h), height - half_h)

@@ -23,6 +23,11 @@ où l'on peut tout cliquer sans risque. On ne filme jamais l'outil en production
    à sable (compte de test HubSpot), jamais vers les vraies données. C'est une garantie par construction : on ne
    compte pas sur la prudence d'un agent.
 5. **Local seulement** : tout écoute sur 127.0.0.1, sur le poste de montage.
+6. **Aucun manque à l'écran** : chaque écran filmé est complet, comme chez un commercial bien installé. Pas de message
+   d'erreur, de réglage manquant (« HubSpot n'est pas configuré »), d'état vide (« Aucun secteur n'est prévu »), de
+   chargement sans fin ni de valeur « À valider ». Un manque se corrige dans le studio (semis, réglage, secteur de
+   tournée, portail de test), jamais en évitant l'écran ni en le recadrant. Les volumes sont ceux de la production :
+   la case Prospects de Bigup montre toujours 25 prospects, dont quelques ajouts manuels.
 
 Avant de tourner, vérifier et noter dans le dossier du projet (`work/studio-check.md`) : commit de l'outil, compte
 et rôle filmés, absence de chaque secret de production (variables lues, pas supposées), échantillon d'entreprises,
@@ -36,12 +41,16 @@ et une capture de la page de départ relue.
 2. **Scénario** : écrire le parcours (`work/scenario.json`) d'après le bon de commande : un objectif par vidéo, les
    gestes du rôle filmé, un repère `mark` par phrase de la voix. Format et cibles :
    [references/scenario.md](references/scenario.md).
-3. **Tournage** : `node scripts/studio_record.mjs work/scenario.json work/rec` -> `raw.mp4` (4K, 60 i/s) et
+3. **Contrôle des écrans** : `node scripts/studio_check.mjs work/scenario.json work/check` rejoue le scénario sans filmer et lit
+   chaque écran (ouverture, chaque repère, fin). Un constat bloquant arrête tout : corriger le studio, relancer, et
+   noter le résultat dans `work/studio-check.md`.
+4. **Tournage** : `node scripts/studio_record.mjs work/scenario.json work/rec` -> `raw.mp4` (4K, 60 i/s) et
    `timeline.json` (curseur, clics, frappes, repères). Une étape introuvable arrête le tournage avec la cible
    exacte : corriger le scénario, jamais la page.
-4. **Caméra** : `python3 scripts/studio_camera.py work/rec/timeline.json work/rec/camera.json`.
-5. **Montage** : kit `kits/tuto-interface` (Remotion) : fenêtre sur fond de la charte, zooms, curseur, onde au clic,
-   sous-titres, voix. Règles de réalisation : [references/mise-en-valeur.md](references/mise-en-valeur.md).
-6. **Voix, vérification, publication** comme toute vidéo du dépôt (AGENTS.md) : voix VoiceStudio calée sur les
+5. **Caméra** : `python3 scripts/studio_camera.py work/rec/timeline.json work/rec/camera.json`.
+6. **Montage** : kit `kits/tuto-interface` (Remotion) dans le style du bon (`python3 scripts/studio_style.py <style> motion`,
+   pixel-rpg par défaut, styles/README.md pour en créer un) : ouverture et fermeture du style, zooms, curseur, onde
+   au clic, sous-titres, voix. Règles de réalisation : [references/mise-en-valeur.md](references/mise-en-valeur.md).
+7. **Voix, vérification, publication** comme toute vidéo du dépôt (AGENTS.md) : voix VoiceStudio calée sur les
    repères, `video-frame-review` sur le rendu, 4K, publication Mux ; pour une commande de l'ERP, fin par le skill
    `commande-erp`.

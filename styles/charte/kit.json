@@ -1,0 +1,19 @@
+{
+  "name": "charte",
+  "frame": "rounded",
+  "background": "#F0F0F2",
+  "halo": "#FFFFFF",
+  "window": "#FFFFFF",
+  "ink": "#1D1D1B",
+  "muted": "#6B6B70",
+  "accent": "#e3342f",
+  "onAccent": "#FFFFFF",
+  "dialog": {
+    "border": "#1D1D1B",
+    "paper": "rgba(17,17,17,.86)",
+    "ink": "#FFFFFF",
+    "radius": 18
+  },
+  "label": "TUTORIEL",
+  "closingLabel": "À RETENIR"
+}
