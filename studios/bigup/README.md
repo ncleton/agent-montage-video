@@ -91,6 +91,7 @@ comprennent tout de suite l'importance des filtres et des zones. »
 - `data/venv/bin/python seed/seed_book_hubspot.py <ligne du studio>` crée l’entreprise dans le portail de test et
   la rapproche par le SIRET sourcé. Le script vérifie le portail avant chaque écriture. Pour SI Group à Béthune,
   utiliser la ligne `48e5a82d-9db8-400e-b9e0-b8b172a28f36`.
-- `data/venv/bin/python seed/seed_ski_operators.py` attache les preuves officielles des exploitants de Courchevel
-  Le Praz et de La Flégère au tableur local. Les deux boutons « Ajouter à mes prospects » peuvent ainsi être
-  filmés avec leur confirmation réelle.
+- `data/venv/bin/python seed/seed_ski_operators.py` attache les preuves officielles et charge les logos des
+  exploitants de Courchevel Le Praz et de La Flégère. Le fichier local `data/stations-noms-a-anonymiser.json`
+  liste les noms relevés dans les textes publics et les contacts des fiches filmées. Le semis les remplace
+  dans le studio. Les deux actions « Ajouter à mes prospects » peuvent ensuite être filmées avec leur confirmation.

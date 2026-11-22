@@ -180,8 +180,13 @@ let lastBox = null;
 async function click(t) {
   const loc = await pointAt(t);
   lastBox = await boxOf(loc);
+  const position = t.at && lastBox
+    ? { x: lastBox.w * (t.at.x ?? 0.5), y: lastBox.h * (t.at.y ?? 0.5) }
+    : undefined;
   await sleep(140);
-  log(true); await page.mouse.down(); await sleep(70); await page.mouse.up(); log(false);
+  log(true);
+  await loc.click({ timeout: t.timeout ?? 15000, position });
+  log(false);
   events.push({ type: "click", timeMs: (now() - t0) * 1000, ...(lastBox ? { box: lastBox } : {}) });
 }
 
@@ -220,7 +225,14 @@ for (const [i, step] of (scenario.steps ?? []).entries()) {
       case "wait": step.target ? await target(step.target).waitFor({ state: "visible", timeout: step.timeout ?? 30000 }) : await sleep(step.ms ?? 1000); break;
       case "goto": await page.goto(new URL(step.url, page.url()).href, { waitUntil: "networkidle" }); break;
       case "screenshot": await page.screenshot({ path: join(out, "shots", step.name + ".png") }); break;
-      case "expect": break; // vérifié par studio_check.mjs avant le tournage
+      case "expect": {
+        const expected = step.text === undefined ? null : String(step.text);
+        const actual = ((await target(step.target).textContent({ timeout: 15000 })) ?? "").trim();
+        if (expected === null ? !actual : actual !== expected) {
+          fail(where + " : attendu « " + (expected ?? "texte visible") + " », lu « " + actual + " ».");
+        }
+        break;
+      }
       default: fail(where + " : geste inconnu. Gestes : click, type, press, hover, scroll, select, wait, pause, goto, mark, screenshot.");
     }
   } catch (e) { fail(where + " : " + String(e.message || e).split("\n")[0]); }
