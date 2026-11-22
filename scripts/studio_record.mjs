@@ -125,7 +125,7 @@ const events = [], markers = [];
 const log = (down = false) => samples.push({ t: now(), x: cursor.x, y: cursor.y, down });
 const ease = (u) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2);
 
-async function moveTo(x, y) {
+async function moveTo(x, y, down = false) {
   const dx = x - cursor.x, dy = y - cursor.y, dist = Math.hypot(dx, dy);
   if (dist < 1) return;
   const ms = Math.min(1000, Math.max(380, 300 + dist * 0.45));
@@ -137,12 +137,12 @@ async function moveTo(x, y) {
     cursor.x = sx + dx * e - (dy / (dist || 1)) * arc;
     cursor.y = sy + dy * e + (dx / (dist || 1)) * arc;
     await page.mouse.move(cursor.x, cursor.y);
-    log();
+    log(down);
     if (u >= 1) break;
     await sleep(14);
   }
 }
-async function pointAt(t) {
+async function pointAt(t, down = false) {
   const loc = target(t);
   try { await loc.waitFor({ state: "visible", timeout: t.timeout ?? 15000 }); }
   catch { fail("élément introuvable ou invisible : " + JSON.stringify(t)); }
@@ -150,7 +150,7 @@ async function pointAt(t) {
   const box = await loc.boundingBox();
   if (!box) fail("élément sans position à l'écran : " + JSON.stringify(t));
   const x = box.x + box.width * (t.at?.x ?? 0.5), y = box.y + box.height * (t.at?.y ?? 0.5);
-  await moveTo(x, y);
+  await moveTo(x, y, down);
   return loc;
 }
 // Ce que la caméra doit montrer en entier : la boîte de l'élément visé et, après le geste, le panneau ou la fenêtre
@@ -198,6 +198,26 @@ for (const [i, step] of (scenario.steps ?? []).entries()) {
       case "pause": await sleep(step.ms ?? 1000); log(); break;
       case "mark": markers.push({ label: step.label, timeMs: (now() - t0) * 1000 }); break;
       case "click": await click(step.target); break;
+      case "drag": {
+        await pointAt(step.target);
+        await page.mouse.down();
+        log(true);
+        try {
+          await pointAt(step.destination, true);
+        } finally {
+          await page.mouse.up();
+          log(false);
+        }
+        const box = await boxOf(target(step.destination));
+        events.push({ type: "click", timeMs: (now() - t0) * 1000, ...(box ? { box } : {}) });
+        break;
+      }
+      case "fill": {
+        await click(step.target);
+        await target(step.target).fill(step.value);
+        events.push({ type: "key", timeMs: (now() - t0) * 1000 });
+        break;
+      }
       case "hover": {
         const loc = await pointAt(step.target);
         const box = await boxOf(loc);
@@ -233,12 +253,12 @@ for (const [i, step] of (scenario.steps ?? []).entries()) {
         }
         break;
       }
-      default: fail(where + " : geste inconnu. Gestes : click, type, press, hover, scroll, select, wait, pause, goto, mark, screenshot.");
+      default: fail(where + " : geste inconnu. Gestes : click, drag, fill, type, press, hover, scroll, select, wait, pause, goto, mark, screenshot.");
     }
   } catch (e) { fail(where + " : " + String(e.message || e).split("\n")[0]); }
   if (!["pause", "mark", "screenshot", "expect"].includes(step.action)) {
     await sleep(step.delay ?? DEFAULT_DELAY);
-    if (["click", "press", "type", "select", "goto"].includes(step.action)) {
+    if (["click", "drag", "fill", "press", "type", "select", "goto"].includes(step.action)) {
       const view = await openedView().catch(() => null);
       events.push({ type: "view", timeMs: (now() - t0) * 1000, box: view });
     }

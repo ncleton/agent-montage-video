@@ -55,6 +55,12 @@ const target = (t, where = page) => {
   return t.nth !== undefined ? loc.nth(t.nth) : loc.first();
 };
 const screens = [];
+async function at(t) {
+  if (!t.at) return undefined;
+  const box = await target(t).boundingBox();
+  if (!box) throw new Error("Cible sans position : " + JSON.stringify(t));
+  return { x: box.width * (t.at.x ?? 0.5), y: box.height * (t.at.y ?? 0.5) };
+}
 async function inspect(label) {
   // Un chargement a 20 s pour finir avant d'être compté comme un manque.
   let text = "";
@@ -70,11 +76,23 @@ async function inspect(label) {
     if (LOADING.test(line)) found.push({ level: "bloquant", why: "chargement qui ne finit pas en 20 s", text: line.slice(0, 220) });
     for (const [re, why] of ADVISORY) if (re.test(line)) found.push({ level: "conseil", why, text: line.slice(0, 220) });
   }
+  for (const entry of await page.locator('[role="alert"]:visible').allInnerTexts()) {
+    const value = entry.trim();
+    if (value && !found.some((finding) => finding.text === value.slice(0, 220))) {
+      found.push({ level: "bloquant", why: "alerte affichée", text: value.slice(0, 220) });
+    }
+  }
   // Même ligne trois fois de suite (ex. six sources « Responsable technique · Julien Roux ») : doublon de données.
+  // Un agenda peut répéter le texte du bouton dans des cellules différentes, chacune nommant son jour et son plan.
+  const tableActions = await page.locator('td button[aria-label]').evaluateAll((buttons) =>
+    buttons.map((button) => [button.innerText.trim(), button.getAttribute('aria-label')]));
   for (let k = 0; k + 2 < lines.length; k++) {
     if (lines[k].length > 3 && lines[k] === lines[k + 1] && lines[k] === lines[k + 2]) {
       let n = 3; while (lines[k + n] === lines[k]) n++;
-      found.push({ level: "bloquant", why: "ligne répétée " + n + " fois (doublon de données)", text: lines[k].slice(0, 220) });
+      const labels = new Set(tableActions.filter(([text]) => text === lines[k]).map(([, label]) => label));
+      if (labels.size !== lines.filter((line) => line === lines[k]).length) {
+        found.push({ level: "bloquant", why: "ligne répétée " + n + " fois (doublon de données)", text: lines[k].slice(0, 220) });
+      }
       k += n - 1;
     }
   }
@@ -119,8 +137,10 @@ for (const [i, step] of (scenario.steps ?? []).entries()) {
     switch (step.action) {
       case "mark": await inspect(step.label); break;
       case "pause": await page.waitForTimeout(step.ms ?? 1000); break;
-      case "click": await target(step.target).click({ timeout: step.target.timeout ?? 15000 }); break;
-      case "hover": await target(step.target).hover({ timeout: 15000 }); break;
+      case "click": await target(step.target).click({ timeout: step.target.timeout ?? 15000, position: await at(step.target) }); break;
+      case "hover": await target(step.target).hover({ timeout: 15000, position: await at(step.target) }); break;
+      case "drag": await target(step.target).dragTo(target(step.destination), { timeout: 15000 }); break;
+      case "fill": await target(step.target).fill(step.value, { timeout: 15000 }); break;
       case "type": if (step.target) await target(step.target).click(); await page.keyboard.type(step.text, { delay: 20 }); break;
       case "press": await page.keyboard.press(step.key); break;
       case "select": await target(step.target).selectOption(step.value); break;

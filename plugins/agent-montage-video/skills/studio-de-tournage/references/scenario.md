@@ -18,7 +18,7 @@ souris et un vrai clavier (Playwright), en 1920 x 1080 CSS à la densité 2 (fil
       ]
     }
 
-Gestes : `expect` (valeur attendue à l'écran, vérifiée par studio_check.mjs avant le tournage, par exemple `{"action": "expect", "target": {"selector": ".hj-prospects .hj-count"}, "text": "25"}`), `click`, `type` (clique la cible puis tape, `charDelay` 55 ms), `press`, `hover`, `scroll` (`y` en pixels),
+Gestes : `expect` (valeur attendue à l'écran, vérifiée par studio_check.mjs avant le tournage, par exemple `{"action": "expect", "target": {"selector": ".hj-prospects .hj-count"}, "text": "25"}`), `click`, `type` (clique la cible puis tape, `charDelay` 55 ms), `fill` (`value`, notamment pour une heure), `drag` (de `target` à `destination`, avec le même format de cible), `press`, `hover`, `scroll` (`y` en pixels),
 `select` (`value`), `wait` (`target` ou `ms`), `pause`, `goto`, `mark` (repère pour la voix), `screenshot`
 (`name`). Chaque geste attend `delay` après lui (650 ms par défaut, `defaultDelay`).
 
