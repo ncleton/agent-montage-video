@@ -82,3 +82,15 @@ comprennent tout de suite l'importance des filtres et des zones. »
 - Studio : au moins deux zones de Camille (« Métropole lilloise » et la seconde du semis) avec des prospects et des
   comptes dans chacune, pour que la zone ouverte et la zone grisée soient toutes deux pleines à l'écran.
 
+### Prospection et tableur
+
+- `data/venv/bin/python seed/seed_gold_prospect.py <ligne de livret>` importe un fournisseur documenté dans le
+  livret du studio. Le script lit la relation qualifiée et le logo, remplace les personnes et retire l’historique
+  d’enrichissement payant. Pour rejouer la démonstration TECOBAT, utiliser la ligne
+  `2f0ae9a1-11c0-433b-b166-809f7810b853`, puis `./score.sh`.
+- `data/venv/bin/python seed/seed_book_hubspot.py <ligne du studio>` crée l’entreprise dans le portail de test et
+  la rapproche par le SIRET sourcé. Le script vérifie le portail avant chaque écriture. Pour SI Group à Béthune,
+  utiliser la ligne `48e5a82d-9db8-400e-b9e0-b8b172a28f36`.
+- `data/venv/bin/python seed/seed_ski_operators.py` attache les preuves officielles des exploitants de Courchevel
+  Le Praz et de La Flégère au tableur local. Les deux boutons « Ajouter à mes prospects » peuvent ainsi être
+  filmés avec leur confirmation réelle.

@@ -8,7 +8,7 @@
 // d'images de Chrome à la densité 2 (1920 x 1080 CSS -> 3840 x 2160), sans curseur : le curseur, les clics et
 // les zooms sont dessinés au montage (kit tuto-interface) d'après le journal.
 // Sorties : raw.mp4 (60 i/s constants), timeline.json (format TimelineData : fps, width, height, zoom,
-// frames[].cursor en pixels CSS, events[] click|key, markers[] pour caler la voix), shots/ (captures demandées).
+// frames[].cursor en pixels CSS, events[] clic, survol et frappe, markers[] pour caler la voix), shots/ (captures demandées).
 import { createRequire } from "node:module";
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -193,7 +193,12 @@ for (const [i, step] of (scenario.steps ?? []).entries()) {
       case "pause": await sleep(step.ms ?? 1000); log(); break;
       case "mark": markers.push({ label: step.label, timeMs: (now() - t0) * 1000 }); break;
       case "click": await click(step.target); break;
-      case "hover": await pointAt(step.target); break;
+      case "hover": {
+        const loc = await pointAt(step.target);
+        const box = await boxOf(loc);
+        if (box) events.push({ type: "hover", timeMs: (now() - t0) * 1000, box });
+        break;
+      }
       case "type": {
         if (step.target) await click(step.target);
         for (const ch of step.text) {
