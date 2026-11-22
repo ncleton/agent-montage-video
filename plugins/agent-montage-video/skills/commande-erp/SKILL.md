@@ -32,6 +32,8 @@ par la personne. Tu l'exécutes ici, avec les outils de ce dépôt, et tu ne re�
       (`styles/<style>/README.md`). Vidéo pédagogique : skill `motion-explainer`, et `meet-video-pedagogique` pour une
       réunion enregistrée. Appels d'offres : le skill d'Oscar transmis dans `order.json` et `kits/ao-essentiel`.
       Tutoriel d'un outil de l'ERP (`brief.interface`) : skill `studio-de-tournage`.
+      Poste Linux sans carte graphique (VPS des agents) : la voix VoiceStudio part au Mac mini, skill
+      `voix-sur-le-mac`.
 - [ ] À chaque étape : `report progress --step "…" --percent N --eta <secondes>`, avec `--checkpoint
       work/checkpoint.json` (étapes faites, tranches rendues) et une image d'aperçu (`--preview`) quand elle existe.
 - [ ] Publier la vidéo vérifiée : `scripts/with_secrets.sh python3 scripts/publish_mux.py --video out/<film>.mp4

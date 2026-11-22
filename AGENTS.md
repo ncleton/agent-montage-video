@@ -8,7 +8,8 @@ FFmpeg, vérification image par image et publication Mux.
 Il tourne sur le poste de montage, le Mac mini de Tony (Apple Silicon, rendu sur le GPU), où un service
 permanent prend les commandes de l'ERP (voir « Commandes de l'ERP »). Les mêmes outils marchent sur un Mac
 ou un PC de l'équipe qui installe le plugin, et sous Linux sans écran (`scripts/setup_linux.sh`, rendu
-logiciel plus lent).
+logiciel plus lent). Sur le VPS des agents (Linux, sans carte graphique), seule la voix VoiceStudio part au Mac
+mini par un tunnel SSH : skill `voix-sur-le-mac`.
 
 ## Commandes de l'ERP : le poste de montage
 
@@ -129,6 +130,7 @@ pas en silence vers une autre si celle choisie échoue : donne l'erreur exacte.
 - Écart entre deux répliques consécutives : 0,6 à 0,9 s. Une pause plus longue
   n'est permise que pour un effet dramatique voulu. Vérifie le tableau complet des
   répliques avant le rendu.
+- Sous Linux sans carte graphique, la voix VoiceStudio se génère sur le Mac mini : skill `voix-sur-le-mac`.
 - Voix off open source VoiceStudio (VoxCPM2) : une génération par scène, sans
   consigne de ton ni ralentissement, 20 pas, guidage 1,7, meilleure de trois prises,
   respirations ajoutées à la ponctuation et un seul gain pour la séquence, avec
