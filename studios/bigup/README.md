@@ -14,6 +14,7 @@ Google, ni jeton HubSpot de Rossini.
     ./start.sh          # Postgres, migration de la plateforme, Drive du studio, plateforme, Site, relais, score
     seed/all.sh         # entreprises, secteurs de tournée, HubSpot de test, case Prospects (25)
     data/venv/bin/python seed/seed_shared_table.py   # Tableur partagé : la liste des stations de ski (475 lignes)
+    data/venv/bin/python seed/seed_quick_contact.py  # une recherche de contact terminée (Prospection › Un contact)
     ./score.sh          # clients gagnés (portail de test) puis passage de score, relançable à la main
     ./stop.sh
 

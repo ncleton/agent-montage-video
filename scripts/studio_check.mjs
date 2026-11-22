@@ -30,7 +30,8 @@ mkdirSync(out, { recursive: true });
 const BLOCKING = [
   [/n[’']est pas configuré|n[’']est pas connecté|doit (?:ajouter|activer|créer)|jeton|HUBSPOT_ACCESS_TOKEN|clé .*(?:API|Google)/i, "réglage ou accès manquant (ex. « HubSpot n'est pas configuré sur le serveur »)"],
   [/\b(?:erreur|indisponible|introuvable|impossible|refusé|échec)\b|Réessayer|Traitement indisponible|Consultez le diagnostic/i, "erreur affichée (ex. « Fiche non lue : Traitement indisponible »)"],
-  [/\bAucun(?:e)? (?:secteur|prospect|lead|document|rendez-vous|tournée|résultat|donnée)|n[’']existent pas encore|pas encore (?:été|de )|Zone non trouvée/i, "donnée manquante (ex. « Aucun secteur n'est prévu en novembre »)"],
+  // « Aucune liste » reste permis : c'est le choix par défaut d'un menu (Relier à HubSpot), pas un état vide.
+  [/\bAucun(?:e)? (?:secteur|prospect|lead|document|rendez-vous|tournée|résultat|donnée|recherche|contact|élément|entreprise|tableur)|pour le moment|n[’']existent pas encore|pas encore (?:été|de )|Zone non trouvée/i, "donnée manquante (ex. « Aucun secteur n'est prévu en novembre », « Aucune recherche pour le moment »)"],
   [/\b(?:À|A) valider\b|\b(?:À|A) rechercher\b/i, "valeur non résolue"],
   [/\bundefined\b|\bNaN\b|\[object Object\]/, "valeur non résolue (code)"],
 ];

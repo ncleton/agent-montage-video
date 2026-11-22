@@ -28,7 +28,12 @@ UNITS = {"kwh": "kilowattheure", "kw": "kilowatt", "kva": "kilovoltampere", "mm2
          "a": "ampere", "v": "volt"}
 # spellings the speech recognizer uses for words of these trainings
 ASR_ALIASES = {"cosfi": "cos phi", "sokotech": "socotec", "socotech": "socotec", "ispv": "lise pv", "lispv": "lise pv",
-               "mm2": "millimetres carres", "mm²": "millimetres carres"}
+               "mm2": "millimetres carres", "mm²": "millimetres carres",
+               # HubSpot dit avec le h muet du français, FullEnrich et Enrow en deux syllabes
+               "ubspot": "hubspot", "upspot": "hubspot", "hub spot": "hubspot", "full enrich": "fullenrich",
+               "enro": "enrow",
+               # homophones exacts : « la fiche » s'entend [lafiʃ] comme « l'affiche »
+               "l'affiche": "la fiche", "l’affiche": "la fiche"}
 
 
 def htoks(s):

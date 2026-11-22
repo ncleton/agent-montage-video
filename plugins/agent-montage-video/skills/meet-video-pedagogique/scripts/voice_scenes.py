@@ -80,8 +80,19 @@ def words_of(stt):
     return [(w["word"].strip(), float(w["start"]), float(w["end"])) for w in stt["words"] if w["word"].strip()]
 
 
-def content_match(spoken, heard):
-    ref, hyp = SV.toks(spoken), SV.htoks(heard)
+def heard_as_spoken(heard, pronounce):
+    """Tokens of a transcript written like the text sent to the engine: the recognizer spells a brand normally
+    ("HubSpot") while the reference went through voice.pronounce ("Hub Spot")."""
+    s = " ".join(SV.htoks(heard))
+    for k in sorted(pronounce or {}, key=len, reverse=True):
+        key, val = " ".join(SV.toks(k)), " ".join(SV.toks(pronounce[k]))
+        if key:
+            s = re.sub(r"(?<![a-z0-9])%s(?![a-z0-9])" % re.escape(key), val, s)
+    return s.split()
+
+
+def content_match(spoken, heard, pronounce=None):
+    ref, hyp = SV.toks(spoken), heard_as_spoken(heard, pronounce)
     sm = difflib.SequenceMatcher(None, [f2(t) for t in ref], [f2(h) for h in hyp], autojunk=False)
     matched = set()
     for b in sm.get_matching_blocks():
@@ -193,7 +204,7 @@ def score(scenes, texts, v, takes_dir):
         for f in wavs:
             path = os.path.join(takes_dir, f)
             stt = json.load(open(path[:-4] + ".stt.json")); words = words_of(stt); y = read(path)
-            ratio, last_ok, inserts = content_match(spoken, stt["text"])
+            ratio, last_ok, inserts = content_match(spoken, stt["text"], v.get("pronounce"))
             stray = stray_pauses(y, words, spoken, 0.35, 0.12)
             ok_ends, n_ends = end_pauses(y, words, spoken)
             pr = prosody(path); sim = sims[path]
@@ -345,7 +356,7 @@ def verify(scenes, texts, v, outdir):
         sid = s["id"]; path = os.path.join(outdir, sid + ".wav")
         stt = transcribe(base, path, v["language"]); words = words_of(stt)
         stray = stray_pauses(read(path), words, texts[sid], 0.2, 0.05)
-        ratio, last_ok, _ = content_match(texts[sid], stt["text"]); pr = prosody(path)
+        ratio, last_ok, _ = content_match(texts[sid], stt["text"], v.get("pronounce")); pr = prosody(path)
         fails = [m for c, m in ((bool(stray), "silence hors ponctuation %s" % stray), (ratio < 0.93, "texte %.0f %%" % (ratio * 100)),
                                 (not last_ok, "fin manquante"), (pr["pitch_std_st"] < 2.5, "intonation plate")) if c]
         print("contrôle %-14s texte %3.0f %%  F0 %.2f  %s" % (sid, ratio * 100, pr["pitch_std_st"], fails or "OK"), flush=True)
