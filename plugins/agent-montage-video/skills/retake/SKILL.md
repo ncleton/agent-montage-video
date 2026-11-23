@@ -40,6 +40,10 @@ Quand le relecteur a cliqué sur Terminé (il te le dit, ou la personne te deman
 Le dossier arrive dans `output/retake/<Retake … - prénom - date>/`. Si le relecteur renvoie sa revue, la dernière
 remplace la précédente. Traite ensuite ce dossier (ou une archive .zip de l'application de bureau) :
 
+Un relecteur peut aussi coller un lien Mux sur la page d'accueil de Retake en ligne. Il retombe sur ta dernière revue
+de cette vidéo, ou, pour une vidéo publiée avant Retake, sur une revue sans empreinte : `--liste` la montre comme les
+autres, et `ingest_review.py` retrouve le rendu par le `.mux.json` qui porte son identifiant Mux.
+
     .venv/bin/python plugins/agent-montage-video/skills/retake/scripts/ingest_review.py "<Retake ….zip>" --vocabulaire "noms propres du projet"
 
 Le script :
