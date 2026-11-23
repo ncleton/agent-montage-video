@@ -69,6 +69,13 @@ par la personne. Tu l'exécutes ici, avec les outils de ce dépôt, et tu ne re�
   remplace dans sa leçon ; ne le supprimer que lorsqu'aucune leçon ne l'utilise.
 - Le dossier du premier jet manque (autre poste, nettoyé) : `report fail` avec cette raison exacte ; ne jamais
   retourner une vidéo pour éviter l'échec sans le dire.
+- **Corrections d'une relecture Retake** : un bon avec `revision_of` dont la première décision commence par
+  « Corrections demandées dans Retake » vient du bouton Terminé de Retake en ligne. Reprendre le projet de
+  `revision_of` comme ci-dessus, récupérer la revue (`python3 scripts/retake_fetch.py rv_…`, l'identifiant est dans la
+  décision), la traiter avec le skill `retake` (`ingest_review.py`), corriger chaque point sans refaire le reste, garder
+  la voix du bon, publier avec `--revue-precedente` sur le `.mux.json` de `revision_of`, et répondre point par point
+  dans le résumé. Ouvrir Retake ou préparer une relecture n'est jamais une commande : le lien de relecture sort de
+  chaque publication.
 
 ## Questions : une seule série, à la personne
 

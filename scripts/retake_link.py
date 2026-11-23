@@ -21,6 +21,7 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import secrets
 import shutil
 import subprocess
@@ -31,6 +32,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 CONFIG = Path(os.environ.get("MONTAGE_SECRETS_DIR", Path.home() / ".config/montage-video")) / "retake.json"
+ORDER_ID = re.compile(r"^ord_[0-9a-f]{20}$")
+
+
+def current_order() -> str | None:
+    """La commande de l'ERP en cours (dossier donné par agent_host.py) : Terminé dans Retake lui passera les corrections."""
+    folder = os.environ.get("AGENT_HOST_ORDER_DIR")
+    order_file = Path(folder) / "order.json" if folder else None
+    if not order_file or not order_file.is_file():
+        return None
+    order_id = str(json.loads(order_file.read_text()).get("id", ""))
+    return order_id if ORDER_ID.match(order_id) else None
 
 
 def load_config() -> dict:
@@ -109,6 +121,7 @@ def create_review(mux_json: Path, previous: str | None = None, video: Path | Non
         "v": 1, "id": "rv_" + secrets.token_hex(10), "titre": meta.get("title", source.stem), "fichier": source.name,
         "mux": meta["playback_id"], "sha256": meta["source_sha256"], "octets": source.stat().st_size,
         **probe(source), "prec": previous_id, "cree": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "commande": current_order(),
     }
     answer = json.loads(site_request(config, "/api/revues", declared))
     meta["retake"] = {"id": answer["id"], "url": answer["url"], "precedente": previous_id, "cree": declared["cree"]}

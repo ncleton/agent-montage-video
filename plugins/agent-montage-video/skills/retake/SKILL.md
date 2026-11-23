@@ -21,6 +21,10 @@ résumé par ce lien, à côté du lien Mux. Pour une commande de l'ERP, `report
 
 - Nouvelle version d'une vidéo déjà relue : publie avec `--revue-precedente out/<version précédente>.mux.json`. Le
   relecteur retrouve alors chaque point de la revue précédente et le marque Corrigé ou Pas corrigé.
+- Pendant une commande de l'ERP, la revue porte l'identifiant de la commande : quand le relecteur clique sur Terminé,
+  Retake te passe lui-même la commande de corrections (`revision_of`), rattachée à la conversation de l'agent qui avait
+  commandé la vidéo (skill `commande-erp`). Un agent de l'ERP ouvre aussi Retake sans toi, avec
+  `https://retake.rossini-ener-0158.chatgpt.site/?mux=<identifiant Mux>&commande=<ord_…>`.
 - Lien manquant (publication faite avant, ou erreur affichée par `publish_mux.py`) :
   `python3 scripts/retake_link.py --mux out/<film>.mux.json [--precedente …] [--video out/<film>.mp4]`.
 - Configuration : `~/.config/montage-video/retake.json` (droits 600) avec `url`, `secret` (variable `RETAKE_SECRET` du
