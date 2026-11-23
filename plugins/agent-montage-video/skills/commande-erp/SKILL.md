@@ -38,7 +38,8 @@ par la personne. Tu l'exécutes ici, avec les outils de ce dépôt, et tu ne re�
       work/checkpoint.json` (étapes faites, tranches rendues) et une image d'aperçu (`--preview`) quand elle existe.
 - [ ] Publier la vidéo vérifiée : `scripts/with_secrets.sh python3 scripts/publish_mux.py --video out/<film>.mp4
       --title "<titre du bon>" --metadata-output out/<film>.mux.json` (la personne a accepté la publication Mux en
-      validant le bon).
+      validant le bon). La publication écrit aussi le lien de relecture Retake du rendu (skill `retake`) ; pour une
+      version définitive (`brief.revision_of`), ajouter `--revue-precedente` avec le `.mux.json` du premier jet.
       Compte Mux plein (« Free plan is limited to 10 assets ») : ne pas échouer. Nicolas a demandé de retirer les
       anciennes versions (21/11/2026). Lister les vidéos Mux ; une **ancienne version** est une vidéo remplacée par une
       plus récente du même sujet (titre en v1 quand une v2 existe, premier jet remplacé par sa version définitive).

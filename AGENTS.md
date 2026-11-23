@@ -167,7 +167,8 @@ plus lent. Règles :
 Les clés sont dans des fichiers locaux lisibles par le seul utilisateur, dans
 `~/.config/montage-video/` : `mux_tokens` (lignes `MUX_TOKEN_ID=` et
 `MUX_TOKEN_SECRET=`, jeton « Agent Montage vidéo » du compte Mux Rossini Energy,
-environnement Outil AO) et `elevenlabs_api_key` (la clé seule). Elles sont
+environnement Outil AO), `elevenlabs_api_key` (la clé seule) et `retake.json`
+(Retake en ligne, skill `retake`). Elles sont
 injectées seulement dans la commande qui en a besoin : lance toute commande qui
 utilise ElevenLabs ou Mux à travers `scripts/with_secrets.sh` :
 
@@ -239,6 +240,11 @@ résolution maximale 2160p (en « basic » ou « plus », Mux pixelise les zooms
 aplats, constaté sur la vidéo agents IA). Donner le lien `highest.mp4`, qui sert
 toujours la meilleure qualité. Publie seulement une vidéo validée par la
 vérification ci-dessous et après accord de l'utilisateur sur le titre.
+
+Chaque publication donne aussi le lien de relecture Retake du rendu
+(https://retake.rossini-ener-0158.chatgpt.site/rv_…, écrit dans le `.mux.json`) : termine
+toujours par ce lien. Le relecteur y annote la vidéo et clique sur Terminé ;
+`scripts/retake_fetch.py` récupère alors son dossier (skill `retake`).
 
 ## Vérification avant livraison
 
