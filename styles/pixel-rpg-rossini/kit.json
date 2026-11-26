@@ -1,0 +1,38 @@
+{
+  "name": "pixel-rpg-rossini",
+  "frame": "pixel",
+  "background": "#0B0909",
+  "grid": "#E3342F",
+  "gridOpacity": 0.035,
+  "floor": "#241B1C",
+  "window": "#FFFFFF",
+  "ink": "#F2EEEE",
+  "muted": "#B0A4A5",
+  "accent": "#E3342F",
+  "accent2": "#F5C56B",
+  "onAccent": "#FFFFFF",
+  "panelName": "#3A2325",
+  "bezel": {
+    "outline": "#3F3740",
+    "body": "#E1E3E9",
+    "shade": "#B5BFC7",
+    "light": "#FFFFFF",
+    "screen": "#4A3A3C"
+  },
+  "dialog": {
+    "border": "#1A1A1A",
+    "paper": "#F8F8F0",
+    "ink": "#1D1D1B",
+    "radius": 0
+  },
+  "label": "TUTORIEL",
+  "closingLabel": "À RETENIR",
+  "portraits": {
+    "name": "VOUS",
+    "intro": "portrait-perplexe.png",
+    "introBubble": "bulle-question.png",
+    "outro": "portrait-content.png",
+    "outroBubble": "bulle-coeur.png"
+  },
+  "assets": "assets/generated"
+}

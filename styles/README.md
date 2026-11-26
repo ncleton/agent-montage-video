@@ -7,6 +7,7 @@ Un style est un dossier `styles/<identifiant>/`. L'identifiant est celui que le 
 |---|---|---|
 | pixel-rpg | Style par défaut : RPG rétro en pixel art, portrait « VOUS », bulles | styles/pixel-rpg |
 | charte | Sobre, aux couleurs de la charte Rossini Energy, sans personnage | styles/charte |
+| pixel-rpg-rossini | L'univers pixel-rpg, dominante verte remplacée par le noir et le rouge de la charte (vidéos de Formation) | styles/pixel-rpg-rossini |
 
 ## Ce que contient un style
 
