@@ -29,5 +29,10 @@ alors comme le tutoriel.
 
 Options : `theme` (light ou dark), `viewport`, `density`, `settleMs` (attente après l'ouverture),
 `cursorStart`, `tailMs`, `hideScrollbars` (vrai par défaut), `locale` et `timezone` (fr-FR, Europe/Paris).
+`now` (date ISO avec fuseau, par exemple `"2026-11-27T08:40:00+01:00"`) : l'heure que voit la page, qui avance
+ensuite normalement ; un tournage du soir filme ainsi une journée de travail au lieu de « Journée terminée ». Seul
+`Date` est décalé, les minuteurs et la carte restent ceux du navigateur ; le serveur garde sa propre date.
+`channel: "chrome"` : Google Chrome au lieu du Chromium de Playwright, qui affiche les champs d'heure en « 10:00 AM »
+sur macOS ; Chrome suit la langue du Mac (« 10:00 »).
 Les images ne sont émises par Chrome que quand l'écran change ; l'assemblage tient la dernière image, la durée du
 film est exactement celle du journal.

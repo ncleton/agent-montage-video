@@ -1,7 +1,11 @@
 // Restreint Chromium aux copies locales quand le parcours change de Site.
 export function studioChromeOptions(scenario) {
   const network = scenario.localNetwork;
-  if (!network) return {};
+  // La langue de Chromium règle le format des champs d'heure. Sur macOS, Chromium de Playwright garde « 10:00 AM » ;
+  // scenario.channel = "chrome" prend Google Chrome, qui suit la langue du Mac (« 10:00 »).
+  const lang = "--lang=" + (scenario.locale ?? "fr-FR");
+  const channel = scenario.channel ? { channel: scenario.channel } : {};
+  if (!network) return { ...channel, args: [lang] };
   const entries = Object.entries(network.ports ?? {});
   if (!entries.length || !/^[A-Za-z0-9+/]{43}=$/.test(network.spki ?? "")) {
     throw new Error("Réseau du studio : renseignez les origines et l’empreinte TLS locale.");
@@ -14,7 +18,9 @@ export function studioChromeOptions(scenario) {
   });
   rules.push("MAP * ~NOTFOUND", "EXCLUDE localhost");
   return {
+    ...channel,
     args: [
+      lang,
       "--disable-background-networking",
       "--no-proxy-server",
       "--host-resolver-rules=" + rules.join(","),
@@ -63,3 +69,21 @@ export async function studioCache(context, scenario) {
   });
 }
 
+
+// Heure du studio (scenario.now, date ISO avec fuseau) : la page voit cette heure, qui avance ensuite normalement.
+// Un tournage du soir montrait « Journée terminée » au lieu d'une journée de travail (26/11/2026). Seul Date est
+// décalé ; les minuteurs, requestAnimationFrame et performance.now restent ceux du navigateur, la carte ne bouge pas.
+export async function studioClock(context, scenario) {
+  if (!scenario.now) return;
+  const target = Date.parse(scenario.now);
+  if (!Number.isFinite(target)) throw new Error("scenario.now illisible : " + scenario.now);
+  await context.addInitScript((wanted) => {
+    const Real = Date, offset = wanted.target - wanted.started; // décalage fixé à l'ouverture du contexte
+    class Shifted extends Real {
+      constructor(...a) { if (a.length) super(...a); else super(Real.now() + offset); }
+      static now() { return Real.now() + offset; }
+    }
+    Shifted.parse = Real.parse; Shifted.UTC = Real.UTC;
+    globalThis.Date = Shifted;
+  }, { target, started: Date.now() });
+}

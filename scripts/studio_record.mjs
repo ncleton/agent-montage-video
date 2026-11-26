@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { cpus, loadavg } from "node:os";
-import { studioChromeOptions, studioCache } from "./studio_chrome.mjs";
+import { studioChromeOptions, studioCache, studioClock } from "./studio_chrome.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(join(ROOT, "tools/studio/package.json"));
@@ -71,7 +71,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const now = () => Date.now() / 1000;
 
 const chrome = studioChromeOptions(scenario);
-const browser = await chromium.launch({ headless: true, args: [
+const browser = await chromium.launch({ headless: true, ...(chrome.channel ? { channel: chrome.channel } : {}), args: [
   ...(chrome.args ?? []),
   "--force-device-scale-factor=" + density,
   "--window-size=" + view.width + "," + view.height,
@@ -82,6 +82,7 @@ const context = await browser.newContext({
   extraHTTPHeaders: scenario.headers ?? {},
 });
 await studioCache(context, scenario);
+await studioClock(context, scenario);
 const page = await context.newPage();
 const target = (t, where = page) => {
   if (!t || typeof t !== "object") fail("cible manquante ou invalide : " + JSON.stringify(t));
