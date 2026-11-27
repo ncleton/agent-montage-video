@@ -57,6 +57,31 @@ Le contrôle avant tournage : `node ../../scripts/studio_check.mjs <scenario.jso
   Documents pendant 1 h 30 ; un Chrome orphelin d'une session tuée gardait aussi le verrou. Ne jamais tuer une session
   sous lockf sans tuer ses navigateurs.
 
+## Ajouts du 27/11/2026, corrections de Nicolas (commande ord_3a6e447e3115df3dde8b)
+
+- Collègues réels (exception de Nicolas pour cette vidéo : photos et noms de vrais collègues, prospects et contacts
+  toujours fictifs). `data/team.json` (hors Git, 0600) : sub, e-mail du répertoire de l'équipe, prénom, nom, adresse
+  de la photo Slack, départements de la zone de démonstration. `data/venv/bin/python seed/seed_team.py` pose les
+  photos Slack par le code du serveur des photos de l'ERP (ao/photos.py), l'annuaire de l'équipe (ao_personnes) et la
+  liste des propriétaires de `data/studio-owners.json` ; `node seed/seed_team.mjs` crée leurs comptes commerciaux et
+  leurs zones (destinataires de « Transférer »). `node seed/seed_team.mjs --theo off|on` éteint ou rallume les livrets
+  de Théo Marchand, le collègue fictif, pour qu'il ne figure pas parmi des collègues réels.
+- Photos des collègues : start.sh pose `LEADGENERATOR_AO_SERVICE_URL` vers la plateforme du studio, qui sert
+  `/ao-api/photos` avec ses propres fichiers (`LEADGENERATOR_AO_DATA=data/ao`).
+- Chargé d'affaires du client d'un prospect en or : le propriétaire HubSpot ne peut pas être un vrai collègue dans le
+  portail de test (l'ajouter lui enverrait une invitation). `studio_platform.py` complète donc l'annuaire des
+  propriétaires et le propriétaire des entreprises listées dans `data/studio-owners.json`.
+  `data/venv/bin/python seed/seed_gold_client.py` relie Dubois Promotion (client de TECOBAT) à une entreprise et à un
+  contact fictif du portail de test, nomme Thibaut Gourlin son chargé d'affaires et remet à zéro les décisions de feu
+  vert (relançable avant chaque tournage).
+- Feu vert pendant un tournage : étape `{"action": "run", "cmd": ["node", "../../studios/bigup/seed/feu_vert.mjs"],
+  "dispatch": "bigup:colleague-decision"}` ; Thibaut autorise l'appel avec l'action de Bigup, puis la fiche relit sa
+  décision.
+- Tournage sans saccade : `"slowMotion": 4` dans le scénario (page, minuteurs, animations et gestes quatre fois plus
+  lents, journal ramené au temps réel) et le GPU du Mac pour Chrome sans écran (scripts/studio_record.mjs). Avant, le
+  rendu logiciel livrait 4 à 10 images/s pendant un mouvement de carte. Nouveaux gestes : clic droit (`"button":
+  "right"`), glisser d'un décalage (`"drag"` avec `"by"`), boîte englobante d'un survol (`"boxAll"`).
+
 ## Ce que contient `data/` (hors Git)
 
 - `platform/` et `site/` : copies de sales-marketplace et leadgenerator-site au commit en production ; `venv/` ;

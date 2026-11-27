@@ -14,6 +14,7 @@ import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 import { studioChromeOptions, studioCache, studioClock } from "./studio_chrome.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -133,19 +134,37 @@ await page.goto(scenario.url, { waitUntil: "networkidle", timeout: 120000 });
 if (scenario.waitFor) await target(scenario.waitFor).waitFor({ state: "visible", timeout: 60000 });
 await page.waitForTimeout(scenario.settleMs ?? 600);
 await inspect("ouverture");
+// Une commande du studio pendant le parcours (la réponse d'un collègue, par exemple), puis l'événement que la page
+// écoute pour relire ses données. Elle échoue bruyamment : son code de sortie arrête le contrôle.
+async function runStep(step) {
+  if (!Array.isArray(step.cmd) || !step.cmd.length) throw new Error("étape run sans commande (cmd : [programme, arguments…])");
+  const done = spawnSync(step.cmd[0], step.cmd.slice(1), { cwd: step.cwd ? resolve(step.cwd) : process.cwd(), encoding: "utf8", timeout: (step.timeout ?? 60) * 1000 });
+  if (done.status !== 0) throw new Error("commande " + step.cmd.join(" ") + " : code " + done.status + " " + String(done.stderr || done.error || "").trim().slice(0, 300));
+  if (step.dispatch) await page.evaluate((name) => window.dispatchEvent(new Event(name)), step.dispatch);
+}
 for (const [i, step] of (scenario.steps ?? []).entries()) {
   try {
     switch (step.action) {
       case "mark": await inspect(step.label); break;
       case "pause": await page.waitForTimeout(step.ms ?? 1000); break;
-      case "click": await target(step.target).click({ timeout: step.target.timeout ?? 15000, position: await at(step.target) }); break;
+      case "click": await target(step.target).click({ timeout: step.target.timeout ?? 15000, position: await at(step.target), ...(step.button ? { button: step.button } : {}) }); break;
       case "hover": await target(step.target).hover({ timeout: 15000, position: await at(step.target) }); break;
-      case "drag": await target(step.target).dragTo(target(step.destination), { timeout: 15000 }); break;
+      case "drag": {
+        if (!step.by) { await target(step.target).dragTo(target(step.destination), { timeout: 15000 }); break; }
+        // Glisser d'un décalage en pixels CSS (un angle de la délimitation du parking).
+        const b = await target(step.target).boundingBox({ timeout: 15000 });
+        if (!b) throw new Error("élément à glisser sans position : " + JSON.stringify(step.target));
+        const x = b.x + b.width / 2, y = b.y + b.height / 2;
+        await page.mouse.move(x, y); await page.mouse.down();
+        await page.mouse.move(x + step.by.x, y + step.by.y, { steps: 12 }); await page.mouse.up();
+        break;
+      }
+      case "run": await runStep(step); break;
       case "fill": await target(step.target).fill(step.value, { timeout: 15000 }); break;
       case "type": if (step.target) await target(step.target).click(); await page.keyboard.type(step.text, { delay: 20 }); break;
       case "press": await page.keyboard.press(step.key); break;
       case "select": await target(step.target).selectOption(step.value); break;
-      case "scroll": await page.mouse.wheel(0, step.y ?? 600); break;
+      case "scroll": if (step.target) await target(step.target).hover({ timeout: 15000 }); await page.mouse.wheel(0, step.y ?? 600); break;
       case "wait": step.target ? await target(step.target).waitFor({ state: "visible", timeout: step.timeout ?? 30000 }) : await page.waitForTimeout(step.ms ?? 1000); break;
       case "goto": await page.goto(new URL(step.url, page.url()).href, { waitUntil: "networkidle" }); break;
       case "screenshot": break;

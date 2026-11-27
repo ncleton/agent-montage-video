@@ -73,6 +73,7 @@ if [ "$(up http://127.0.0.1:$PLATFORM_PORT/health)" = "000" ]; then
     LEADGENERATOR_WORKSPACE_ID=studio-bigup LEADGENERATOR_SITE_ID=studio-bigup-site \
     LEADGENERATOR_ADMIN_SUBJECT=studio-admin \
     LEADGENERATOR_HOME="$DATA/home" LEADGENERATOR_DOCUMENT_ROOT="$DATA/documents" \
+    LEADGENERATOR_AO_DATA="$DATA/ao" \
     venv/bin/python "$STUDIO_DIR/studio_platform.py" $PLATFORM_PORT $DRIVE_PORT > platform.log 2>&1 &
   echo $! > platform.pid
   wait_for http://127.0.0.1:$PLATFORM_PORT/health 60 "La plateforme" "$DATA/platform.log"
@@ -92,8 +93,10 @@ fi
 
 cd "$DATA/site"
 umask 077
-printf 'LEADGENERATOR_SERVICE_URL=http://127.0.0.1:%s\nLEADGENERATOR_GATEWAY_SECRET=%s\nLEADGENERATOR_WORKSPACE_ID=studio-bigup\nLEADGENERATOR_SITE_ID=studio-bigup-site\n' \
-  "$PLATFORM_PORT" "$(cat "$DATA/gateway-secret")" > dist/server/.dev.vars
+# Photos des collègues (/ao-api/photos) : servies par la plateforme du studio elle-même (ao/photos.py, le code du
+# serveur des photos de l'ERP), d'après les photos Slack posées par seed/seed_team.py.
+printf 'LEADGENERATOR_SERVICE_URL=http://127.0.0.1:%s\nLEADGENERATOR_AO_SERVICE_URL=http://127.0.0.1:%s\nLEADGENERATOR_GATEWAY_SECRET=%s\nLEADGENERATOR_WORKSPACE_ID=studio-bigup\nLEADGENERATOR_SITE_ID=studio-bigup-site\n' \
+  "$PLATFORM_PORT" "$PLATFORM_PORT" "$(cat "$DATA/gateway-secret")" > dist/server/.dev.vars
 # Base locale du Site (D1) : ses tables, posées une fois.
 if [ ! -f .wrangler/state/studio-d1-ready ]; then
   for migration in drizzle/*.sql; do

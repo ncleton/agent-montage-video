@@ -12,10 +12,14 @@ et les y écrit privés et marqués disponibles, pour qu'ils ne bloquent pas l'a
     python studio_platform.py <port de la plateforme> <port du Drive du studio>
 """
 import sys
+import json
+from pathlib import Path
 
 import uvicorn
 
 from leadgenerator.platform import google_agenda, sales_documents
+from leadgenerator.integrations import hubspot as hubspot_api
+from leadgenerator.platform import colleague_requests
 
 platform_port, drive_port = int(sys.argv[1]), int(sys.argv[2])
 sales_documents.DRIVE = f"http://127.0.0.1:{drive_port}/drive/v3"
@@ -52,5 +56,41 @@ google_agenda.access_token = owner_token
 google_agenda.FIELDS = google_agenda.FIELDS.replace("items(id,", "items(id,extendedProperties,")
 google_agenda.normalize = studio_event_only
 google_agenda.insert_event = insert_marked
+
+# Chargés d'affaires du studio (Nicolas, 27/11/2026 : photos et noms de vrais collègues pour le prospect en or et la
+# fenêtre Transférer). Ajouter un collègue réel comme utilisateur du portail HubSpot de test lui enverrait une
+# invitation : le studio le déclare donc dans data/studio-owners.json, lu ici à chaque appel. L'annuaire des
+# propriétaires HubSpot (list_owners) reçoit ces collègues, et une entreprise du portail de test listée dans
+# « companies » a pour propriétaire celui qu'il nomme. Rien n'est écrit dans HubSpot.
+STUDIO_OWNERS = Path(__file__).resolve().parent / "data" / "studio-owners.json"
+production_list_owners = hubspot_api.list_owners
+production_owner_ids = colleague_requests._owner_ids
+
+
+def studio_owners():
+    if not STUDIO_OWNERS.exists():
+        return {"owners": [], "companies": {}}
+    return json.loads(STUDIO_OWNERS.read_text())
+
+
+def list_owners_with_studio(*, timeout: int = 30):
+    owners = production_list_owners(timeout=timeout)
+    known = {o.id for o in owners}
+    return owners + [
+        hubspot_api.HubSpotOwner(id=o["id"], email=o["email"], first_name=o["first_name"], last_name=o["last_name"], teams=[])
+        for o in studio_owners()["owners"] if o["id"] not in known
+    ]
+
+
+def owner_ids_with_studio(company_ids):
+    ids = production_owner_ids(company_ids)
+    for company, owner in studio_owners()["companies"].items():
+        if company in {str(c) for c in company_ids}:
+            ids[company] = owner
+    return ids
+
+
+hubspot_api.list_owners = list_owners_with_studio
+colleague_requests._owner_ids = owner_ids_with_studio
 
 uvicorn.run("leadgenerator.platform.app:app", host="127.0.0.1", port=platform_port, access_log=False, timeout_keep_alive=120)
