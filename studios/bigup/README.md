@@ -1,8 +1,11 @@
 # Studio de tournage Bigup
 
 Copie locale de Bigup (bigup.rossinienergy.com) pour filmer ses tutoriels, selon le skill `studio-de-tournage`.
-Tout tourne sur le poste de montage, sur 127.0.0.1. Aucun accès de production : ni secret de passerelle, ni clé
-Google, ni jeton HubSpot de Rossini.
+Tout tourne sur le poste de montage, sur 127.0.0.1. Aucun accès de production : ni secret de passerelle, ni jeton
+HubSpot de Rossini. Seule exception, décidée par Nicolas le 22/11/2026 : l'agenda Google. La clé de la délégation
+Google Workspace de Bigup (data/google-agenda-delegation.json, 0600) sert l'agenda de nicolas@rossinienergy.com à la
+place de celui de chaque compte du studio. Le studio n’y lit que les rendez-vous qu'il a créés, privés et marqués
+disponibles (studio_platform.py). Retirer le fichier puis redémarrer le studio coupe l'agenda.
 
 | Adresse | Ce que c'est |
 |---|---|
@@ -18,6 +21,11 @@ Google, ni jeton HubSpot de Rossini.
     ./score.sh          # clients gagnés (portail de test) puis passage de score, relançable à la main
     ./stop.sh
 
+Pour filmer « Sur la route », démarrer Docker Desktop, lancer `./routing.sh` puis redémarrer le studio.
+Valhalla 3.9.1 calcule sur le poste avec les extraits OpenStreetMap Nord-Pas-de-Calais et Picardie
+(Geofabrik). Son port 55816 est limité à la boucle locale. Le graphe reste dans le volume Docker
+`bigup-studio-valhalla-data`. Régler l’agence de départ du profil de démonstration dans le studio.
+
 Mettre le studio au code en production : data/site au commit de la dernière version Sites publiée (journal de
 publication), puis npm --prefix data/site run build ; data/platform au commit de l'image leadgenerator-platform de
 l'API en production (docker ps sur contabo-leadgen) ; puis ./stop.sh et ./start.sh. start.sh applique le schéma de
@@ -25,6 +33,29 @@ la plateforme (service provision, comme deploy.sh) et score.sh recalcule le scor
 21/11/2026, seul le serveur le calcule (row_scores), d'après les clients gagnés qu'il lit dans HubSpot.
 
 Le contrôle avant tournage : `node ../../scripts/studio_check.mjs <scenario.json> <sortie>` (règle 6 du studio).
+
+## Ajouts du 27/11/2026 (commande ord_62b82c366f10bf7a32a0, prospection v1073)
+
+- `lockf -k data/tournage.lock ./update.sh <commit du Site> <commit de la plateforme>` met le studio au code en
+  production et le relance (uv pour la plateforme, npm ci et build pour le Site).
+- Demandes d'email et de téléphone : `studio_enrichment.py` fait tourner l'ouvrier de production avec un Enrow et un
+  FullEnrich de test (clé factice `studio-double`, email sur example.fr, numéro de la plage 06 39 98 réservée à la
+  fiction) ; `seed/seed_enrichment.py` pose les connecteurs avec les champs et les tarifs de production.
+- Routeur : `studio_routing.py` (port 55817) transmet à Valhalla et n'estime à vol d'oiseau que les trajets qui sortent
+  du graphe Nord et Picardie (stations de ski de la liste partagée) ; start.sh le lance et y branche la plateforme.
+- Transfert de fiche : interrupteur `vente.transfert_prospect` allumé pour tous (set_feature_switch) et collègue fictif
+  Théo Marchand, chargé d'affaires avec sa zone Ardennes et Marne (`node seed/seed_colleague.mjs`).
+- Prospect en or : `seed/seed_gold_prospect.py` crée aussi la table des clients de la recherche des relations
+  (clients_table_id) et la ligne du client qui présente, lues par le code du 26/11.
+- Parkings voisins de la fiche filmée : une proposition non tranchée laisse « Calcul… » dans le lecteur. Valider la
+  proposition (save_row_parking, action confirm) puis compter les places avec
+  `leadgenerator-platform-survey-parkings --campaign <livret>` et `LEADGENERATOR_PARKING_MODEL=data/models/parking-stalls-osm-v1.onnx`
+  (modèle copié de la production, hors Git).
+- `matrice-fonctions.md` : matrice commune des fonctions du commercial entre les vidéos Prospection et Tournées.
+- Incident du 27/11 vers 01 h : la table des fichiers de macOS saturée (kern.num_vnodes = kern.maxvnodes) après un
+  remplissage de la mémoire d'échange par le serveur VoiceStudio (36 Go) a bloqué l'ouverture des fichiers de
+  Documents pendant 1 h 30 ; un Chrome orphelin d'une session tuée gardait aussi le verrou. Ne jamais tuer une session
+  sous lockf sans tuer ses navigateurs.
 
 ## Ce que contient `data/` (hors Git)
 

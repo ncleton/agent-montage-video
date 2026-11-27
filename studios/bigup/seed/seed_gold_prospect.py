@@ -195,9 +195,24 @@ def seed(row_id, relation_campaign, relation_config, company, siren):
         store_record(conn, "campaigns", common | {
             "id": relation_campaign, "data": {"name": "Relations de nos clients", "status": "active"},
         })
+        # Depuis le 26/11/2026 (sales-marketplace 231f1add), la lecture d'une fiche lit la table des clients de la
+        # recherche des relations (relations_search.clients_table_id) : sans elle, « Chargés d'affaires indisponibles ».
+        clients_config = str(uuid.uuid5(uuid.NAMESPACE_URL, "studio-bigup:relations:clients"))
+        store_record(conn, "configurations", common | {
+            "id": clients_config, "campaign_id": relation_campaign,
+            "data": {"category": "campaign_table", "name": "Clients", "relations_clients": {"relations_table_id": relation_config}},
+        })
         store_record(conn, "configurations", common | {
             "id": relation_config, "campaign_id": relation_campaign,
-            "data": {"category": "campaign_table", "name": "Relations", "relations_search": {}},
+            "data": {"category": "campaign_table", "name": "Relations",
+                     "relations_search": {"status": "done", "clients_table_id": clients_config}},
+        })
+        # Le client qui présente le fournisseur : sa ligne dans la table des clients (nom de l'entreprise cliente tiré
+        # de la preuve publique de la relation, c5), sans aucune personne.
+        client_name = relation["values"]["c1"].split(" Romances ")[0] if "linkedin.com/company/" in public_values["c5"] else relation["values"]["c1"]
+        store_record(conn, "opportunities", common | {
+            "id": public_relation["client_row_id"], "campaign_id": relation_campaign,
+            "data": {"kind": "imported_row", "table_id": clients_config, "position": 0, "values": {"c1": client_name}},
         })
         store_record(conn, "opportunities", common | {
             "id": str(uuid.uuid5(uuid.NAMESPACE_URL, "studio-bigup:relation:" + siren)),

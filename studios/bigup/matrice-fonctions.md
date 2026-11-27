@@ -9,38 +9,38 @@ raison.
 
 | Fonction | Où dans Bigup (v1073) | Vidéo | Chapitre et minutage |
 |---|---|---|---|
-| Accueil : prospects du mois (25, classés par score sur 100) | Accueil › case Prospects | P | (P) |
-| Mention « Ajouté par moi », mois d'ajout | Accueil › case Prospects | P | (P) |
-| Passer en lead depuis une ligne | Accueil › case Prospects | P | (P) |
-| Filtres : mois, type (Gold, Ajoutés par moi), score, zone, avec compteurs | Accueil › Prospects › Filtres | P | (P) |
-| Prospects en or : couronne, « Vend à un de nos clients », preuve | Accueil › Prospects › fiche | P | (P) |
-| Leads HubSpot en cours (Bornes, Ombrières), ouverture dans HubSpot | Accueil › case Leads | P | (P) |
-| Achille, l'agent de la page | barre du haut | P | (P) |
-| Documents communs (vidéos, plaquettes, présentations, Drive) | Accueil › case Documents | P | (P) |
+| Accueil : prospects du mois (25, classés par score sur 100) | Accueil › case Prospects | P | Ch. 1 · 1:21 |
+| Mention « Ajouté par moi », mois d'ajout | Accueil › case Prospects | P | Ch. 1 · 1:24 |
+| Passer en lead depuis une ligne | Accueil › case Prospects | P | Ch. 1 · 1:37 |
+| Filtres : mois, type (Gold, Ajoutés par moi), score, zone, avec compteurs | Accueil › Prospects › Filtres | P | Ch. 1 · 1:40 |
+| Prospects en or : couronne, « Vend à un de nos clients », preuve | Accueil › Prospects › fiche | P | Ch. 2 · 2:26 |
+| Leads HubSpot en cours (Bornes, Ombrières), ouverture dans HubSpot | Accueil › case Leads | P | Ch. 1 · 1:54 |
+| Achille, l'agent de la page | barre du haut | P | Ch. 1 · 2:10 |
+| Documents communs (vidéos, plaquettes, présentations, Drive) | Accueil › case Documents | P | Ch. 1 · 2:19 |
 | Tournée du mois (carte, semaines, arrêts), Ouvrir les Tournées | Accueil › case Tournée | T | T 0:58, Tournées ouvertes par le menu ; la case de l'Accueil n'est pas filmée en T |
-| Fiche : bandeau (adresse, site, SIREN, CA, effectif, santé financière, Comptes Pappers, Multi-site, Surveillance) | fiche prospect | P | (P) |
-| Fiche : score en bref, Pourquoi ce score | fiche › score | P | (P) |
-| Fiche : raisons d'appeler, sources cliquables, labels, vue de la rue, carte de zone | fiche | P | (P) |
-| 41 sources croisées sur chaque fiche | motion design | P | (P) |
-| Photo aérienne : cadastre, emprise bleue des parcelles | fiche › photo | P | (P) |
-| Parking : places, surface, bornes exigées, loi APER ; Revoir le parking (validation manuelle) | fiche › parking | P | (P) |
-| Décideurs : contact à privilégier, Enrichir l'email, Enrichir le téléphone, résultat sourcé | fiche › décideurs | P | (P) |
-| Autres contacts : demander à Achille, ajouter un contact | fiche › Autres contacts | P | (P) |
-| Fiche reliée à HubSpot : lien, statut, dernier échange | fiche › bandeau | P | (P) |
-| Transférer la fiche à un chargé d'affaires, avec un mot | fiche › Transférer | P | (P) |
-| Convertir en lead | fiche › bandeau | P | (P) |
+| Fiche : bandeau (adresse, site, SIREN, CA, effectif, santé financière, Comptes Pappers, Multi-site, Surveillance) | fiche prospect | P | Ch. 3 · 2:55 |
+| Fiche : score en bref, Pourquoi ce score | fiche › score | P | Ch. 3 · 3:19 |
+| Fiche : raisons d'appeler, sources cliquables, labels, vue de la rue, carte de zone | fiche | P | Ch. 3 · 3:35 |
+| 41 sources croisées sur chaque fiche | motion design | P | Ouverture · 0:37 (42,9 s) |
+| Photo aérienne : cadastre, emprise bleue des parcelles | fiche › photo | P | Ch. 4 · 3:58 |
+| Parking : places, surface, bornes exigées, loi APER ; Revoir le parking (validation manuelle) | fiche › parking | P | Ch. 4 · 4:12 et 4:38 |
+| Décideurs : contact à privilégier, Enrichir l'email, Enrichir le téléphone, résultat sourcé | fiche › décideurs | P | Ch. 5 · 4:50 |
+| Autres contacts : demander à Achille, ajouter un contact | fiche › Autres contacts | P | Ch. 5 · 5:16 |
+| Fiche reliée à HubSpot : lien, statut, dernier échange | fiche › bandeau | P | Ch. 6 · 5:25 |
+| Transférer la fiche à un chargé d'affaires, avec un mot | fiche › Transférer | P | Ch. 6 · 5:37 |
+| Convertir en lead | fiche › bandeau | P | Ch. 6 · 5:41 |
 | Planifier un rdv depuis la fiche | fiche › Planifier un rdv | T (cité en P) | T ch. 5, 4:35 (Planifier la visite, fiche ouverte dans Tournées) |
-| Imprimer ou PDF, Corbeille, prospect suivant ou précédent | fiche › barre | P | (P) |
-| Ajouter un prospect (nom, SIREN, site, contact, zone), avertissement « déjà suivie » | Accueil › Prospects › Ajouter | P | (P) |
-| Carte de visite : importer, scanner avec le téléphone | Ajouter un prospect | P | (P) |
-| Un contact : compléter email, téléphone ou poste ; reprise d'une liste partagée ; historique | Prospection ciblée › Un contact | P | (P) |
-| Listes partagées : ouvrir une liste générée (stations de ski, Weldom), chercher, filtrer, trier, exporter | Prospection ciblée › Listes partagées | P | (P) |
-| Voir la fiche depuis une liste partagée, défiler les fiches | Listes partagées › Voir la fiche | P | (P) |
-| Ajouter à mes prospects depuis la fiche, puis en sélectionnant une ligne | Listes partagées | P | (P) |
+| Imprimer ou PDF, Corbeille, prospect suivant ou précédent | fiche › barre | P | Ch. 6 · 5:50 |
+| Ajouter un prospect (nom, SIREN, site, contact, zone), avertissement « déjà suivie » | Accueil › Prospects › Ajouter | P | Ch. 7 · 6:04 et 6:14 |
+| Carte de visite : importer, scanner avec le téléphone | Ajouter un prospect | P | Ch. 7 · 6:18 |
+| Un contact : compléter email, téléphone ou poste ; reprise d'une liste partagée ; historique | Prospection ciblée › Un contact | P | Ch. 8 · 6:26 |
+| Listes partagées : ouvrir une liste générée (stations de ski, Weldom), chercher, filtrer, trier, exporter | Prospection ciblée › Listes partagées | P | Ch. 9 · 6:49 |
+| Voir la fiche depuis une liste partagée, défiler les fiches | Listes partagées › Voir la fiche | P | Ch. 9 · 7:19 |
+| Ajouter à mes prospects depuis la fiche, puis en sélectionnant une ligne | Listes partagées | P | Ch. 10 · 7:33 |
 | Tournées : plans, zones, semaines, Ma semaine ; filtres, carte et liste | Tournées | T | T ch. 1 à 4, 0:58 à 3:56 (détail ci-dessous) |
 | Rendez-vous : créneau, prise, agenda et HubSpot ; modifier, annuler, réalisé | Tournées | T | T ch. 5 et 6, 3:56 à 6:06 (détail ci-dessous) |
 | Organisation des jours, proposition de tournée, réglages, prospects sur la route | Tournées | T | T ch. 3, 4 et 7, 3:06 à 6:44 (détail et écarts ci-dessous) |
-| Conclusion : Bigup trouve et prépare, HubSpot garde l'historique | les deux | P et T | (P) T ch. 10, 7:39 |
+| Conclusion : Bigup trouve et prépare, HubSpot garde l'historique | les deux | P et T | Ouverture · 0:01 et Ch. 11 · 7:40 T ch. 10, 7:39 |
 
 ## Écarts : fonctions que le commercial ne voit pas
 
@@ -100,3 +100,4 @@ Camille Martin aux droits de base d'un commercial, journée filmée vendredi 27 
 - Marquer un rdv réalisé : pas de bouton ; un rdv passé est « Passé » et reçoit son compte rendu (6:44).
 - Carte « Journée terminée » et « Écrire les comptes rendus » du soir, « Modifier dans HubSpot » des rdv venus de HubSpot,
   case « Afficher les rendez-vous Google Agenda », plein écran de la carte et Actualiser : visibles, non détaillés.
+

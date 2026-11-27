@@ -2,7 +2,7 @@
 # Arrête le studio de tournage Bigup (relais, Site, plateforme, Postgres). Les données restent dans data/.
 STUDIO_DIR=$(cd "$(dirname "$0")" && pwd)
 DATA="$STUDIO_DIR/data"
-for name in relay-commercial relay-admin site platform drive; do
+for name in relay-commercial relay-admin site platform drive enrichment routing-proxy; do
   if [ -s "$DATA/$name.pid" ]; then kill "$(cat "$DATA/$name.pid")" 2>/dev/null || true; : > "$DATA/$name.pid"; fi
 done
 # Un fichier .pid périmé ne laisse pas un service tourner : arrêter aussi ce qui écoute encore sur les ports du studio

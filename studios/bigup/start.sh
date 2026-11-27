@@ -47,8 +47,27 @@ fi
 env -i PATH=/usr/bin:/bin HOME="$HOME"   LEADGENERATOR_DATABASE_URL="postgresql://postgres:$(cat pg-password)@127.0.0.1:$PG_PORT/studio"   LEADGENERATOR_RUNTIME_PASSWORD="$(cat runtime-password)"   venv/bin/leadgenerator-platform-provision > provision.log 2>&1 || fail "migration de la plateforme refusée (journal : $DATA/provision.log)."
 
 if [ "$(up http://127.0.0.1:$PLATFORM_PORT/health)" = "000" ]; then
+  routing=""
+  if [ -s "$DATA/valhalla-enabled" ]; then
+    ROUTING_PORT=55816
+    curl -fsS -m 5 "http://127.0.0.1:$ROUTING_PORT/status" >/dev/null ||
+      fail "Valhalla ne répond pas sur 127.0.0.1:$ROUTING_PORT. Lancez ./routing.sh et attendez la fin de la construction du graphe."
+    # Le routeur du studio (studio_routing.py) transmet à Valhalla et estime seulement les trajets hors du graphe.
+    if [ "$(up http://127.0.0.1:55817/status)" = "000" ]; then
+      detach python3 "$STUDIO_DIR/studio_routing.py" 55817 $ROUTING_PORT > routing-proxy.log 2>&1 &
+      echo $! > routing-proxy.pid
+      wait_for http://127.0.0.1:55817/status 20 "Le routeur du studio" "$DATA/routing-proxy.log"
+    fi
+    routing="LEADGENERATOR_ROUTING_URL=http://127.0.0.1:55817"
+  fi
+  # Agenda Google : celui de Nicolas, par la délégation Google Workspace de Bigup (studio_platform.py, Nicolas 22/11/2026).
+  google_agenda=""
+  [ -s "$DATA/google-agenda-delegation.json" ] && google_agenda="LEADGENERATOR_GOOGLE_AGENDA_KEY=$DATA/google-agenda-delegation.json"
   detach env -i PATH=/usr/bin:/bin HOME="$HOME" \
     ${HUBSPOT_TEST_TOKEN:+HUBSPOT_ACCESS_TOKEN=$HUBSPOT_TEST_TOKEN} \
+    ${routing:+"$routing"} \
+    ${google_agenda:+"$google_agenda"} \
+    ENROW_API_KEY=studio-double FULLENRICH_API_KEY=studio-double \
     LEADGENERATOR_DATABASE_URL="postgresql://lead_platform_app:$(cat runtime-password)@127.0.0.1:$PG_PORT/studio" \
     LEADGENERATOR_GATEWAY_SECRET="$(cat gateway-secret)" \
     LEADGENERATOR_WORKSPACE_ID=studio-bigup LEADGENERATOR_SITE_ID=studio-bigup-site \
@@ -57,6 +76,18 @@ if [ "$(up http://127.0.0.1:$PLATFORM_PORT/health)" = "000" ]; then
     venv/bin/python "$STUDIO_DIR/studio_platform.py" $PLATFORM_PORT $DRIVE_PORT > platform.log 2>&1 &
   echo $! > platform.pid
   wait_for http://127.0.0.1:$PLATFORM_PORT/health 60 "La plateforme" "$DATA/platform.log"
+fi
+
+# Demandes d'email et de téléphone : l'ouvrier de production, servi par un Enrow de test (studio_enrichment.py).
+if ! { [ -s enrichment.pid ] && kill -0 "$(cat enrichment.pid)" 2>/dev/null; }; then
+  detach env -i PATH=/usr/bin:/bin HOME="$HOME" ENROW_API_KEY=studio-double FULLENRICH_API_KEY=studio-double \
+    LEADGENERATOR_DATABASE_URL="postgresql://lead_platform_app:$(cat runtime-password)@127.0.0.1:$PG_PORT/studio" \
+    LEADGENERATOR_GATEWAY_SECRET="$(cat gateway-secret)" \
+    LEADGENERATOR_WORKSPACE_ID=studio-bigup LEADGENERATOR_SITE_ID=studio-bigup-site \
+    LEADGENERATOR_ADMIN_SUBJECT=studio-admin \
+    LEADGENERATOR_HOME="$DATA/home" LEADGENERATOR_DOCUMENT_ROOT="$DATA/documents" \
+    venv/bin/python "$STUDIO_DIR/studio_enrichment.py" > enrichment.log 2>&1 &
+  echo $! > enrichment.pid
 fi
 
 cd "$DATA/site"
