@@ -53,6 +53,17 @@ def insert_marked(email, body):
 
 
 google_agenda.access_token = owner_token
+
+# Heure des journées de tournée (commande ord_fd3fd5ca38edbe264faa, 27/11/2026) : le navigateur filmé vit à l'heure du
+# scénario (scenario.now, par exemple vendredi 27 novembre 2026 à 8 h 40). Sans cela, un passage ajouté le jour même
+# après 18 h (heure réelle du poste) laissait la journée vide (« ne tient pas dans une journée de 0 min »). Quand
+# data/studio-clock existe, le calcul des journées (route_planner.now) suit cette heure-là.
+_clock = Path(__file__).resolve().parent / "data" / "studio-clock"
+if _clock.exists():
+    from datetime import datetime
+    from leadgenerator.platform import route_planner
+    _fixed = datetime.fromisoformat(_clock.read_text().strip())
+    route_planner.now = lambda: _fixed.astimezone(route_planner.PARIS)
 google_agenda.FIELDS = google_agenda.FIELDS.replace("items(id,", "items(id,extendedProperties,")
 google_agenda.normalize = studio_event_only
 google_agenda.insert_event = insert_marked

@@ -82,6 +82,24 @@ Le contrôle avant tournage : `node ../../scripts/studio_check.mjs <scenario.jso
   rendu logiciel livrait 4 à 10 images/s pendant un mouvement de carte. Nouveaux gestes : clic droit (`"button":
   "right"`), glisser d'un décalage (`"drag"` avec `"by"`), boîte englobante d'un survol (`"boxAll"`).
 
+## Ajouts du 27/11/2026 au soir (commande ord_fd3fd5ca38edbe264faa, Tournées refaites sur la version en ligne)
+
+- Filtres d'À caler « Leads entrants », « Projets » et « Partenaires » : `data/venv/bin/python seed/seed_tournees_filtres.py`
+  ajoute l'étape « Lead entrant » au Pipeline Bornes et l'option « Partenaire » du statut de lead dans le portail de test,
+  pose le code postal (lu dans l'adresse) des entreprises du portail, puis crée une transaction « Lead entrant » sans
+  propriétaire, une transaction « Projet » et une entreprise « Partenaire » sur trois entreprises réelles du Nord tirées
+  d'un livret de production (lecture seule), interlocuteurs fictifs. Relançable sans doublon. Leurs lignes restent
+  « sans position » : la copie HubSpot du studio (Réglages › Qualité HubSpot) n'a placé aucune entreprise ; les filtres
+  et leurs compteurs se filment, les lignes elles-mêmes non.
+- Heure des journées de tournée : `data/studio-clock` (une date ISO, par exemple `2026-11-27T08:40:00+01:00`, la même
+  que `scenario.now`) fait suivre cette heure au calcul des journées (route_planner.now, studio_platform.py). Sans elle,
+  un passage ajouté le jour même après 18 h, heure réelle du poste, vidait la journée (« ne tient pas dans une journée de
+  0 min »). Redémarrer le studio après l'avoir changée, puis recalculer les journées touchées (optimize_itinerary).
+- Bigup garde dans la page des copies cachées des fiches voisines (vue « Planifier un rdv », fiches) : dans un scénario,
+  viser le texte et les boutons de ces vues avec `>> visible=true`.
+- « Mon calendrier » affiche « Aucun rendez-vous ce jour. » quand le jour du tournage n'a pas de rendez-vous : ne pas
+  l'ouvrir ce jour-là (empty state refusé par studio_check).
+
 ## Ce que contient `data/` (hors Git)
 
 - `platform/` et `site/` : copies de sales-marketplace et leadgenerator-site au commit en production ; `venv/` ;
