@@ -188,3 +188,23 @@ comprennent tout de suite l'importance des filtres et des zones. »
   sauvegardes de la nuit a saturé la table des fichiers (kern.num_vnodes = kern.maxvnodes) ; plus aucune commande ne se
   lançait. Ranger les images hors de public/ (motion/frames-store) avec un lien symbolique public/frames : le bundle ne
   copie que le lien, et render_chunks.py le suit.
+
+## Ajouts du 28/11/2026 au soir (commande ord_21a286002f5557833070, corrections Retake de Nicolas)
+
+- Version filmée : la production complétée des PR ouvertes que Nicolas validait (« faut mettre à jour l'app avec le
+  nouveau bouton modifier ») : Site `origin/main` + RossiniERP#527 (`codex/rdv-modifier-simple`, « Modifier » avec Date
+  et Heure, calendrier sur trois mois, « Déjà prévu ce jour »), plateforme ad6f5c8a (production) + sales-marketplace#505
+  (`codex/agenda-modifier-hubspot`). Fusions locales dans `data/site` et `data/platform`, puis
+  `lockf -k data/tournage.lock ./update.sh <fusion du Site> <fusion de la plateforme>`.
+- Route d'une journée à plusieurs rendez-vous : Bigup ne trace que les visites d'un jour qui a une tournée calculée, sans
+  ses rendez-vous ; un jour sans tournée calculée a sa route de l'agence à chaque rendez-vous, dans l'ordre, puis le retour.
+  Pour filmer une journée à trois rendez-vous reliés, le jour garde un itinéraire vide et porte trois rendez-vous
+  (`jours-tournage.mjs` de la commande : MERCURE LILLE METROPOLE 9 h 30, CERBALLIANCE 11 h 30, Valdunes calé au tournage).
+- Texte retiré de l'image : `"hideTexts": ["début du texte", …]` dans le scénario masque le plus petit bloc dont le texte
+  commence ainsi, au contrôle comme au tournage (`studioHide`, scripts/studio_chrome.mjs). Sert au bandeau « Les
+  responsables des tournées préparent les plans… » des Plans de tournée, que Nicolas a demandé de retirer de la vidéo.
+- Magasin Weldom dans une zone de Camille (Weldom Linselles, Nord) : sa fiche montre « Planifier la visite » en demi-journées
+  Libre ou Prise. Un magasin hors des zones (Rosporden) n'y montre que « Tournée prévue · N arrêts », jugé illisible.
+  « Ajouter à mes prospects » l'ajoute sous son nom légal (ETABLISSEMENTS GALLIOT) : la remise en état retire tout
+  prospect ajouté depuis le début de la commande, contrôle des écrans compris.
+

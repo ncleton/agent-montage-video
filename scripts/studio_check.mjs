@@ -15,7 +15,7 @@ import { dirname, join, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
-import { studioChromeOptions, studioCache, studioClock } from "./studio_chrome.mjs";
+import { studioChromeOptions, studioCache, studioClock, studioHide } from "./studio_chrome.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(join(ROOT, "tools/studio/package.json"));
@@ -44,6 +44,7 @@ const context = await browser.newContext({ viewport: scenario.viewport ?? { widt
   timezoneId: scenario.timezone ?? "Europe/Paris", colorScheme: scenario.theme === "dark" ? "dark" : "light", extraHTTPHeaders: scenario.headers ?? {} });
 await studioCache(context, scenario);
 await studioClock(context, scenario);
+await studioHide(context, scenario);
 const page = await context.newPage();
 const target = (t, where = page) => {
   let loc;

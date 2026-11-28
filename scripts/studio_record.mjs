@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 import { spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { cpus, loadavg } from "node:os";
-import { studioChromeOptions, studioCache, studioClock } from "./studio_chrome.mjs";
+import { studioChromeOptions, studioCache, studioClock, studioHide } from "./studio_chrome.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(join(ROOT, "tools/studio/package.json"));
@@ -96,6 +96,7 @@ const context = await browser.newContext({
 });
 await studioCache(context, scenario);
 await studioClock(context, scenario);
+await studioHide(context, scenario);
 if (SLOW > 1) {
   // Le temps de la page : performance.now, Date, requestAnimationFrame et les minuteurs avancent k fois moins vite à
   // partir du chargement du document. Les animations CSS suivent par Animation.setPlaybackRate (plus bas).

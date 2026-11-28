@@ -87,3 +87,31 @@ export async function studioClock(context, scenario) {
     globalThis.Date = Shifted;
   }, { target, started: Date.now() });
 }
+
+// Textes retirés de l'image (scenario.hideTexts : débuts de texte) : un message d'information de l'outil que la personne
+// qui commande ne veut pas voir dans le tutoriel (Nicolas, Retake du 28/11/2026 sur le bandeau des Plans de tournée :
+// « supprime ce message »). Le plus petit élément dont le texte commence ainsi est masqué dès qu'il apparaît ; la page
+// se met en page sans lui, comme s'il n'existait pas. Contrôle et tournage le masquent de la même façon.
+export async function studioHide(context, scenario) {
+  const texts = (scenario.hideTexts ?? []).filter(Boolean);
+  if (!texts.length) return;
+  await context.addInitScript((wanted) => {
+    let queued = false;
+    const sweep = () => {
+      queued = false;
+      if (!document.body) return;
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        const start = n.textContent.trim();
+        if (!start || !wanted.some((w) => start.startsWith(w))) continue;
+        let el = n.parentElement;
+        // Remonter jusqu'au bloc du message : son texte entier commence encore ainsi, son parent non.
+        while (el.parentElement && el.parentElement !== document.body && wanted.some((w) => el.parentElement.innerText.trim().startsWith(w))) el = el.parentElement;
+        if (el.style.display !== "none") el.style.setProperty("display", "none", "important");
+      }
+    };
+    const queue = () => { if (!queued) { queued = true; requestAnimationFrame(sweep); } };
+    new MutationObserver(queue).observe(document, { childList: true, subtree: true, characterData: true });
+    document.addEventListener("DOMContentLoaded", queue);
+  }, texts);
+}
