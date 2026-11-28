@@ -2,6 +2,9 @@
 
 Credentials come from MUX_TOKEN_ID and MUX_TOKEN_SECRET, read from
 ~/.config/montage-video/mux_tokens by scripts/with_secrets.sh. They are never printed.
+
+Every publication ends with the video's Retake review link (scripts/retake_link.py), saved under "retake" in the
+metadata file: the reviewer annotates the Mux render online and clicks « Terminé » to send the review back.
 """
 
 from __future__ import annotations
@@ -17,6 +20,8 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+
+from retake_link import create_review
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -79,6 +84,7 @@ def main() -> None:
     parser.add_argument("--max-resolution", default="2160p", choices=["1080p", "1440p", "2160p"])
     parser.add_argument("--title", required=True)
     parser.add_argument("--metadata-output", type=Path, help="Defaults to output/<video name>.mux.json")
+    parser.add_argument("--revue-precedente", help="Retake: .mux.json of the previous version, or its review id rv_…")
     parser.add_argument("--check-auth", action="store_true")
     args = parser.parse_args()
     video = args.video.resolve()
@@ -171,6 +177,12 @@ def main() -> None:
     print(f"Public MP4: {result['mp4_url']}")
     print(f"Public HLS: {result['hls_url']}")
     print(f"Saved metadata: {output}")
+    try:
+        review = create_review(output, args.revue_precedente, video)
+    except (RuntimeError, SystemExit, OSError) as exc:
+        raise SystemExit(f"Video published, but its Retake link failed: {exc}. Fix it, then run "
+                         f"python3 scripts/retake_link.py --mux {output}") from None
+    print(f"Lien de relecture Retake : {review['url']}")
 
 
 if __name__ == "__main__":

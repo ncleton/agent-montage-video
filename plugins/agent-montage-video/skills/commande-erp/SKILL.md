@@ -32,11 +32,14 @@ par la personne. Tu l'exécutes ici, avec les outils de ce dépôt, et tu ne re�
       (`styles/<style>/README.md`). Vidéo pédagogique : skill `motion-explainer`, et `meet-video-pedagogique` pour une
       réunion enregistrée. Appels d'offres : le skill d'Oscar transmis dans `order.json` et `kits/ao-essentiel`.
       Tutoriel d'un outil de l'ERP (`brief.interface`) : skill `studio-de-tournage`.
+      Poste Linux sans carte graphique (VPS des agents) : la voix VoiceStudio part au Mac mini, skill
+      `voix-sur-le-mac`.
 - [ ] À chaque étape : `report progress --step "…" --percent N --eta <secondes>`, avec `--checkpoint
       work/checkpoint.json` (étapes faites, tranches rendues) et une image d'aperçu (`--preview`) quand elle existe.
 - [ ] Publier la vidéo vérifiée : `scripts/with_secrets.sh python3 scripts/publish_mux.py --video out/<film>.mp4
       --title "<titre du bon>" --metadata-output out/<film>.mux.json` (la personne a accepté la publication Mux en
-      validant le bon).
+      validant le bon). La publication écrit aussi le lien de relecture Retake du rendu (skill `retake`) ; pour une
+      version définitive (`brief.revision_of`), ajouter `--revue-precedente` avec le `.mux.json` du premier jet.
       Compte Mux plein (« Free plan is limited to 10 assets ») : ne pas échouer. Nicolas a demandé de retirer les
       anciennes versions (21/11/2026). Lister les vidéos Mux ; une **ancienne version** est une vidéo remplacée par une
       plus récente du même sujet (titre en v1 quand une v2 existe, premier jet remplacé par sa version définitive).
@@ -66,6 +69,13 @@ par la personne. Tu l'exécutes ici, avec les outils de ce dépôt, et tu ne re�
   remplace dans sa leçon ; ne le supprimer que lorsqu'aucune leçon ne l'utilise.
 - Le dossier du premier jet manque (autre poste, nettoyé) : `report fail` avec cette raison exacte ; ne jamais
   retourner une vidéo pour éviter l'échec sans le dire.
+- **Corrections d'une relecture Retake** : un bon avec `revision_of` dont la première décision commence par
+  « Corrections demandées dans Retake » vient du bouton Terminé de Retake en ligne. Reprendre le projet de
+  `revision_of` comme ci-dessus, récupérer la revue (`python3 scripts/retake_fetch.py rv_…`, l'identifiant est dans la
+  décision), la traiter avec le skill `retake` (`ingest_review.py`), corriger chaque point sans refaire le reste, garder
+  la voix du bon, publier avec `--revue-precedente` sur le `.mux.json` de `revision_of`, et répondre point par point
+  dans le résumé. Ouvrir Retake ou préparer une relecture n'est jamais une commande : le lien de relecture sort de
+  chaque publication.
 
 ## Questions : une seule série, à la personne
 

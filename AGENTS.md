@@ -8,7 +8,8 @@ FFmpeg, vérification image par image et publication Mux.
 Il tourne sur le poste de montage, le Mac mini de Tony (Apple Silicon, rendu sur le GPU), où un service
 permanent prend les commandes de l'ERP (voir « Commandes de l'ERP »). Les mêmes outils marchent sur un Mac
 ou un PC de l'équipe qui installe le plugin, et sous Linux sans écran (`scripts/setup_linux.sh`, rendu
-logiciel plus lent).
+logiciel plus lent). Sur le VPS des agents (Linux, sans carte graphique), seule la voix VoiceStudio part au Mac
+mini par un tunnel SSH : skill `voix-sur-le-mac`.
 
 ## Commandes de l'ERP : le poste de montage
 
@@ -129,6 +130,7 @@ pas en silence vers une autre si celle choisie échoue : donne l'erreur exacte.
 - Écart entre deux répliques consécutives : 0,6 à 0,9 s. Une pause plus longue
   n'est permise que pour un effet dramatique voulu. Vérifie le tableau complet des
   répliques avant le rendu.
+- Sous Linux sans carte graphique, la voix VoiceStudio se génère sur le Mac mini : skill `voix-sur-le-mac`.
 - Voix off open source VoiceStudio (VoxCPM2) : une génération par scène, sans
   consigne de ton ni ralentissement, 20 pas, guidage 1,7, meilleure de trois prises,
   respirations ajoutées à la ponctuation et un seul gain pour la séquence, avec
@@ -165,7 +167,8 @@ plus lent. Règles :
 Les clés sont dans des fichiers locaux lisibles par le seul utilisateur, dans
 `~/.config/montage-video/` : `mux_tokens` (lignes `MUX_TOKEN_ID=` et
 `MUX_TOKEN_SECRET=`, jeton « Agent Montage vidéo » du compte Mux Rossini Energy,
-environnement Outil AO) et `elevenlabs_api_key` (la clé seule). Elles sont
+environnement Outil AO), `elevenlabs_api_key` (la clé seule) et `retake.json`
+(Retake en ligne, skill `retake`). Elles sont
 injectées seulement dans la commande qui en a besoin : lance toute commande qui
 utilise ElevenLabs ou Mux à travers `scripts/with_secrets.sh` :
 
@@ -237,6 +240,11 @@ résolution maximale 2160p (en « basic » ou « plus », Mux pixelise les zooms
 aplats, constaté sur la vidéo agents IA). Donner le lien `highest.mp4`, qui sert
 toujours la meilleure qualité. Publie seulement une vidéo validée par la
 vérification ci-dessous et après accord de l'utilisateur sur le titre.
+
+Chaque publication donne aussi le lien de relecture Retake du rendu
+(https://retake.rossini-ener-0158.chatgpt.site/rv_…, écrit dans le `.mux.json`) : termine
+toujours par ce lien. Le relecteur y annote la vidéo et clique sur Terminé ;
+`scripts/retake_fetch.py` récupère alors son dossier (skill `retake`).
 
 ## Vérification avant livraison
 

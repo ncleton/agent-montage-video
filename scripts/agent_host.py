@@ -3,12 +3,12 @@
 
 Règle de l'ERP « commandes entre agents » (rossini-erp 1.20.0, agent-orders.md, critère A25) : un agent de l'ERP
 (Apolline en Formation, Margaux aux Appels d'offres) commande une vidéo à Oscar par un bon de commande écrit, validé
-par la personne. Ce service, lancé en permanence par launchd sur le poste de montage, prend ces commandes à son tour
+par la personne. Ce service, lancé en permanence par launchd (Mac) ou systemd (Linux) sur le poste de montage, prend ces commandes à son tour
 avec le jeton du poste, ne reçoit que le paquet de la commande (bon, sources, consignes et skills d'Oscar pour
 l'espace), lance Codex dans ce dépôt pour faire la vidéo, garde l'ordinateur éveillé pendant le travail et rend le
 résultat mesuré ici, jamais déclaré.
 
-    python3 scripts/agent_host.py serve      # le service (launchd : scripts/install_agent_host.sh)
+    python3 scripts/agent_host.py serve      # le service (launchd ou systemd : scripts/install_agent_host.sh)
     python3 scripts/agent_host.py status     # configuration, serveurs, places libres
     python3 scripts/agent_host.py report progress --step "Voix" --percent 40 [--eta 1800] [--checkpoint f.json] [--preview img.jpg]
     python3 scripts/agent_host.py report ask --questions questions.json
@@ -182,18 +182,31 @@ def download(server: dict, order: str, lease: str, index: int, target: Path) -> 
 
 def machine_info() -> dict:
     info = {"version": VERSION, "hostname": socket.gethostname(), "cpu": os.cpu_count()}
-    try:
-        page = int(subprocess.run(["sysctl", "-n", "hw.pagesize"], capture_output=True, text=True).stdout.strip())
-        stats = subprocess.run(["vm_stat"], capture_output=True, text=True).stdout
-        pages = 0
-        for line in stats.splitlines():
-            key, _, value = line.partition(":")
-            if key.strip() in ("Pages free", "Pages inactive", "Pages speculative", "Pages purgeable"):
-                pages += int(value.strip().rstrip("."))
-        info["free_memory_bytes"] = pages * page
-        info["gpu"] = subprocess.run(["sysctl", "-n", "machdep.cpu.brand_string"], capture_output=True, text=True).stdout.strip()
-    except (OSError, ValueError):
-        pass
+    if sys.platform == "darwin":
+        try:
+            page = int(subprocess.run(["sysctl", "-n", "hw.pagesize"], capture_output=True, text=True).stdout.strip())
+            stats = subprocess.run(["vm_stat"], capture_output=True, text=True).stdout
+            pages = 0
+            for line in stats.splitlines():
+                key, _, value = line.partition(":")
+                if key.strip() in ("Pages free", "Pages inactive", "Pages speculative", "Pages purgeable"):
+                    pages += int(value.strip().rstrip("."))
+            info["free_memory_bytes"] = pages * page
+            info["gpu"] = subprocess.run(["sysctl", "-n", "machdep.cpu.brand_string"], capture_output=True, text=True).stdout.strip()
+        except (OSError, ValueError):
+            pass
+    else:
+        # Linux (the agents' VPS, 22/11/2026): memory the kernel can hand out now, and the processor's name (no GPU,
+        # software rendering).
+        try:
+            meminfo = dict(line.split(":", 1) for line in Path("/proc/meminfo").read_text().splitlines() if ":" in line)
+            info["free_memory_bytes"] = int(meminfo["MemAvailable"].split()[0]) * 1024
+            cpuinfo = Path("/proc/cpuinfo").read_text()
+            names = [line.split(":", 1)[1].strip() for line in cpuinfo.splitlines() if line.startswith("model name")]
+            if names:
+                info["gpu"] = names[0] + " (CPU, rendu logiciel)"
+        except (OSError, ValueError, KeyError):
+            pass
     # The server takes no order for a computer without room for one more render (a full disk stops it halfway).
     try:
         info["free_disk_bytes"] = shutil.disk_usage(ROOT).free
@@ -334,7 +347,8 @@ def prompt(order: dict, folder: Path, resumed: bool) -> str:
         "la décision : écris-les dans work/questions.json ([{text, why, choices:[…]}]) puis python3 scripts/agent_host.py "
         "report ask --questions work/questions.json, et arrête-toi : la commande reprendra avec les réponses.",
         "Publication : une fois la vidéo rendue et vérifiée, scripts/with_secrets.sh python3 scripts/publish_mux.py "
-        "--video out/<film>.mp4 --title \"<titre du bon>\" --metadata-output out/<film>.mux.json.",
+        "--video out/<film>.mp4 --title \"<titre du bon>\" --metadata-output out/<film>.mux.json. Elle écrit aussi le "
+        "lien de relecture Retake du rendu, que report finish ajoute au résumé.",
         "Fin : python3 scripts/agent_host.py report finish --video out/<film>.mp4 --mux out/<film>.mux.json "
         "--subtitles work/<sous-titres>.srt --summary \"ce qui a été fait, les valeurs par défaut appliquées, les sources "
         "utilisées\" [--check c1=\"mesure\" pour chaque critère ajouté]. Le script mesure la vidéo lui-même ; si le "
@@ -380,8 +394,10 @@ class Service:
             log(f"{order['id']} : téléchargement de {target.name}")
             download(server, order["id"], lease, source["index"], target)
         codex = shutil.which("codex") or str(Path.home() / ".local/bin/codex")
-        command = ["caffeinate", "-i", "-s", codex, "exec", "-C", str(ROOT), "--skip-git-repo-check",
-                   "--dangerously-bypass-approvals-and-sandbox", "-o", str(folder / "work/derniere-reponse.txt")]
+        # macOS: caffeinate keeps the Mac awake during the work. A Linux server never sleeps: Codex runs as is.
+        awake = ["caffeinate", "-i", "-s"] if shutil.which("caffeinate") else []
+        command = awake + [codex, "exec", "-C", str(ROOT), "--skip-git-repo-check",
+                           "--dangerously-bypass-approvals-and-sandbox", "-o", str(folder / "work/derniere-reponse.txt")]
         model, url = engine(self.config)
         command += ["-m", model, "-c", 'openai_base_url="%s"' % url]
         command.append(prompt(order, folder, resumed))
@@ -579,6 +595,10 @@ def report(args) -> None:
         mux = json.loads(Path(args.mux).read_text())
         if mux.get("source_sha256") and mux.get("source_file") and Path(mux["source_file"]).resolve() != video:
             fail(f"{args.mux} publie {mux['source_file']}, pas {video} : publiez la vidéo rendue.")
+        review_url = mux.get("retake", {}).get("url")
+        if not review_url:
+            fail(f"{args.mux} n'a pas de lien de relecture Retake : python3 scripts/retake_link.py --mux {args.mux}")
+        summary = args.summary if review_url in args.summary else f"{args.summary}\n\nLien de relecture (Retake) : {review_url}"
         measured = probe(video)
         review = frame_review(video, folder)
         has_subtitles, subtitle_note = subtitles(Path(args.subtitles) if args.subtitles else None)
@@ -600,7 +620,7 @@ def report(args) -> None:
                 fail(f"critère « {criterion['label']} » sans mesure : --check {criterion['id']}=\"ce qui a été constaté\"")
             checks.append({"id": criterion["id"], "label": criterion["label"], "ok": True, "measured": extra[criterion["id"]]})
         body["result"] = {
-            "summary": args.summary,
+            "summary": summary,
             "video": {"url": url, "playback_id": mux.get("playback_id"), "thumbnail_url": mux.get("thumbnail_url"),
                       **measured, "subtitles": has_subtitles, "frame_review": review},
             "checks": checks,

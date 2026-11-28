@@ -67,8 +67,28 @@ def extract(review_path, dest):
                 shutil.copyfileobj(src, out)
 
 
+def sha_from_mux(playback_id):
+    """Revue d'un lien Mux collé dans Retake en ligne : l'empreinte vient du .mux.json qui a publié cette vidéo."""
+    for meta_path in [*ROOT.glob("projects/*/out/**/*.mux.json"), *ROOT.glob("output/*.mux.json")]:
+        meta = json.loads(meta_path.read_text())
+        if meta.get("playback_id") == playback_id and meta.get("source_sha256"):
+            return meta["source_sha256"]
+    return None
+
+
 def find_render(report, explicit):
-    want = report["video"]["sha256"]
+    want = report["video"].get("sha256")
+    if not want and report["video"].get("mux"):
+        want = sha_from_mux(report["video"]["mux"])
+        if not want and not explicit:
+            fail(f"aucun .mux.json du dépôt ne publie la vidéo Mux {report['video']['mux']} relue : "
+                 "passe le rendu publié avec --video.")
+        report["video"]["sha256"] = want
+    if not want:
+        if explicit and Path(explicit).is_file():
+            print(f"Revue sans empreinte : le rendu {explicit} est pris tel quel.")
+            return Path(explicit).resolve()
+        fail("la revue ne porte ni empreinte ni vidéo Mux : passe le rendu relu avec --video.")
     if explicit:
         p = Path(explicit).resolve()
         if not p.is_file():
