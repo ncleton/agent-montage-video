@@ -347,7 +347,8 @@ def prompt(order: dict, folder: Path, resumed: bool) -> str:
         "la décision : écris-les dans work/questions.json ([{text, why, choices:[…]}]) puis python3 scripts/agent_host.py "
         "report ask --questions work/questions.json, et arrête-toi : la commande reprendra avec les réponses.",
         "Publication : une fois la vidéo rendue et vérifiée, scripts/with_secrets.sh python3 scripts/publish_mux.py "
-        "--video out/<film>.mp4 --title \"<titre du bon>\" --metadata-output out/<film>.mux.json.",
+        "--video out/<film>.mp4 --title \"<titre du bon>\" --metadata-output out/<film>.mux.json. Elle écrit aussi le "
+        "lien de relecture Retake du rendu, que report finish ajoute au résumé.",
         "Fin : python3 scripts/agent_host.py report finish --video out/<film>.mp4 --mux out/<film>.mux.json "
         "--subtitles work/<sous-titres>.srt --summary \"ce qui a été fait, les valeurs par défaut appliquées, les sources "
         "utilisées\" [--check c1=\"mesure\" pour chaque critère ajouté]. Le script mesure la vidéo lui-même ; si le "
@@ -594,6 +595,10 @@ def report(args) -> None:
         mux = json.loads(Path(args.mux).read_text())
         if mux.get("source_sha256") and mux.get("source_file") and Path(mux["source_file"]).resolve() != video:
             fail(f"{args.mux} publie {mux['source_file']}, pas {video} : publiez la vidéo rendue.")
+        review_url = mux.get("retake", {}).get("url")
+        if not review_url:
+            fail(f"{args.mux} n'a pas de lien de relecture Retake : python3 scripts/retake_link.py --mux {args.mux}")
+        summary = args.summary if review_url in args.summary else f"{args.summary}\n\nLien de relecture (Retake) : {review_url}"
         measured = probe(video)
         review = frame_review(video, folder)
         has_subtitles, subtitle_note = subtitles(Path(args.subtitles) if args.subtitles else None)
@@ -615,7 +620,7 @@ def report(args) -> None:
                 fail(f"critère « {criterion['label']} » sans mesure : --check {criterion['id']}=\"ce qui a été constaté\"")
             checks.append({"id": criterion["id"], "label": criterion["label"], "ok": True, "measured": extra[criterion["id"]]})
         body["result"] = {
-            "summary": args.summary,
+            "summary": summary,
             "video": {"url": url, "playback_id": mux.get("playback_id"), "thumbnail_url": mux.get("thumbnail_url"),
                       **measured, "subtitles": has_subtitles, "frame_review": review},
             "checks": checks,
