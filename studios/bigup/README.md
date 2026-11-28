@@ -169,3 +169,22 @@ comprennent tout de suite l'importance des filtres et des zones. »
   exploitants de Courchevel Le Praz et de La Flégère. Le fichier local `data/stations-noms-a-anonymiser.json`
   liste les noms relevés dans les textes publics et les contacts des fiches filmées. Le semis les remplace
   dans le studio. Les deux actions « Ajouter à mes prospects » peuvent ensuite être filmées avec leur confirmation.
+
+## Ajouts du 28/11/2026 (commande ord_289c07af9f11a5dbf4b0, Tournées : de la fiche à la tournée)
+
+- Liste partagée Weldom : `data/venv/bin/python seed/seed_shared_table.py --campaign 72a41e0f-a2e4-420a-8388-bfc86bccd769`
+  (299 magasins, 65 personnes réelles remplacées), puis `./score.sh` : le calque de Tournées ne pose que les lignes
+  scorées par le serveur ; sans ce passage il affiche « 0 ligne sur la carte (299 sans position sourcée) », après lui
+  « 280 lignes sur la carte (19 sans position sourcée) ». Pour la France entière : trois « Zoom out » puis un glisser
+  d'un décalage vers le haut ; un magasin se vise par son bouton « Ouvrir la fiche Weldom <ville> », présent seulement
+  s'il est dans la carte.
+- Clic sur une heure libre de Mes RDV : la grille d'heures n'existe que sur un jour sans arrêt. Les jours de S50 portent
+  chacun un passage semé (seed_tours_decembre.mjs) ; la commande a déplacé celui du vendredi 11 au jeudi 10 le temps du
+  tournage, puis l'a remis (jours-tournage.mjs prepare / remettre, dans le dossier de la commande).
+- Après « Enregistrer le rendez-vous » d'une fiche HubSpot, Bigup ouvre « Créer le rendez-vous dans HubSpot » : la
+  journée reste masquée tant qu'on ne clique ni « Créer dans HubSpot » ni « Plus tard ».
+- Après « Mes RDV » dans le rail, Bigup revient sur aujourd'hui : le bouton « Aujourd'hui » n'existe pas à ce moment.
+- Incident du 28/11 vers 4 h 12 : un bundle Remotion qui recopiait public/ (14 327 images du tournage) pendant les
+  sauvegardes de la nuit a saturé la table des fichiers (kern.num_vnodes = kern.maxvnodes) ; plus aucune commande ne se
+  lançait. Ranger les images hors de public/ (motion/frames-store) avec un lien symbolique public/frames : le bundle ne
+  copie que le lien, et render_chunks.py le suit.
